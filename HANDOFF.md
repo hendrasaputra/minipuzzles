@@ -27,16 +27,15 @@ Petals keeps seeded random presets, connected floors, fixed learning lessons, ho
 
 Local result: **110 tests pass**, and the production build creates both HTML pages with valid relative assets. Browser checks cover hub → Petals → hub, direct refresh, preserved seed/floor/Flag/mute, valid import, malformed-file rejection without mutation, and export roundtrip. See `VALIDATION.md` for evidence.
 
-Repository: https://github.com/hendrasaputra/minipuzzles. DNS for `puzzles.hensap.id` is verified. Pages cutover/live HTTPS verification is the remaining deployment step at this snapshot; update this paragraph after it completes.
+Repository: https://github.com/hendrasaputra/minipuzzles. The live collection is https://puzzles.hensap.id/ and Petals is https://puzzles.hensap.id/games/petals/. DNS and certificate checks pass, HTTPS enforcement is enabled, and both pages/assets match the tested build. The previous Pages custom-domain binding was replaced; no old-host alias is configured.
 
 Browser saves cannot follow a hostname change automatically. Use Petals' **Menu → Export save** on the old origin, then **Import save** on the new one. The progress export does not include sound preference. Old-origin data is not deleted by this restructure, but cannot be accessed by the new origin. Deployment/migration details: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Next work
 
-1. Finish and verify the domain cutover, then mark the hosting checks in TODO.
-2. Generate the first Petals icon from [its saved prompt](docs/art/prompts/petals.md). Retain raw output and exact versioned prompt/review notes.
-3. Approve silhouette, alpha edges, camera and materials at 1024/128/64px; then generate the remaining 20 icons individually.
-4. Add approved PNGs to `public/icons/` before assigning catalog URLs. No images have been generated in this restructure.
-5. Choose the next game—Traffic Garden, Crate Garden or Crystal Light are good candidates—before implementing its pure rules/levels/tests.
+1. Generate the first Petals icon from [its saved prompt](docs/art/prompts/petals.md). Retain raw output and exact versioned prompt/review notes.
+2. Approve silhouette, alpha edges, camera and materials at 1024/128/64px; then generate the remaining 20 icons individually.
+3. Add approved PNGs to `public/icons/` before assigning catalog URLs. No GPT icons have been generated in this restructure.
+4. Choose the next game—Traffic Garden, Crate Garden or Crystal Light are good candidates—before implementing its pure rules/levels/tests.
 
 Volume mode remains future work. Original design history stays in `INITIAL_IDEAS.md`; it is not the current release checklist.

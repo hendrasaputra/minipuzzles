@@ -18,11 +18,13 @@ Updated: 3 November 2026. Check items only after the relevant implementation and
 
 - [x] Rename the GitHub repository to `hendrasaputra/minipuzzles` and update its remote/links.
 
+- [x] Review Pixel Plays as an alternative and record the per-game renderer decision.
+
 ## Hosting migration
 
-- [x] Verify `puzzles.hensap.id` CNAME to `hendrasaputra.github.io` (user reports it is configured).
-- [ ] Deploy the verified hub build and attach the new Pages custom domain.
-- [ ] Confirm trusted HTTPS, enforcement, and live hub/game assets.
+- [x] Verify `puzzles.hensap.id` CNAME to `hendrasaputra.github.io`.
+- [x] Deploy the verified hub build and attach the new Pages custom domain.
+- [x] Confirm trusted HTTPS, enforcement, and live hub/game assets.
 - [x] Document that `mines.hensap.id` saves need export/import across origins.
 
 ## Next milestone: GPT artwork
@@ -33,7 +35,6 @@ Updated: 3 November 2026. Check items only after the relevant implementation and
 - [ ] Review transparency and consistency at 1024px, 128px and 64px.
 - [ ] Add approved runtime assets and catalog URLs; verify no broken requests.
 
-- [x] Review Pixel Plays as an alternative and record the per-game renderer decision.
 - [x] Adopt Iconfactory-inspired skeuomorphic craft in the saved icon direction.
 
 ## Later games

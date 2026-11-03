@@ -17,7 +17,7 @@ The `hensap.id` DNS zone uses:
 
 Use the hostname only, without `https://` or a repository path. A custom domain is configured through the repository's Pages settings/API; this Actions workflow does not use a CNAME file.
 
-Status during restructure: DNS has been verified; final Pages cutover and certificate verification follow the verified hub deployment. The existing `mines.hensap.id` binding remains until then. Account-wide Pages settings are unchanged.
+**Verified live, 3 November 2026:** `puzzles.hensap.id` passes DNS checks, has a trusted issued certificate, and enforces HTTPS. Both the hub and Petals return HTTP 200 with assets identical to the tested production build. The previous `mines.hensap.id` Pages binding has been replaced; no old-host alias/redirect is configured. Account-wide Pages settings are unchanged.
 
 [GitHub custom-domain guide](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site#configuring-a-subdomain).
 
