@@ -1,6 +1,7 @@
 import './style.css';
 import { startGame, retryGame, reveal, toggleFlag, chord, clueNeighbors, type Game } from './engine';
 import { BoardScene } from './scene';
+import { DoubleTap } from './gestures';
 import { campaign } from './campaign';
 import { nextDeduction } from './solver';
 import { readSession, writeSession, type Session } from './storage';
@@ -15,6 +16,7 @@ let active = 0, exploded = false, elapsed = 0;
 let action: Session['action'] = 'reveal';
 let levelId: string | null = campaign[0].id;
 let completed: string[] = [];
+const accessibleDoubleTap = new DoubleTap();
 let inspected: {floor:number;index:number} | undefined;
 let notice = '', storageAvailable = true;
 let lastTick = performance.now(), elapsedRemainder = 0;
@@ -55,7 +57,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <details class="accessible"><summary>Keyboard & accessible board</summary><p>Arrow keys move. Enter/Space uses the selected action; F toggles a flag; I inspects a clue; C chords the focused clue. E changes view; 1–3 selects floors. Highlighted cells belong to the inspected clue.</p><div id="accessible-board" role="grid" aria-label="Current floor"></div></details>
 <footer><span>Small steps. Clear thinking.</span><span id="seed"></span></footer>
 </main>
-<dialog id="rules"><button id="close-help" class="close" aria-label="Close instructions">×</button><p class="eyebrow">A MOMENT TO GET YOUR BEARINGS</p><h2>Make a little room<br>for clear thinking.</h2><p>Reveal every safe tile on every floor to win. A mine ends the attempt. Flags alone do not win.</p><ul><li><strong>Classic / Layered:</strong> a plain number counts the eight same-floor neighbors. Layered floors are independent.</li><li><strong>Connected:</strong> ↑ counts the 3×3 footprint on the floor immediately above; ↓ counts the floor immediately below. Both include the aligned tile, clip at edges, and exclude the clue’s own floor. Plain numbers remain local.</li><li><strong>Inspect:</strong> tap a revealed clue or select Inspect, then tap it. The highlighted cells are its exact neighborhood; View target floor reaches vertical targets.</li><li><strong>Chord:</strong> Open unflagged neighbors works when the target flags equal the clue. Wrong flags can expose a mine. Hints also assume your flags are correct. Zeros and chords use the same neighborhood as the displayed clue.</li><li><strong>Explore:</strong> drag to rotate, pinch or scroll to zoom. Focus isolates the selected floor. Exploded shows the stack; only the selected floor accepts taps.</li><li><strong>Campaign:</strong> fixed safe openings and solver-validated puzzles. Retry restores the same puzzle. Clear levels to unlock the next. Free play is random and can require guesses.</li></ul><button id="start-play" class="new-button">Let’s play</button></dialog>`;
+<dialog id="rules"><button id="close-help" class="close" aria-label="Close instructions">×</button><p class="eyebrow">A MOMENT TO GET YOUR BEARINGS</p><h2>Make a little room<br>for clear thinking.</h2><p>Reveal every safe tile on every floor to win. A mine ends the attempt. Flags alone do not win.</p><ul><li><strong>Classic / Layered:</strong> a plain number counts the eight same-floor neighbors. Layered floors are independent.</li><li><strong>Connected:</strong> ↑ counts the 3×3 footprint on the floor immediately above; ↓ counts the floor immediately below. Both include the aligned tile, clip at edges, and exclude the clue’s own floor. Plain numbers remain local.</li><li><strong>Inspect:</strong> tap a revealed clue or select Inspect, then tap it. The highlighted cells are its exact neighborhood; View target floor reaches vertical targets.</li><li><strong>Chord:</strong> double-click or double-tap a revealed number, or choose Open unflagged neighbors. Chording works when the target flags equal the clue. Wrong flags can expose a mine. Hints also assume your flags are correct. Zeros and chords use the same neighborhood as the displayed clue.</li><li><strong>Explore:</strong> drag to rotate, pinch or scroll to zoom. Focus isolates the selected floor. Exploded shows the stack; only the selected floor accepts taps.</li><li><strong>Campaign:</strong> fixed safe openings and solver-validated puzzles. Retry restores the same puzzle. Clear levels to unlock the next. Free play is random and can require guesses.</li></ul><button id="start-play" class="new-button">Let’s play</button></dialog>`;
 let scene: BoardScene | undefined;
 try { scene = new BoardScene($('scene'), act); }
 catch { $('scene').innerHTML = '<p class="webgl-error">3D graphics are unavailable.<br>Open the HTML board below to play.</p>'; document.querySelector<HTMLDetailsElement>('.accessible')!.open = true; }
@@ -74,9 +76,10 @@ function inspect(floor:number,index:number) {
 function markCompletion() {
   if (game.status === 'won' && levelId && !completed.includes(levelId)) completed.push(levelId);
 }
-function act(floor:number,index:number,flag:boolean) {
+function act(floor:number,index:number,flag:boolean,doubleTap=false) {
   if (floor !== active) return;
   const cell = game.cells[floor][index]; notice = '';
+  if (doubleTap && cell.revealed && !cell.mine) {performChord(floor,index);return;}
   if (flag || action === 'flag') toggleFlag(game,floor,index);
   else if (action === 'inspect' || cell.revealed) inspect(floor,index);
   else reveal(game,floor,index);
@@ -139,8 +142,17 @@ function drawAccessible() {
     return `<button role="gridcell" data-cell="${i}" tabindex="${i===Number(focused??0)?0:-1}" aria-label="Row ${row+1}, column ${col+1}: ${state}${target?', clue target':''}${source?', inspected clue':''}" class="${cell.revealed?'open':''} ${target?'target':''} ${source?'source':''}">${mine?'✹':cell.flagged?'⚑':cell.revealed?`${arrow}${type!=='local'?cell.adjacent:cell.adjacent||'·'}`:'◇'}</button>`;
   }).join('')}</div>`).join('');
   board.querySelectorAll<HTMLButtonElement>('button').forEach(b=>{
-    const i=Number(b.dataset.cell); b.onclick=()=>act(active,i,false);
+    const i=Number(b.dataset.cell);
+    b.onclick=e=>{
+      const cell=game.cells[active][i], eligible=e.detail>0&&cell.revealed&&!cell.mine;
+      const top=b.getBoundingClientRect().top;
+      const doubleTap=accessibleDoubleTap.tap({floor:active,index:i},performance.now(),eligible);
+      act(active,i,false,doubleTap);
+      // Keep the number under the pointer when inspection inserts content above the grid.
+      if(eligible) window.scrollBy(0,board.querySelector<HTMLElement>(`[data-cell="${i}"]`)!.getBoundingClientRect().top-top);
+    };
     b.onkeydown=e=>{
+      accessibleDoubleTap.reset();
       if(['f','i','c'].includes(e.key.toLowerCase())){e.preventDefault();if(e.key.toLowerCase()==='f')act(active,i,true);else if(e.key.toLowerCase()==='i'){inspect(active,i);draw();}else performChord(active,i);return;}
       let next=i;
       if(e.key==='ArrowRight')next=Math.min(i+1,w*game.config.height-1);else if(e.key==='ArrowLeft')next=Math.max(i-1,0);else if(e.key==='ArrowDown')next=Math.min(i+w,w*game.config.height-1);else if(e.key==='ArrowUp')next=Math.max(i-w,0);else return;
@@ -149,12 +161,12 @@ function drawAccessible() {
   });
   if(focused!==undefined)board.querySelector<HTMLButtonElement>(`[data-cell="${focused}"]`)?.focus();
 }
-function resetUI() { active=0;elapsed=0;elapsedRemainder=0;lastTick=performance.now();inspected=undefined;notice='';scene?.reset();markCompletion();draw();save(); }
+function resetUI() { accessibleDoubleTap.reset();active=0;elapsed=0;elapsedRemainder=0;lastTick=performance.now();inspected=undefined;notice='';scene?.reset();markCompletion();draw();save(); }
 function loadLevel(id:string) {const index=campaign.findIndex(l=>l.id===id);if(index<0||!unlocked(index))return;levelId=id;game=startGame(campaign[index].config);resetUI();}
 function freePlay(c:Chapter,floors=c==='classic'?1:c==='connected'?3:2) {
   levelId=null;game=startGame({width:6,height:6,mines:c==='connected'?5:6,floors:c==='connected'?3:floors,mode:c==='connected'?'connected':floors===1?'classic':'layered',...(c==='connected'?{vertical:'both' as const}:{}),seed:newSeed(),generatorVersion:1});resetUI();
 }
-function setFloor(floor:number) {if(floor<game.config.floors){active=floor;draw();save();}}
+function setFloor(floor:number) {if(floor<game.config.floors){accessibleDoubleTap.reset();active=floor;draw();save();}}
 $('retry').onclick=()=>{try {game=retryGame(game);resetUI();}catch{notice='This legacy puzzle cannot be reproduced from its seed. Choose New puzzle to continue.';draw();}};
 $('new').onclick=()=>{if(levelId){const next=campaign.findIndex(l=>l.id===levelId)+1;if(next<campaign.length)loadLevel(campaign[next].id);else freePlay('connected');}else freePlay(chapter(),game.config.floors);};
 for(const c of chapters)$(c).onclick=()=>loadLevel(campaign.find(l=>l.chapter===c)!.id);
@@ -178,6 +190,8 @@ $('hint').onclick=()=>{
 };
 const rules=$<HTMLDialogElement>('rules');$('help').onclick=()=>rules.showModal();$('close-help').onclick=$('start-play').onclick=()=>{rules.close();lastTick=performance.now();};
 window.addEventListener('keydown',e=>{if(rules.open||e.target instanceof HTMLSelectElement||e.altKey||e.ctrlKey||e.metaKey)return;if(e.key.toLowerCase()==='e'){exploded=!exploded;draw();save();}else if(/^[1-3]$/.test(e.key))setFloor(Number(e.key)-1);});
+$('accessible-board').addEventListener('pointercancel',()=>accessibleDoubleTap.reset());
+window.addEventListener('blur',()=>accessibleDoubleTap.reset());
 function tick(){$('timer').textContent=`${String(Math.floor(elapsed/60)).padStart(2,'0')}:${String(elapsed%60).padStart(2,'0')}`;}
 setInterval(()=>{const now=performance.now();if(game.status==='playing'&&!document.hidden&&!rules.open){elapsedRemainder+=Math.min(2000,now-lastTick);elapsed+=Math.floor(elapsedRemainder/1000);elapsedRemainder%=1000;tick();save();}lastTick=now;},1000);
 document.addEventListener('visibilitychange',()=>{lastTick=performance.now();save();});window.addEventListener('pagehide',save);

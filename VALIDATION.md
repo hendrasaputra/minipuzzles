@@ -56,3 +56,9 @@ Random free play may require guessing. Hints assume player flags are correct. Th
 Local saves are browser/origin-specific and can be cleared by the browser. The tested preview has all seven levels unlocked from the validation run so Connected is immediately available. Choose Retry to replay any selected level.
 
 A [production screenshot](docs/connected-preview.jpg) records an inspected upward clue in exploded view. Camera fit was also checked after reset; wheel/pinch zoom intentionally permits closer, cropped views.
+
+## Double-click / double-tap chording update
+
+The suite now has **71 passing tests**. Twelve additional cases cover matching revealed-tile taps, distinct touch pointer IDs, timing and tile/floor boundaries, hidden-first-reveal protection, drag/pinch/hold/right-click/cancel interruptions, and Classic/Connected chord integration. The existing chord engine still requires matching target flags and preserves incorrect-flag loss behavior.
+
+Browser checks on the production build confirmed a 3D double-click and an HTML-grid double-click each increased cleared tiles from 17/22 to 18/22 with a correctly flagged neighbor. Without flags, double-clicking left cleared tiles at 17/22 and displayed the flag-count requirement. The HTML-grid check also covered opening a previously closed inspector without moving the number away from the second click. Physical-device double tapping remains for hardware testing; simulated pointer sequences cover that input path.

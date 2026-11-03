@@ -21,8 +21,10 @@ export class BoardScene {
   private dimmed = false;
   private textures = new Map<string, THREE.CanvasTexture>();
   private gesture = new BoardGesture();
+  private game?: Game;
+  private active = -1;
   private hold?: ReturnType<typeof setTimeout>;
-  constructor(private host: HTMLElement, private action: (floor:number,index:number,flag:boolean)=>void) {
+  constructor(private host: HTMLElement, private action: (floor:number,index:number,flag:boolean,doubleTap?:boolean)=>void) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
@@ -45,7 +47,7 @@ export class BoardScene {
     host.addEventListener('pointercancel', this.cancel);
     host.addEventListener('contextmenu', e=>e.preventDefault());
     window.addEventListener('blur', this.cancel);
-    host.addEventListener('wheel', e=>{e.preventDefault();this.zoom=THREE.MathUtils.clamp(this.zoom-e.deltaY*.001,.75,1.65);this.resize();},{passive:false});
+    host.addEventListener('wheel', e=>{e.preventDefault();this.cancel();this.zoom=THREE.MathUtils.clamp(this.zoom-e.deltaY*.001,.75,1.65);this.resize();},{passive:false});
   }
   private material(color:string) {
     const key=color+(this.dimmed?':dim':'');
@@ -66,6 +68,8 @@ export class BoardScene {
     m.rotation.x=-Math.PI/2;m.position.y=.225;parent.add(m);
   }
   update(game:Game, active:number, exploded:boolean, inspected?:TileHit) {
+    if (game !== this.game || active !== this.active) this.cancel();
+    this.game = game; this.active = active;
     const source = inspected && game.cells[inspected.floor]?.[inspected.index]?.revealed
       && !game.cells[inspected.floor][inspected.index].mine ? inspected : undefined;
     const footprint = new Set(source ? clueNeighbors(game,source.floor,source.index).map(p=>`${p.floor}:${p.index}`) : []);
@@ -82,7 +86,7 @@ export class BoardScene {
         const hit=game.exploded?.floor===f&&game.exploded.index===i;
         const mine=cell.mine&&(cell.revealed||game.status==='lost');
         const base=this.mesh(this.tile,hit?'#ca617b':cell.revealed?'#d8d8e5':f===active?'#dc91ac':'#dfb1bf',group);
-        base.userData={floor:f,index:i};if(f===active)this.targets.push(base);
+        base.userData={floor:f,index:i,revealed:cell.revealed&&!cell.mine};if(f===active)this.targets.push(base);
         const selected=source?.floor===f&&source.index===i;
         const targeted=footprint.has(`${f}:${i}`);
         this.mesh(this.cap,hit?'#f18f9d':selected?'#efcf94':targeted?'#b8dbe0':cell.revealed?'#f4f0eb':f===active?'#f5bdce':'#efd5dc',group,0,.19);
@@ -128,7 +132,7 @@ export class BoardScene {
     if(!action)return;
     if(action.type==='rotate'){this.yaw-=action.delta*.008;this.resize();}
     else if(action.type==='zoom'){this.zoom=THREE.MathUtils.clamp(this.zoom*action.ratio,.75,1.65);this.resize();}
-    else this.action(action.tile.floor,action.tile.index,action.type==='flag');
+    else this.action(action.tile.floor,action.tile.index,action.type==='flag',action.type==='chord');
   }
   private down=(e:PointerEvent)=>{
     if(e.button!==0&&e.button!==2)return;
@@ -140,5 +144,5 @@ export class BoardScene {
   private move=(e:PointerEvent)=>{this.apply(this.gesture.move(e.pointerId,e.clientX,e.clientY));};
   private up=(e:PointerEvent)=>{clearTimeout(this.hold);this.apply(this.gesture.up(e.pointerId));};
   private cancel=()=>{clearTimeout(this.hold);this.gesture.cancel();};
-  reset(){this.yaw=Math.PI/4;this.zoom=1;this.resize();}
+  reset(){this.cancel();this.yaw=Math.PI/4;this.zoom=1;this.resize();}
 }

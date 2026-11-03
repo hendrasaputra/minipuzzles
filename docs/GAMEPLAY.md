@@ -18,7 +18,7 @@ Free play has new random seeds, fixed safe openings, 1–3 floors for Classic/La
 
 ## Controls
 
-Tap to reveal, hold or right-click to flag. Explicit Reveal / Flag / Inspect modes avoid relying on long press. Tap a revealed clue to inspect it, then choose **Open unflagged neighbors** to chord. **View target floor** selects a vertical clue's destination; outlines and HTML labels identify its exact target cells.
+Tap to reveal, hold or right-click to flag. Explicit Reveal / Flag / Inspect modes avoid relying on long press. Tap a revealed clue to inspect it. **Double-click or double-tap a revealed number** to open its unflagged neighbors when the neighboring flag count matches the clue. You can also choose **Open unflagged neighbors** in the inspector. Wrong flags can expose a mine. In Connected, arrow clues chord their indicated floor footprint. **View target floor** selects a vertical clue's destination; outlines and HTML labels identify its exact target cells.
 
 Drag to rotate, pinch/scroll to zoom, or reset the camera. Focus isolates a floor. Exploded shows the stack with inactive floors dimmed; only the selected floor accepts tile input.
 
