@@ -15,7 +15,7 @@ In the DNS zone for `hensap.id`, add:
 
 Use the hostname only: no `https://`, trailing path, or `/petal-mines`. If the provider expects a full record name, use `mines.hensap.id` instead of `mines`. Do not add conflicting A/AAAA records for that same hostname. No changes to the root domain or its nameservers are needed.
 
-The custom domain is configured in this repository's Pages settings. GitHub Actions publishes `dist/`; a repository CNAME file is not used. Once public DNS is valid and GitHub provisions the certificate, enable **Enforce HTTPS** in Pages settings.
+The custom domain is configured in this repository's Pages settings. GitHub Actions publishes `dist/`; a repository CNAME file is not used. **Live status, 3 November 2026:** public DNS validates, GitHub has issued the certificate for `mines.hensap.id`, and **Enforce HTTPS** is enabled. The game HTML, JavaScript and CSS return HTTP 200 over trusted HTTPS at https://mines.hensap.id/.
 
 DNS reference: [GitHub's custom-subdomain guide](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site#configuring-a-subdomain).
 
