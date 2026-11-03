@@ -58,3 +58,7 @@ Win/loss feedback and Next/Retry stay inside the 2D sheet. Menu, instructions an
 The normal screen contains the puzzle title, mines left, safe tiles cleared, the board, and primary actions. Floor controls appear only for multiple floors. Clue details and messages share a reserved row so the board stays still during a double tap. Puzzle settings, camera options, learning instructions, time, seed and save details are in Menu.
 
 A v2 browser-local save stores the puzzle, elapsed time, selected floor/view/action, learning level and completed lessons. Older saves migrate; invalid states are rejected. Storage failure leaves play functional and shows a warning. Saves belong to each browser and origin; localhost progress will not transfer automatically to the public domain.
+
+## Sound
+
+Short original synthesized cues mark reveals, flag changes, wins and mine hits. They start only after user interaction; there is no background loop. **Menu → Sound: on/off** mutes them and remembers the preference on this device. Audio support or device errors leave the game playable.

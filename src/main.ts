@@ -1,6 +1,7 @@
 import './style.css';
 import { startGame, retryGame, reveal, toggleFlag, chord, clueNeighbors, type Game } from './engine';
 import { BoardScene } from './scene';
+import { MinesAudio, type SoundCue } from './audio';
 import { BoardGesture, type GestureAction } from './gestures';
 import { campaign } from './campaign';
 import { BOARD_SIZES, randomConfig, findBoardSize, type BoardSizeId } from './presets';
@@ -8,6 +9,7 @@ import { nextDeduction } from './solver';
 import { readSession, writeSession, type Session } from './storage';
 
 const KEY = 'petal-save-v2';
+const sounds=new MinesAudio();
 const chapters = ['classic', 'layered', 'connected'] as const;
 type Chapter = typeof chapters[number];
 const ids = campaign.map(level => level.id);
@@ -96,7 +98,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <div id="camera-modes" class="view-controls"><button id="focus" aria-pressed="true">One floor</button><button id="explode" aria-pressed="false">All floors</button></div>
       <button id="reset-view" class="menu-row">Reset camera</button>
     </section>
-    <section class="menu-section"><button id="help" class="menu-row">How to play <span aria-hidden="true">→</span></button><button id="open-flat" class="menu-row">2D & keyboard board <span aria-hidden="true">→</span></button></section>
+    <section class="menu-section"><button id="sound-toggle" class="menu-row" aria-pressed="true">Sound: on</button><button id="help" class="menu-row">How to play <span aria-hidden="true">→</span></button><button id="open-flat" class="menu-row">2D & keyboard board <span aria-hidden="true">→</span></button></section>
     <p class="muted">Time played: <span id="timer">00:00</span></p><p id="save-state" class="muted"></p><p id="seed" class="puzzle-id"></p>
   </div>
 </dialog>
@@ -148,6 +150,9 @@ function inspect(floor:number,index:number) {
   if (!game.cells[floor][index].revealed || game.cells[floor][index].mine) { notice = 'Reveal a safe clue before inspecting its neighborhood.'; return; }
   inspected = {floor,index}; notice = '';
 }
+function moveSound(changed:boolean,cue:SoundCue) {
+  if(changed)sounds.play(game.status==='won'?'win':game.status==='lost'?'loss':cue);
+}
 function markCompletion() {
   if (game.status === 'won' && levelId && !completed.includes(levelId)) completed.push(levelId);
 }
@@ -156,13 +161,14 @@ function act(floor:number,index:number,flag:boolean,doubleTap=false) {
   const cell = game.cells[floor][index]; notice = '';
   if (doubleTap && cell.revealed && !cell.mine) {performChord(floor,index);return;}
   if (cell.revealed && !flag) inspect(floor,index);
-  else if (flag || action === 'flag') toggleFlag(game,floor,index);
-  else reveal(game,floor,index);
+  else if (flag || action === 'flag') moveSound(toggleFlag(game,floor,index),'flag');
+  else moveSound(reveal(game,floor,index),'reveal');
   markCompletion(); draw(); save();
 }
 function performChord(floor:number,index:number) {
   notice='';
-  if(!chord(game,floor,index)) {
+  const changed=chord(game,floor,index);moveSound(changed,'reveal');
+  if(!changed) {
     const cell=game.cells[floor][index];
     if(!cell.revealed) notice='Reveal a number first.';
     else if(clueNeighbors(game,floor,index).filter(p=>game.cells[p.floor][p.index].flagged).length!==cell.adjacent) notice='Flag count must match the number.';
@@ -174,6 +180,8 @@ function draw() {
   scene?.update(game,active,exploded,inspected);
   const cells=game.cells.flat(), cleared=cells.filter(c=>c.revealed&&!c.mine).length;
   const c=chapter(), level=campaign.find(l=>l.id===levelId), terminal=game.status==='won'||game.status==='lost';
+  $('sound-toggle').textContent=sounds.enabled?'Sound: on':'Sound: off';
+  $('sound-toggle').setAttribute('aria-pressed',String(sounds.enabled));
   $('mines').textContent=String(game.config.mines*game.config.floors-cells.filter(c=>c.flagged).length).padStart(2,'0');
   $('progress').textContent=`${cleared} / ${cells.length-game.config.mines*game.config.floors}`;
   $('chapter').textContent=`${c==='connected'?'Connected floors':c[0].toUpperCase()+c.slice(1)}${level?' · Learn':' · Random'}`;
@@ -298,7 +306,7 @@ $('hint').onclick=$('flat-hint').onclick=()=>{
   if(step==='contradiction'){notice='Check your flags before using Hint.';draw();return;}
   if(!step){notice='No logical move found. Check flags or try a new puzzle.';draw();return;}
   active=step.floor;
-  if(step.action==='flag')toggleFlag(game,step.floor,step.index);else reveal(game,step.floor,step.index);
+  moveSound(step.action==='flag'?toggleFlag(game,step.floor,step.index):reveal(game,step.floor,step.index),step.action==='flag'?'flag':'reveal');
   inspected=step.sources[0];notice=`Hint: ${step.action==='flag'?'flagged':'opened'} floor ${step.floor+1}, row ${Math.floor(step.index/game.config.width)+1}, column ${step.index%game.config.width+1}.`;
   markCompletion();draw();save();
 };
@@ -306,6 +314,8 @@ function openSheet(dialog:HTMLDialogElement) {
   scene?.cancelInput();cancelFlatInput();menu.close();
   dialog.showModal();lastTick=performance.now();draw();
 }
+$('sound-toggle').onclick=()=>{sounds.setEnabled(!sounds.enabled);if(sounds.enabled)sounds.play('flag');draw();};
+for(const event of ['pointerdown','pointerup','keydown'])document.addEventListener(event,()=>sounds.unlock(),{capture:true});
 $('open-menu').onclick=()=>openSheet(menu);
 $('close-menu').onclick=()=>menu.close();
 $('help').onclick=()=>openSheet(rules);

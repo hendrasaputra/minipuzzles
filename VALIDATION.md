@@ -80,3 +80,7 @@ Browser checks verified:
 - Saved Flag mode, active floor and all-floor view survive reload. Older independent random attempts are retained until the player requests a new puzzle; new multi-floor random games always use Connected.
 
 Random puzzles may require guesses. Existing learning sessions intentionally keep their fixed layouts, and saved games resume their seed rather than silently regenerating. Physical iOS/Android touch behavior and long-session hardware performance still need device testing.
+
+## Sound update
+
+The suite now has **103 passing tests across nine files**. Audio tests cover lazy gesture unlocking (no page-load playback), all four finite cues and voice cleanup, saved mute and silencing active voices, mute during pending permission, missing audio support, rejected resumes and storage/device failures. The production build passes. Browser checks confirmed Sound on/off, mute persistence after reload, re-enabling and a normal flag/hint action without console warnings/errors. Exported WAV previews use the same note data; waveform checks verify finite, non-silent, unclipped samples. Physical speaker/headphone loudness and mobile audio routing were not checked.

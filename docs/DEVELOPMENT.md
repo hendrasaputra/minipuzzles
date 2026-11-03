@@ -26,6 +26,7 @@ Deploy `dist/` to a static host. Serve over HTTP(S), rather than opening the HTM
 - `src/presets.ts`: Windows-style board sizes and random multi-floor topology.
 - `src/camera.ts`: zoom limits, camera fitting and pan math.
 - `src/scene.ts`: instanced geometry/glyphs, inspection highlights, camera and active-floor picking.
+- `src/audio.ts`: original Web Audio cues, gesture unlocking, finite voice cleanup and saved mute preference.
 - `src/main.ts`: UI, progression, hints and browser storage.
 
 Run `npm test` and `npm run build`. See [validation report](../VALIDATION.md) for test coverage, browser checks and limits. The build has a non-blocking chunk-size warning for Three.js (approximately 134 kB gzip).
