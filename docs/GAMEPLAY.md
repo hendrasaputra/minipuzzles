@@ -1,4 +1,4 @@
-# Playing Petal
+# Playing Mines
 
 ## Random puzzles
 

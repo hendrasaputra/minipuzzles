@@ -43,7 +43,7 @@ if(!levelId&&game.config.floors>1&&game.config.mode!=='connected'){
 }
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <header class="topbar">
-  <span class="brand"><span class="brand-cube" aria-hidden="true"></span>petal</span>
+  <span class="brand"><span class="brand-cube" aria-hidden="true"></span>Mines</span>
   <button id="open-menu" class="menu-button" aria-haspopup="dialog">Menu</button>
 </header>
 <main class="game-shell">

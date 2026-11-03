@@ -1,6 +1,6 @@
 # Development guide
 
-Petal is a standalone, mobile-first Three.js + TypeScript + Vite game with original procedural pink voxel geometry and a quiet pastel interface. No account, backend, runtime CDN or downloaded assets are required.
+Mines is a standalone, mobile-first Three.js + TypeScript + Vite game with original procedural pink voxel geometry and a quiet pastel interface. No account, backend, runtime CDN or downloaded assets are required.
 
 ## Local setup
 

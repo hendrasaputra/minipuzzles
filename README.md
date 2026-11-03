@@ -1,4 +1,4 @@
-# Petal · 3D Minesweeper
+# Mines · 3D Minesweeper
 
 A mobile-first Minesweeper game set on floating pastel islands. Built with Three.js, TypeScript, and Vite.
 
