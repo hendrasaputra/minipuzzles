@@ -18,7 +18,7 @@ export class DoubleTap {
 }
 export type GestureAction =
   | { type: 'tap' | 'flag' | 'chord'; tile: TileHit }
-  | { type: 'rotate'; delta: number }
+  | { type: 'drag'; dx: number; dy: number }
   | { type: 'zoom'; ratio: number };
 
 /** Pointer state stays independent of WebGL so interrupted touch sequences are testable. */
@@ -58,7 +58,7 @@ export class BoardGesture {
     }
     if (!this.press || this.press.id !== id || this.multiTouch) return;
     if (Math.hypot(x - this.press.x, y - this.press.y) > 8) { this.press.dragged = true; this.doubleTap.reset(); }
-    if (this.press.dragged) return { type: 'rotate', delta: x - old.x };
+    if (this.press.dragged) return { type: 'drag', dx: x - old.x, dy: y - old.y };
   }
 
   up(id: number, time = performance.now()): GestureAction | undefined {

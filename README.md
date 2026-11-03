@@ -5,10 +5,10 @@ A mobile-first Minesweeper game set on floating pastel islands. Built with Three
 **[Play at mines.hensap.id](https://mines.hensap.id/)**
 
 - **Classic:** familiar Minesweeper on one board.
-- **Layered:** independent puzzles across multiple floors.
-- **Connected:** follow upward and downward clues between floors.
+- **Connected:** linked puzzles across two or three floors.
+- **Learn:** seven fixed lessons, from simple boards to cross-floor clues.
 
-Includes seven no-guess campaign levels, random free play, touch and keyboard controls, and local saves. Volume mode is planned.
+Fresh seeded puzzles in Small, Beginner, Intermediate, and Expert sizes. Includes touch and keyboard controls, zoom/pan, and local saves. Learning levels need no guesses; random puzzles may. Volume mode is planned.
 
 ## Run locally
 

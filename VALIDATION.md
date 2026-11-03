@@ -62,3 +62,21 @@ A [production screenshot](docs/connected-preview.jpg) records an inspected upwar
 The suite now has **71 passing tests**. Twelve additional cases cover matching revealed-tile taps, distinct touch pointer IDs, timing and tile/floor boundaries, hidden-first-reveal protection, drag/pinch/hold/right-click/cancel interruptions, and Classic/Connected chord integration. The existing chord engine still requires matching target flags and preserves incorrect-flag loss behavior.
 
 Browser checks on the production build confirmed a 3D double-click and an HTML-grid double-click each increased cleared tiles from 17/22 to 18/22 with a correctly flagged neighbor. Without flags, double-clicking left cleared tiles at 17/22 and displayed the flag-count requirement. The HTML-grid check also covered opening a previously closed inspector without moving the number away from the second click. Physical-device double tapping remains for hardware testing; simulated pointer sequences cover that input path.
+
+## Simplified touch UI and random-board update
+
+The current suite has **95 passing tests across eight files**. Added coverage includes Windows-style presets, 30-column validation, different seeded mine/clue layouts, Expert three-floor save/restore, 8× camera zoom/pan math, and active-floor instanced picking. A 30×16×3 hidden board batches 1,440 tiles into nine meshes in the renderer test.
+
+The play screen now has Menu plus large Reveal / Flag / Hint controls, with floor buttons only when needed. Primary controls measure 52–56px; floor/clue controls are at least 44px. The main page fits at 320×568, 390×844 and 844×390 without page scrolling or horizontal overflow. Menu/Rules pause timing; the independently playable 2D sheet retains its own modes, hints, floor selection, clue actions, terminal feedback and focus recovery.
+
+Browser checks verified:
+
+- A fresh origin starts in Random Beginner 9×9. New random puzzle changes the full seed; Retry preserves it.
+- Connected floors are available before completing lessons. Small, Beginner, Intermediate and Expert create 6×6, 9×9, 16×16 and 30×16 boards with 6, 10, 40 and 99 mines per floor. Three-floor Expert displays 297 mines and 1,143 safe cells.
+- Expert zoom and drag-pan leave revealed counts unchanged. Camera reset restores the overview; unit tests cover fitting and both-axis pan without auto-fit cancelling zoom.
+- A 650ms hold flags once without revealing or selecting text on both the 3D and 2D boards. Double-click chording still increases the classic fixture from 17/22 to 18/22 afterward. Selection/callout suppression is scoped to play surfaces and controls; help/seed text remains selectable.
+- Connected inspection reaches the adjacent floor and highlights the exact nine-cell footprint. An edge downward clue clips to six targets.
+- The entire seven-lesson learning sequence completes through the 2D sheet's visible Hint/Next controls. Keyboard Enter in Flag mode flags a cell; F toggles it back. 2D loss exposes an in-sheet Retry and restores the same opening; completion focuses Continue.
+- Saved Flag mode, active floor and all-floor view survive reload. Older independent random attempts are retained until the player requests a new puzzle; new multi-floor random games always use Connected.
+
+Random puzzles may require guesses. Existing learning sessions intentionally keep their fixed layouts, and saved games resume their seed rather than silently regenerating. Physical iOS/Android touch behavior and long-session hardware performance still need device testing.

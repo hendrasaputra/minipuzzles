@@ -28,7 +28,7 @@ describe('board gestures', () => {
   it('never turns a drag into a tap or hold, even after dragging back', () => {
     const gesture = new BoardGesture();
     gesture.down(1, 20, 20, 0, tile);
-    expect(gesture.move(1, 30, 20)).toEqual({ type: 'rotate', delta: 10 });
+    expect(gesture.move(1, 30, 20)).toEqual({ type: 'drag', dx: 10, dy: 0 });
     gesture.move(1, 20, 20);
     expect(gesture.hold()).toBeUndefined();
     expect(gesture.up(1)).toBeUndefined();
@@ -131,4 +131,13 @@ describe('double-tap input integration', () => {
     expect(hiddenSafe.every(p => game.cells[p.floor][p.index].revealed)).toBe(true);
     expect(game.status).not.toBe('lost');
   });
+});
+
+
+it('reports vertical drag distance for zoomed board panning and cancels a pending hold', () => {
+  const gesture = new BoardGesture();
+  gesture.down(1, 20, 20, 0, clue);
+  expect(gesture.move(1, 35, 50)).toEqual({ type: 'drag', dx: 15, dy: 30 });
+  expect(gesture.hold()).toBeUndefined();
+  expect(gesture.up(1)).toBeUndefined();
 });

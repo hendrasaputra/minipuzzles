@@ -349,3 +349,13 @@ it('retries won legacy and fixed puzzles without changing their layouts', () => 
   const fixed=startGame(connected);
   expect(retryGame(fixed)).toEqual(fixed);
 });
+
+
+describe('Windows Expert dimensions', () => {
+  it('accepts width 30 while rejecting unsupported width, height and floor limits', () => {
+    expect(createGame({ ...config, width: 30, height: 16, mines: 99 }).cells[0]).toHaveLength(480);
+    for (const invalid of [{ width: 31 }, { height: 25 }, { floors: 4 }]) {
+      expect(() => createGame({ ...config, ...invalid })).toThrow(RangeError);
+    }
+  });
+});

@@ -28,7 +28,7 @@ export interface Game {
 }
 
 function validConfig(config: Config): boolean {
-  return !!config && Number.isInteger(config.width) && config.width >= 2 && config.width <= 24
+  return !!config && Number.isInteger(config.width) && config.width >= 2 && config.width <= 30
     && Number.isInteger(config.height) && config.height >= 2 && config.height <= 24
     && Number.isInteger(config.floors) && config.floors >= 1 && config.floors <= 3
     && Number.isInteger(config.mines) && config.mines >= 0 && config.mines < config.width * config.height
