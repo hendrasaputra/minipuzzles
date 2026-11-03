@@ -1,5 +1,7 @@
 # Petal · 3D Minesweeper
 
+[Play at mines.hensap.id](https://mines.hensap.id/) · [GitHub](https://github.com/hendrasaputra/petal-mines) · [Deployment and DNS setup](docs/DEPLOYMENT.md)
+
 A standalone, mobile-first Three.js + TypeScript + Vite game. Original procedural pink voxel geometry and a quiet pastel interface; no account, backend, runtime CDN or downloaded assets.
 
 ## Run
