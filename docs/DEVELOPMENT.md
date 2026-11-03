@@ -1,10 +1,10 @@
 # Development guide
 
-Mines is a standalone, mobile-first Three.js + TypeScript + Vite game with original procedural pink voxel geometry and a quiet pastel interface. No account, backend, runtime CDN or downloaded assets are required.
+Puzzles uses TypeScript, Three.js and Vite. Native HTML pages keep the hub lightweight and isolate each game's resources. No framework, backend, account, runtime CDN or asset service is required.
 
-## Local setup
+## Run and verify
 
-Use Node.js 22.12+, 24, or 26+. The same commands work in macOS/Linux Terminal and Windows PowerShell:
+Node.js 22.12+, 24 or 26+. These commands work in macOS/Linux Terminal and Windows PowerShell:
 
 ```sh
 npm ci
@@ -14,29 +14,36 @@ npm run build
 npm run preview
 ```
 
-Deploy `dist/` to a static host. Serve over HTTP(S), rather than opening the HTML file directly. A phone on the same network can use the dev server's printed Network URL. Local saves belong to that browser and URL origin; changing port or device starts a separate save.
+Open `/` for the library and `/games/petals/` for the game. Serve `dist/` over HTTP(S), rather than opening files directly.
 
-## Code and verification
+## Layout
 
-- `src/engine.ts`: pure rules, topology, seeded generation, exact retry and board validation.
-- `src/solver.ts`: visible-information deductions on a copy of the game.
-- `src/campaign.ts`: fixed, versioned no-guess levels and lessons.
-- `src/storage.ts`: versioned save envelopes and migration.
-- `src/gestures.ts`: testable pointer state, separated from WebGL.
-- `src/presets.ts`: Windows-style board sizes and random multi-floor topology.
-- `src/camera.ts`: zoom limits, camera fitting and pan math.
-- `src/scene.ts`: instanced geometry/glyphs, inspection highlights, camera and active-floor picking.
-- `src/audio.ts`: original Web Audio cues, gesture unlocking, finite voice cleanup and saved mute preference.
-- `src/main.ts`: UI, progression, hints and browser storage.
+- `index.html`, `src/hub/`: the Puzzles selection page and its styles; no Three.js import.
+- `src/catalog.ts`: stable game IDs, status, links and optional reviewed icon URLs.
+- `games/petals/index.html`, `src/games/petals/main.ts`: Petals entry points and UI.
+- `src/games/petals/engine.ts`: pure Minesweeper rules, topology, seeded generation, exact retry and validation.
+- `src/games/petals/solver.ts`, `campaign.ts`: visible-information deductions and fixed learning levels.
+- `src/games/petals/presets.ts`, `storage.ts`: board sizes and validated local/file saves.
+- `src/games/petals/scene.ts`: instanced geometry, glyphs, highlights and picking.
+- `src/shared/`: reusable audio, camera math and pointer gestures. Shared gesture tests also exercise Petals fixtures.
+- `vite.config.ts`: explicit HTML inputs for every playable game.
+- `docs/art/`: shared icon direction, exact editable prompts and future review iterations.
 
-Run `npm test` and `npm run build`. See [validation report](../VALIDATION.md) for test coverage, browser checks and limits. The build has a non-blocking chunk-size warning for Three.js (approximately 134 kB gzip).
+Styles load per page. Native navigation releases a game's document, timers, listeners and audio; do not introduce a client router without a reason. Shared helpers must stay independent of any game's rule engine.
 
-[INITIAL_IDEAS.md](../INITIAL_IDEAS.md) preserves the original design document verbatim. The current scope ends at Connected. Inspired by the procedural isometric dioramas of [Pixel Plays](https://github.com/amirmushichge/pixel-plays); no source code, music or visual assets were copied.
+## Add a game
 
-## Publishing
+1. Choose a stable ID and implement its pure rules and meaningful tests under `src/games/<id>/`.
+2. Create `games/<id>/index.html` with its game entry, title and a relative `../../` hub link.
+3. Add its HTML input to Vite. Check direct load, refresh, hub navigation, touch and keyboard paths.
+4. Set the catalog entry to playable with a real relative link only after it works. Planned games have no play links.
+5. Use a distinct save key for a new game. Preserve Petals' legacy `petal-save-v2`/`v1`, `mines-sound`, campaign IDs, seeds and generator versions.
+6. Follow [the icon workflow](art/README.md); assign an icon URL only after its approved file exists.
 
-See [GitHub Pages deployment](DEPLOYMENT.md) for the workflow, custom domain and DNS instructions.
+## Saves and deployment
 
-## License
+Petals' Menu exports/imports a bounded, validated JSON session. Invalid files leave current progress intact. Sound is a shared preference; the progress export does not copy that preference.
 
-The project is distributed under the [MIT License](../LICENSE). Dependencies retain their own licenses.
+Moving the hostname does not move localStorage. Export on the old origin before cutover and import on the new origin. See [deployment](DEPLOYMENT.md) and [validation](../VALIDATION.md).
+
+The [original design](../INITIAL_IDEAS.md) is retained verbatim. Code is under [MIT](../LICENSE); dependencies keep their own licenses.

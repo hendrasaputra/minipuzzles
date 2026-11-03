@@ -1,4 +1,14 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
-// Relative assets work on a GitHub project URL and on a custom domain.
-export default defineConfig({ base: './' });
+export default defineConfig({
+  base: './',
+  build: {
+    rollupOptions: {
+      input: {
+        hub: fileURLToPath(new URL('./index.html', import.meta.url)),
+        petals: fileURLToPath(new URL('./games/petals/index.html', import.meta.url)),
+      },
+    },
+  },
+});

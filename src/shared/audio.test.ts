@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MinesAudio, MASTER_VOLUME, SOUNDS } from './audio';
+import { GameAudio, MASTER_VOLUME, SOUNDS } from './audio';
 
 function gain() {
   return { gain: { value: 0, setTargetAtTime: vi.fn(), setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() }, connect: vi.fn(), disconnect: vi.fn() };
@@ -29,7 +29,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('game sounds', () => {
   it('stays silent on page load and reuses one lazily unlocked audio context', () => {
-    const audio = new MinesAudio();
+    const audio = new GameAudio();
     expect(FakeContext.instances).toHaveLength(0);
     audio.unlock(); audio.unlock();
     expect(FakeContext.instances).toHaveLength(1);
@@ -38,7 +38,7 @@ describe('game sounds', () => {
   });
 
   it.each(['reveal', 'flag', 'win', 'loss'] as const)('schedules and cleans up the finite %s cue', cue => {
-    new MinesAudio().play(cue);
+    new GameAudio().play(cue);
     const ctx = FakeContext.instances[0];
     expect(ctx.gains[0].gain.value).toBe(MASTER_VOLUME);
     expect(ctx.tones).toHaveLength(SOUNDS[cue].length);
@@ -55,7 +55,7 @@ describe('game sounds', () => {
   });
 
   it('persists mute, silences active voices, and does not schedule muted cues', () => {
-    const audio = new MinesAudio(); audio.play('win');
+    const audio = new GameAudio(); audio.play('win');
     const ctx = FakeContext.instances[0], count = ctx.tones.length;
     audio.setEnabled(false); audio.play('reveal');
     expect(storage.setItem).toHaveBeenCalledWith('mines-sound', 'off');
@@ -64,12 +64,12 @@ describe('game sounds', () => {
     audio.setEnabled(true); audio.play('flag');
     expect(ctx.tones.length).toBeGreaterThan(count);
     storage.getItem.mockReturnValue('off');
-    const muted = new MinesAudio(); muted.unlock(); muted.play('loss');
+    const muted = new GameAudio(); muted.unlock(); muted.play('loss');
     expect(muted.enabled).toBe(false); expect(FakeContext.instances).toHaveLength(1);
   });
 
   it('waits for audio permission and does not play a pending cue after muting', async () => {
-    const audio = new MinesAudio(); audio.unlock();
+    const audio = new GameAudio(); audio.unlock();
     const ctx = FakeContext.instances[0]; ctx.state = 'suspended';
     let resume!: () => void;
     const permission = new Promise<void>(resolve => { resume = () => { ctx.state = 'running'; resolve(); }; });
@@ -84,7 +84,7 @@ describe('game sounds', () => {
     storage.getItem.mockImplementation(() => { throw new Error('storage unavailable'); });
     storage.setItem.mockImplementation(() => { throw new Error('storage unavailable'); });
     vi.stubGlobal('AudioContext', undefined);
-    const audio = new MinesAudio();
+    const audio = new GameAudio();
     expect(() => { audio.play('win'); audio.setEnabled(false); }).not.toThrow();
     vi.stubGlobal('AudioContext', class { constructor() { throw new Error('device unavailable'); } });
     audio.setEnabled(true);

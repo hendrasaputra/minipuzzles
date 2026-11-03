@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createGame, reveal, toggleFlag } from './engine';
-import { readSession, writeSession, type Session } from './storage';
+import { createGame, startGame, reveal, toggleFlag } from './engine';
+import { readSession, readTransfer, MAX_SAVE_BYTES, writeSession, type Session } from './storage';
 
 const known = ['classic-1', 'layered-1', 'connected-1'];
 function session(): Session {
@@ -59,5 +59,47 @@ describe('versioned browser sessions', () => {
     const negative = readSession(JSON.stringify({ ...session(), active: -2, elapsed: -10 }), known)!;
     expect(negative).toMatchObject({ active: 0, elapsed: 0 });
     expect(readSession(JSON.stringify({ ...session(), elapsed: 9.9 }), known)!.elapsed).toBe(9);
+  });
+});
+
+
+describe('portable Petals save files', () => {
+  const config = { width: 5, height: 5, floors: 1, mines: 3, mode: 'classic' as const, seed: 'transfer-lesson', firstReveal: [12], generatorVersion: 1 as const };
+  const levels = [{ id: 'transfer-level', config }];
+  const example = (): Session => ({ game: startGame(config), active: 0, elapsed: 42, exploded: false, action: 'flag', levelId: 'transfer-level', completed: [] });
+
+  it('round trips an exported fixed game without changing its clues, flags or time', () => {
+    const saved = example();
+    const hidden = saved.game.cells[0].findIndex(cell => !cell.revealed);
+    toggleFlag(saved.game, 0, hidden);
+    expect(readTransfer(writeSession(saved), levels)).toEqual(saved);
+  });
+
+  it('accepts a valid random or legacy save without a learning level', () => {
+    const saved = { ...session(), levelId: null };
+    expect(readTransfer(writeSession(saved), levels)?.game).toEqual(saved.game);
+    expect(readTransfer(JSON.stringify({game: saved.game, active: 1, elapsed: 12}), levels)).toMatchObject({active: 1, elapsed: 12, levelId: null});
+  });
+
+  it('rejects a forged learning label and inconsistent board without mutating the source', () => {
+    const saved = example(), original = structuredClone(saved);
+    saved.game = startGame({ ...config, seed: 'different-puzzle' });
+    expect(readTransfer(writeSession(saved), levels)).toBeNull();
+    saved.game = structuredClone(original.game);
+    saved.game.cells[0][0].adjacent = 99;
+    expect(readTransfer(writeSession(saved), levels)).toBeNull();
+    expect(original).toEqual(example());
+  });
+
+  it('compares learning configuration by values rather than JSON key order', () => {
+    const saved = example();
+    saved.game.config = Object.fromEntries(Object.entries(saved.game.config).reverse()) as typeof saved.game.config;
+    expect(readTransfer(writeSession(saved), levels)?.game).toEqual(saved.game);
+  });
+
+  it('rejects malformed and oversized files before returning any replacement state', () => {
+    expect(readTransfer('{', levels)).toBeNull();
+    expect(readTransfer(' '.repeat(MAX_SAVE_BYTES + 1), levels)).toBeNull();
+    expect(readTransfer('é'.repeat(MAX_SAVE_BYTES / 2 + 1), levels)).toBeNull();
   });
 });

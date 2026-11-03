@@ -1,15 +1,15 @@
 import './style.css';
 import { startGame, retryGame, reveal, toggleFlag, chord, clueNeighbors, type Game } from './engine';
 import { BoardScene } from './scene';
-import { MinesAudio, type SoundCue } from './audio';
-import { BoardGesture, type GestureAction } from './gestures';
+import { GameAudio, type SoundCue } from '../../shared/audio';
+import { BoardGesture, type GestureAction } from '../../shared/gestures';
 import { campaign } from './campaign';
 import { BOARD_SIZES, randomConfig, findBoardSize, type BoardSizeId } from './presets';
 import { nextDeduction } from './solver';
-import { readSession, writeSession, type Session } from './storage';
+import { readSession, readTransfer, matchesLevel, MAX_SAVE_BYTES, writeSession, type Session } from './storage';
 
 const KEY = 'petal-save-v2';
-const sounds=new MinesAudio();
+const sounds=new GameAudio();
 const chapters = ['classic', 'layered', 'connected'] as const;
 type Chapter = typeof chapters[number];
 const ids = campaign.map(level => level.id);
@@ -24,28 +24,32 @@ let inspected: {floor:number;index:number} | undefined;
 let notice = '', storageAvailable = true;
 let lastTick = performance.now(), elapsedRemainder = 0;
 function newSeed() { return Array.from(crypto.getRandomValues(new Uint32Array(4)), n => n.toString(16).padStart(8,'0')).join(''); }
+function applySession(session:Session) {
+  ({game,active,elapsed,exploded,action,levelId,completed}=session);
+  if(action==='inspect')action='reveal';
+  const level=campaign.find(level=>level.id===levelId);
+  if(level&&!matchesLevel(game.config,level.config)) {
+    game=startGame(level.config);elapsed=0;active=0;
+    notice='This level was updated. Your attempt has restarted; chapter progress is kept.';
+  }
+}
+function currentSession():Session {return {game,active,elapsed,exploded,action,levelId,completed};}
+
 try {
   const raw = localStorage.getItem(KEY) ?? localStorage.getItem('petal-save-v1');
   const session = readSession(raw, ids);
-  if (session) {
-    ({game,active,elapsed,exploded,action,levelId,completed} = session);
-    // A campaign save must still describe the shipped level, including its fixed opening.
-    const level = campaign.find(l => l.id === levelId);
-    if (level && JSON.stringify(game.config) !== JSON.stringify(startGame(level.config).config)) {
-      game = startGame(level.config); elapsed = 0; active = 0;
-      notice = 'This level was updated. Your attempt has restarted; chapter progress is kept.';
-    }
-  } else if (raw) notice = 'The previous save could not be restored. A fresh puzzle is ready.';
+  if (session) applySession(session);
+  else if (raw) notice = 'The previous save could not be restored. A fresh puzzle is ready.';
 } catch { storageAvailable = false; }
 
 const $ = <T extends HTMLElement = HTMLElement>(id:string) => document.getElementById(id) as T;
-if (action === 'inspect') action = 'reveal';
 if(!levelId&&game.config.floors>1&&game.config.mode!=='connected'){
   notice='Saved independent floors. New puzzles are connected.';
 }
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <header class="topbar">
-  <span class="brand"><span class="brand-cube" aria-hidden="true"></span>Mines</span>
+  <a class="hub-back" href="../../" aria-label="Back to Puzzles">←</a>
+  <span class="brand"><span class="brand-cube" aria-hidden="true"></span>Petals</span>
   <button id="open-menu" class="menu-button" aria-haspopup="dialog">Menu</button>
 </header>
 <main class="game-shell">
@@ -99,6 +103,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <button id="reset-view" class="menu-row">Reset camera</button>
     </section>
     <section class="menu-section"><button id="sound-toggle" class="menu-row" aria-pressed="true">Sound: on</button><button id="help" class="menu-row">How to play <span aria-hidden="true">→</span></button><button id="open-flat" class="menu-row">2D & keyboard board <span aria-hidden="true">→</span></button></section>
+    <section class="menu-section" aria-label="Move saved game"><div class="menu-pair"><button id="export-save">Export save</button><button id="import-save">Import save</button></div><input id="save-file" type="file" accept=".json,application/json" aria-label="Import Petals save file" hidden><p class="muted">Export before moving to a new domain. Import the file there to keep your puzzle and lessons.</p><p id="transfer-notice" class="muted" role="status" aria-live="polite"></p></section>
     <p class="muted">Time played: <span id="timer">00:00</span></p><p id="save-state" class="muted"></p><p id="seed" class="puzzle-id"></p>
   </div>
 </dialog>
@@ -141,7 +146,7 @@ catch { $('scene').innerHTML = '<p class="webgl-error">3D graphics are unavailab
 function chapter(): Chapter { return game.config.mode === 'connected' ? 'connected' : game.config.floors > 1 ? 'layered' : 'classic'; }
 function unlocked(index:number) { return index === 0 || completed.includes(campaign[index-1].id); }
 function save() {
-  try { localStorage.setItem(KEY,writeSession({game,active,elapsed,exploded,action,levelId,completed})); }
+  try { localStorage.setItem(KEY,writeSession(currentSession())); }
   catch { storageAvailable = false; }
   $('save-state').textContent = storageAvailable ? 'Progress saved on this device.' : 'Saving unavailable. Keep this tab open.';
   $('storage-warning').hidden=storageAvailable;
@@ -314,6 +319,24 @@ function openSheet(dialog:HTMLDialogElement) {
   scene?.cancelInput();cancelFlatInput();menu.close();
   dialog.showModal();lastTick=performance.now();draw();
 }
+$('export-save').onclick=()=>{
+  const blob=new Blob([writeSession(currentSession())],{type:'application/json'});
+  const url=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=url;link.download='petals-save.json';menu.append(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  $('transfer-notice').textContent='Save file exported. Import it on the new domain to continue.';
+};
+$('import-save').onclick=()=>$('save-file').click();
+$<HTMLInputElement>('save-file').onchange=async e=>{
+  const input=e.target as HTMLInputElement,file=input.files?.[0];input.value='';
+  if(!file)return;
+  try {
+    const session=file.size<=MAX_SAVE_BYTES?readTransfer(await file.text(),campaign):null;
+    if(!session){$('transfer-notice').textContent='That file is not a valid Petals save (maximum 1 MB). Your current puzzle is unchanged.';return;}
+    scene?.cancelInput();cancelFlatInput();applySession(session);inspected=undefined;elapsedRemainder=0;lastTick=performance.now();notice='Save imported.';
+    markCompletion();draw();save();$('transfer-notice').textContent='Save imported. Your puzzle and progress are ready.';
+  }catch{$('transfer-notice').textContent='Could not read this save file. Your current puzzle is unchanged.';}
+};
 $('sound-toggle').onclick=()=>{sounds.setEnabled(!sounds.enabled);if(sounds.enabled)sounds.play('flag');draw();};
 for(const event of ['pointerdown','pointerup','keydown'])document.addEventListener(event,()=>sounds.unlock(),{capture:true});
 $('open-menu').onclick=()=>openSheet(menu);

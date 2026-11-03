@@ -1,28 +1,38 @@
-# GitHub Pages deployment
+# Deployment and domain migration
 
-- Repository: https://github.com/hendrasaputra/petal-mines
-- Workflow: https://github.com/hendrasaputra/petal-mines/actions/workflows/pages.yml
-- Pages settings: https://github.com/hendrasaputra/petal-mines/settings/pages
-- Selected custom domain: `mines.hensap.id`
+- Repository: https://github.com/hendrasaputra/minipuzzles
+- Workflow: https://github.com/hendrasaputra/minipuzzles/actions/workflows/pages.yml
+- Pages settings: https://github.com/hendrasaputra/minipuzzles/settings/pages
+- New domain: `puzzles.hensap.id`
+- Hub route: `/`
+- Petals route: `/games/petals/`
 
-## DNS record
+## DNS and Pages
 
-In the DNS zone for `hensap.id`, add:
+The `hensap.id` DNS zone uses:
 
 | Type | Name / Host | Target / Value | TTL |
 | --- | --- | --- | --- |
-| CNAME | `mines` | `hendrasaputra.github.io` | Default |
+| CNAME | `puzzles` | `hendrasaputra.github.io` | Default |
 
-Use the hostname only: no `https://`, trailing path, or `/petal-mines`. If the provider expects a full record name, use `mines.hensap.id` instead of `mines`. Do not add conflicting A/AAAA records for that same hostname. No changes to the root domain or its nameservers are needed.
+Use the hostname only, without `https://` or a repository path. A custom domain is configured through the repository's Pages settings/API; this Actions workflow does not use a CNAME file.
 
-The custom domain is configured in this repository's Pages settings. GitHub Actions publishes `dist/`; a repository CNAME file is not used. **Live status, 3 November 2026:** public DNS validates, GitHub has issued the certificate for `mines.hensap.id`, and **Enforce HTTPS** is enabled. The game HTML, JavaScript and CSS return HTTP 200 over trusted HTTPS at https://mines.hensap.id/.
+Status during restructure: DNS has been verified; final Pages cutover and certificate verification follow the verified hub deployment. The existing `mines.hensap.id` binding remains until then. Account-wide Pages settings are unchanged.
 
-DNS reference: [GitHub's custom-subdomain guide](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site#configuring-a-subdomain).
+[GitHub custom-domain guide](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site#configuring-a-subdomain).
 
-## Delivery
+## Moving a saved game
 
-Pushes to `main` run `npm ci`, all unit tests, the TypeScript/Vite production build, then deploy the artifact. Pull requests run checks without publishing. The Actions workflow uses Node.js 24 and pinned official action commits.
+Browser storage belongs to its origin, not its URL path or Git repository. Moving Petals from `/` to `/games/petals/` on the same host keeps its save and sound preference. Changing `mines.hensap.id` to `puzzles.hensap.id` cannot automatically read the old host's storage.
 
-Vite's relative asset paths support both a project subpath and the custom domain root. Progress is stored locally by browser origin, so the localhost test save will not appear automatically on `mines.hensap.id`.
+1. Before cutover, open Petals on the old host and use **Menu → Export save**.
+2. On the new host, open Petals and use **Menu → Import save**.
+3. Check the seed, floor, flags and lesson progress. Sound preference is separate; set it again if needed.
 
-The account's existing Pages domain points to a separate website. This repository uses its own custom domain; the account-wide domain configuration was left unchanged.
+Files are limited to 1MiB and validate before replacing progress. If you did not export before cutover, do not clear the old site's browser data: it remains on the device, but recovery requires access to that old-origin storage. There is no automatic old-host redirect or cross-origin save migration.
+
+## Builds
+
+Pushes to `main` run `npm ci`, tests, TypeScript checking, the Vite multi-page build and Pages deployment. Pull requests run checks without deployment. Node.js 24 and pinned official Actions are used.
+
+`dist/index.html` is the lightweight hub; `dist/games/petals/index.html` is the standalone game. Relative asset URLs support the custom-domain root and project subpaths. Deploy the complete `dist/` tree, not just its top-level HTML.

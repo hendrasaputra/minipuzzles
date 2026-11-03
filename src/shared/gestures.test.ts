@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { BoardGesture, DoubleTap } from './gestures';
-import { startGame, toggleFlag, chord, clueNeighbors } from './engine';
-import { campaign } from './campaign';
+import { startGame, toggleFlag, chord, clueNeighbors } from '../games/petals/engine';
+import { campaign } from '../games/petals/campaign';
 
 const tile = { floor: 1, index: 8 };
 describe('board gestures', () => {

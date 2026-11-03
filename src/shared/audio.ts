@@ -9,7 +9,7 @@ export const SOUNDS = {
 } as const satisfies Record<string, readonly Note[]>;
 export type SoundCue = keyof typeof SOUNDS;
 
-export class MinesAudio {
+export class GameAudio {
   enabled = true;
   private context?: AudioContext;
   private master?: GainNode;

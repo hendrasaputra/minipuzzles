@@ -1,0 +1,41 @@
+<!-- AUTONOMY DIRECTIVE — DO NOT REMOVE -->
+YOU ARE AN AUTONOMOUS CODING AGENT. EXECUTE TASKS TO COMPLETION WITHOUT ASKING FOR PERMISSION.
+DO NOT STOP TO ASK "SHOULD I PROCEED?" — PROCEED. DO NOT WAIT FOR CONFIRMATION ON OBVIOUS NEXT STEPS.
+IF BLOCKED, TRY AN ALTERNATIVE APPROACH. ONLY ASK WHEN TRULY AMBIGUOUS OR DESTRUCTIVE.
+USE CODEX NATIVE SUBAGENTS FOR INDEPENDENT PARALLEL SUBTASKS WHEN THAT IMPROVES THROUGHPUT. THIS IS COMPLEMENTARY TO OMX TEAM MODE.
+<!-- END AUTONOMY DIRECTIVE -->
+
+# Repository guidelines
+
+## Product and layout
+
+Puzzles is a collection of small browser puzzle games. Petals is the first playable game; planned catalog entries must remain clearly unavailable until implemented. Use TypeScript and Vite without adding a framework. The hub stays renderer-neutral; Petals retains Three.js. See `docs/RENDERING.md` before considering a new renderer.
+
+- `src/catalog.ts` owns stable IDs, titles, status and hub links.
+- `src/hub/` owns the selection page; avoid loading Three.js there unnecessarily.
+- `src/games/petals/` owns Minesweeper rules, scene, entry point and game-specific tests.
+- `src/shared/` contains genuinely reusable audio, camera and input helpers.
+- `games/petals/index.html` is the standalone game page. Native page navigation provides clean game teardown.
+- `docs/art/` holds the shared icon direction and editable GPT prompts.
+
+## Run and verify
+
+Use a supported Node.js version from README. These commands work in macOS/Linux Terminal and Windows PowerShell:
+
+```sh
+npm ci
+npm run dev
+npm test
+npm run build
+npm run preview
+```
+
+Keep puzzle rules independent of DOM, rendering, audio and storage. Add a small meaningful test for changed logic, then run the relevant tests and production build. Check hub/game navigation and responsive touch targets when changing UI. Do not invent playable pages, generated assets or successful verification results.
+
+## Preserve compatibility
+
+Retain existing save keys, campaign IDs, seeds and generator versions unless implementing an explicit tested migration. A cosmetic rename must not change puzzle layouts. Save imports must validate before replacing progress. Browser saves belong to an origin: a domain change requires export/import, not an assumed automatic transfer.
+
+## Scope and handoff
+
+Use existing helpers and native platform features first. Keep changes focused; avoid speculative abstractions and dependencies. Preserve `INITIAL_IDEAS.md` as the historical source. Update TODO and HANDOFF with actual completed checks, current blockers and next work. Save exact icon prompts and versioned review notes; generate no artwork during a restructure-only task. Coordinate file ownership before parallel edits. Keep primary controls touch friendly and maintain keyboard/screen-reader paths.

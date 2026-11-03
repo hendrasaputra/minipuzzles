@@ -1,4 +1,4 @@
-# Playing Mines
+# Playing Petals
 
 ## Random puzzles
 
@@ -62,3 +62,9 @@ A v2 browser-local save stores the puzzle, elapsed time, selected floor/view/act
 ## Sound
 
 Short original synthesized cues mark reveals, flag changes, wins and mine hits. They start only after user interaction; there is no background loop. **Menu → Sound: on/off** mutes them and remembers the preference on this device. Audio support or device errors leave the game playable.
+
+## Library and save transfer
+
+Petals is part of the Puzzles library at `/games/petals/`. The back arrow returns to the game shelf through native navigation; leaving saves the current session.
+
+Before changing domain/device, use **Menu → Export save**. On the destination, open Petals and choose **Menu → Import save**. JSON imports are limited to 1MiB and validate the puzzle and learning-level configuration before replacing the current session. Invalid imports preserve the current game. The export includes progress, flags, floor, view and action mode; sound preference remains device/origin-specific.

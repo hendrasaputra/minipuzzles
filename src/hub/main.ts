@@ -1,0 +1,24 @@
+import './style.css';
+import { games, type GameEntry } from '../catalog';
+
+function icon(game:GameEntry) {
+  if(game.icon)return `<span class="icon-wrap has-art"><img src="${game.icon}" alt="" width="128" height="128" loading="lazy" decoding="async"></span>`;
+  const miniature=game.id==='petals'
+    ? `<span class="mini-board">${Array.from({length:9},(_,i)=>`<span class="mini-tile ${i===4?'revealed':''}">${i===4?'1':i===2?'⚑':''}</span>`).join('')}</span>`
+    : `<span class="icon-token"><span>${game.monogram}</span></span>`;
+  return `<span class="icon-wrap" aria-hidden="true">${miniature}</span>`;
+}
+function card(game:GameEntry) {
+  const content=`${icon(game)}<h3 class="game-title" id="${game.id}-title">${game.title}</h3><span class="game-description" id="${game.id}-description">${game.description}</span><span class="game-status">${game.status==='playable'?'Play now →':'Coming later'}</span>`;
+  return game.status==='playable'&&game.href
+    ? `<a class="game-card playable" href="${game.href}" style="--accent:${game.accent}" aria-label="Play ${game.title}" aria-describedby="${game.id}-description">${content}</a>`
+    : `<article class="game-card planned" style="--accent:${game.accent}" aria-labelledby="${game.id}-title">${content}</article>`;
+}
+const playable=games.filter(game=>game.status==='playable');
+document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
+<header class="site-header"><a class="site-brand" href="./" aria-label="Puzzles home"><span class="brand-mark" aria-hidden="true">P</span>Puzzles</a><span class="availability">${playable.length} game ready to play</span></header>
+<main class="library">
+  <section class="intro"><h1>Pick a puzzle.</h1><p>Play Petals now. More little worlds are on the way.</p></section>
+  <section aria-labelledby="games-title"><div class="shelf-heading"><h2 id="games-title">The collection</h2><span>${games.length} little worlds</span></div><div class="game-grid">${games.map(card).join('')}</div></section>
+</main>
+<footer class="site-footer"><span>Pick a world. Take your time.</span><a href="https://github.com/hendrasaputra/minipuzzles">Source on GitHub ↗</a></footer>`;

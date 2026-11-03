@@ -84,3 +84,11 @@ Random puzzles may require guesses. Existing learning sessions intentionally kee
 ## Sound update
 
 The suite now has **103 passing tests across nine files**. Audio tests cover lazy gesture unlocking (no page-load playback), all four finite cues and voice cleanup, saved mute and silencing active voices, mute during pending permission, missing audio support, rejected resumes and storage/device failures. The production build passes. Browser checks confirmed Sound on/off, mute persistence after reload, re-enabling and a normal flag/hint action without console warnings/errors. Exported WAV previews use the same note data; waveform checks verify finite, non-silent, unclipped samples. Physical speaker/headphone loudness and mobile audio routing were not checked.
+
+## Collection restructure: Puzzles / Petals
+
+The relocated game and new catalog/transfer checks pass **110 tests across 10 files**. The Vite build emits a standalone hub and `/games/petals/index.html`; the hub's approximately 2kB-gzip JavaScript does not import Three.js. Petals retains its renderer/input/audio behavior and legacy save identifiers.
+
+Browser checks verified one playable and 20 planned catalog cards, native hub → Petals → hub navigation, direct game refresh, retained seed/floor/Flag/mute, and no console warnings/errors on the tested navigation path. A 9×9 Connected transfer fixture restored floor 2, Flag, All floors, elapsed 91 seconds and its seed. A malformed file was rejected without changing that seed; the exported JSON matched the imported game and session metadata.
+
+Icon artwork remains deferred: 21 draft per-game prompts plus shared Iconfactory-inspired direction are saved under `docs/art/`. Current CSS/monogram miniatures are interim artwork. The repository has been renamed to `hendrasaputra/minipuzzles`. Domain cutover is checked separately after deployment.

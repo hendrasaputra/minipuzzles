@@ -1,4 +1,4 @@
-import { restoreGame, type Game } from './engine';
+import { restoreGame, startGame, type Config, type Game } from './engine';
 
 export interface Session {
   game: Game;
@@ -42,4 +42,25 @@ export function readSession(raw: string | null, knownLevelIds: readonly string[]
 
 export function writeSession(session: Session): string {
   return JSON.stringify({ ...session, version: 2 });
+}
+
+
+export const MAX_SAVE_BYTES = 1024 * 1024;
+
+/** Imports accept the same validated v1/v2 envelopes as local saves, with a file-size bound. */
+export function readTransfer(raw: string, levels: readonly { id: string; config: Config }[]): Session | null {
+  if (new TextEncoder().encode(raw).byteLength > MAX_SAVE_BYTES) return null;
+  const session = readSession(raw, levels.map(level => level.id));
+  if (!session) return null;
+  const level = levels.find(level => level.id === session.levelId);
+  if (level && !matchesLevel(session.game.config, level.config)) return null;
+  return session;
+}
+
+
+export function matchesLevel(config: Config, level: Config): boolean {
+  const expected = startGame(level).config;
+  const signature = (value: Config) => JSON.stringify([value.width, value.height, value.mines, value.floors,
+    value.seed, value.mode, value.vertical, value.generatorVersion, value.firstReveal]);
+  return signature(config) === signature(expected);
 }

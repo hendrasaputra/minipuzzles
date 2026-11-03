@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { clueNeighbors, type Game } from './engine';
-import { BoardGesture, type GestureAction, type TileHit } from './gestures';
-import { clampZoom, dragPan, fitCamera } from './camera';
+import { BoardGesture, type GestureAction, type TileHit } from '../../shared/gestures';
+import { clampZoom, dragPan, fitCamera } from '../../shared/camera';
 
 const colors = ['#596fa2', '#558976', '#bc657a', '#8573ae', '#b07845', '#4e919c', '#7c7182', '#514454'];
 interface Batch {
