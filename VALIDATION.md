@@ -94,3 +94,32 @@ Browser checks verified one playable and 20 planned catalog cards, native hub �
 Icon artwork remains deferred: 21 draft per-game prompts plus shared Iconfactory-inspired direction are saved under `docs/art/`. Current CSS/monogram miniatures are interim artwork. The repository has been renamed to `hendrasaputra/minipuzzles`. Domain cutover is checked separately after deployment.
 
 The collection is deployed from `hendrasaputra/minipuzzles` at **https://puzzles.hensap.id/**. GitHub reports the certificate approved for that hostname and HTTPS enforcement enabled. Live hub and Petals HTML/assets match the tested multi-page build. Hub responsive checks pass at 320/390/1100px without horizontal overflow; Petals still fits 320×568 with a 48px back target and 52px Menu control.
+
+## Generated icon family
+
+All 21 catalog icons were generated with built-in GPT Image, using Petals v03 as the style/composition reference. Petals v01/v02 transparent drafts remain archived; v03 is the selected opaque app-icon master. Every other subject has an unmodified v01 master, exact request and review notes. `docs/art/assets.json` records paths, actual dimensions and SHA-256 hashes. Runtime PNGs are 384×384 exports; originals remain unmodified.
+
+Browser review checked every subject at 128px/light and 64px/dark, with the production rounded mask/backing bleed. All 42 review images and all 21 shelf images loaded at 384px natural size; no console warnings/errors or horizontal overflow at 1100px. The one-playable/20-planned catalog distinction is unchanged. Opaque corner mattes require the documented rounded mask; these are not standalone transparent cutouts.
+
+The existing 110 tests and production build pass. New art does not implement the 20 planned games. Physical-device color checks and owner aesthetic feedback remain outside this batch.
+
+Publication of this generated-icon batch is pending owner approval after automatic review rejected the commit/push. No icon-batch commit was made; the previous live deployment is unchanged.
+
+## Traffic Garden vertical slice
+
+Local verification: **152 tests across 15 files pass**, and `npm run build` emits the hub, Petals and Traffic Garden pages. The 42 new tests cover sliding legality, blockers/edges, win/undo, shortest solutions, deterministic generation/difficulty, projected picking/drag cancellation and snapping, and bounded save validation/history replay. The existing Petals tests remain passing. The only build warning is the existing large Petals/Three.js chunk; Traffic Garden's own entry is 22.02kB / 8.71kB gzip, with no added dependencies.
+
+Production-preview browser checks at localhost:4173 verified:
+
+- Easy completion in 2 moves, saved win after reload, and undo reopening play.
+- Hard completion at its 11-move par using visible hints; Medium generation with 9-move par.
+- Native car selection, arrow-key movement and direct canvas drag each update legal positions and move count. A Medium car moved from row 4 to row 3 with ArrowUp, then to row 2 with a drag.
+- Retry retains the seed; New random puzzle changes it. Difficulty, seed, selected car, progress and shared mute restore after reload. Mute toggles without console warnings/errors.
+- No horizontal or vertical page overflow at 320×568, 390×844 or 844×390. Main buttons are 52–56px tall; landscape places controls beside the board. The menu scrolls independently.
+- Hub shows two real play links and 19 planned entries. Hub → Petals → hub → Traffic Garden and direct refresh work. Existing Petals Connected progress still loads. The tested browser path has no console warnings/errors.
+
+[Mobile screenshot](docs/traffic-garden-preview.jpg). Puzzle rules, solver and generation stay independent of the Canvas renderer. Generation currently draws from 13 verified layout families with seeded scrambles; this limits structural variety. No physical iOS/Android touch or speaker checks were performed. Traffic Garden has local saves but no file transfer UI.
+
+Traffic Garden and the generated icon batch are local and uncommitted. The live site remains the previous deployment; publication awaits explicit owner approval after the icon commit/push was rejected by automatic approval review.
+
+The owner explicitly authorized publishing Traffic Garden and the icons on 4 November 2026, resolving the earlier approval block. Live deployment verification follows below.

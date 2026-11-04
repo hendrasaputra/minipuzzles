@@ -16,9 +16,9 @@ function card(game:GameEntry) {
 }
 const playable=games.filter(game=>game.status==='playable');
 document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
-<header class="site-header"><a class="site-brand" href="./" aria-label="Puzzles home"><span class="brand-mark" aria-hidden="true">P</span>Puzzles</a><span class="availability">${playable.length} game ready to play</span></header>
+<header class="site-header"><a class="site-brand" href="./" aria-label="Puzzles home"><span class="brand-mark" aria-hidden="true">P</span>Puzzles</a><span class="availability">${playable.length} ${playable.length===1?'game':'games'} ready to play</span></header>
 <main class="library">
-  <section class="intro"><h1>Pick a puzzle.</h1><p>Play Petals now. More little worlds are on the way.</p></section>
+  <section class="intro"><h1>Pick a puzzle.</h1><p>A little challenge. A moment to yourself.</p></section>
   <section aria-labelledby="games-title"><div class="shelf-heading"><h2 id="games-title">The collection</h2><span>${games.length} little worlds</span></div><div class="game-grid">${games.map(card).join('')}</div></section>
 </main>
 <footer class="site-footer"><span>Pick a world. Take your time.</span><a href="https://github.com/hendrasaputra/minipuzzles">Source on GitHub ↗</a></footer>`;

@@ -14,7 +14,7 @@ npm run build
 npm run preview
 ```
 
-Open `/` for the library and `/games/petals/` for the game. Serve `dist/` over HTTP(S), rather than opening files directly.
+Open `/` for the library `/games/petals/` for Minesweeper, and `/games/traffic-garden/` for the sliding-car puzzle. Serve `dist/` over HTTP(S), rather than opening files directly.
 
 ## Layout
 
@@ -25,6 +25,7 @@ Open `/` for the library and `/games/petals/` for the game. Serve `dist/` over H
 - `src/games/petals/solver.ts`, `campaign.ts`: visible-information deductions and fixed learning levels.
 - `src/games/petals/presets.ts`, `storage.ts`: board sizes and validated local/file saves.
 - `src/games/petals/scene.ts`: instanced geometry, glyphs, highlights and picking.
+- `games/traffic-garden/index.html`, `src/games/traffic-garden/`: pure sliding-car engine, bounded BFS solver, seeded generator, Canvas renderer, UI and validated history replay saves.
 - `src/shared/`: reusable audio, camera math and pointer gestures. Shared gesture tests also exercise Petals fixtures.
 - `vite.config.ts`: explicit HTML inputs for every playable game.
 - `docs/art/`: shared icon direction, exact editable prompts and future review iterations.

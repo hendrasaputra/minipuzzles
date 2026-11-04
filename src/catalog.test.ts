@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { games } from './catalog';
 
 describe('puzzle catalog', () => {
-  it('has unique stable IDs and a single playable Petals entry', () => {
+  it('has unique stable IDs and two playable games', () => {
     expect(games).toHaveLength(21);
     expect(new Set(games.map(game => game.id)).size).toBe(games.length);
     expect(games.filter(game => game.status === 'playable')).toEqual([
       expect.objectContaining({ id: 'petals', title: 'Petals', href: './games/petals/' }),
+      expect.objectContaining({ id: 'traffic-garden', title: 'Traffic Garden', href: './games/traffic-garden/' }),
     ]);
   });
 

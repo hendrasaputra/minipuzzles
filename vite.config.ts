@@ -8,6 +8,7 @@ export default defineConfig({
       input: {
         hub: fileURLToPath(new URL('./index.html', import.meta.url)),
         petals: fileURLToPath(new URL('./games/petals/index.html', import.meta.url)),
+        trafficGarden: fileURLToPath(new URL('./games/traffic-garden/index.html', import.meta.url)),
       },
     },
   },

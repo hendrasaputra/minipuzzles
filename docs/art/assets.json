@@ -1,0 +1,470 @@
+{
+  "reference": "docs/art/iterations/petals/v03.png",
+  "reference_version": "v03",
+  "display_contract": "Opaque square PNGs;26% rounded mask and1.025x backing bleed; not transparent cutouts.",
+  "assets": [
+    {
+      "id": "petals",
+      "version": "v03",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/petals/v03.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "07d54cd014451c500393fc22d2da20eacdf018261797b400ec6340e48ed68700",
+      "prompt": "docs/art/iterations/petals/v03.prompt.md",
+      "runtime": "public/icons/petals.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 223135,
+      "runtime_sha256": "f13854df36e22e9ff26e5ea6a09c18d0649a8159b208543412cb5f282579a309",
+      "reference": null,
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "traffic-garden",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/traffic-garden/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "953f544526f34482d789e6bae3101434be9941f3ad915dbf40a12a0bc432d82e",
+      "prompt": "docs/art/iterations/traffic-garden/v01.prompt.md",
+      "runtime": "public/icons/traffic-garden.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 230307,
+      "runtime_sha256": "4709940840371296b3efca87ccd62cdf0cd6981db3f3c8ae9e69cc4b4ade7d2f",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "crate-garden",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/crate-garden/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "4a6303ac4a2e238dceff480aec0a761f43806721706b69490991a827ae85d02e",
+      "prompt": "docs/art/iterations/crate-garden/v01.prompt.md",
+      "runtime": "public/icons/crate-garden.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 236042,
+      "runtime_sha256": "fdc36642e82db795159a33efe78938cecfa49a24ef97300478fe10b84d10e410",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "water-garden",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/water-garden/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "10f40e912f79f4a124efddd30d496526802cc8be549b158aa849fc6c7bd23293",
+      "prompt": "docs/art/iterations/water-garden/v01.prompt.md",
+      "runtime": "public/icons/water-garden.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 234899,
+      "runtime_sha256": "2b5a2e9f415ecb65c28f51b0c057fe004d340937231fd3420d1597f71a214401",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "crystal-light",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/crystal-light/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "e256d5b135fff89cf303dffe7e4c9ce1e2b3305aa33c3f793d1831ef0b921a44",
+      "prompt": "docs/art/iterations/crystal-light/v01.prompt.md",
+      "runtime": "public/icons/crystal-light.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 218551,
+      "runtime_sha256": "0f3ca5e56ffb31c6a863d2a380864303d668158b6a7ab34d8af8250678b1a2c1",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "frosty-paths",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/frosty-paths/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "f1bb0adece2f29c5e11b4eaa1d5e0aec685bba1f66d8580bf5a5240130e889fc",
+      "prompt": "docs/art/iterations/frosty-paths/v01.prompt.md",
+      "runtime": "public/icons/frosty-paths.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 222640,
+      "runtime_sha256": "1b89dfb95abc86d6c666d88e601e7f18a4f4dbd213e7cd883fd9e8cda13628d6",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "marble-workshop",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/marble-workshop/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "ba648ddfd52cc73a934e656fc1278bd4e63555937bbd96f934cd6a4024a6716e",
+      "prompt": "docs/art/iterations/marble-workshop/v01.prompt.md",
+      "runtime": "public/icons/marble-workshop.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 223328,
+      "runtime_sha256": "2b4233f05e8156f705339e58fc665e56161dcb2db048aabd4ddce9b4462b81f9",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "shadow-blocks",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/shadow-blocks/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "c1290110b5152d2d97ed45291970d720b4f473f83663afd073bc85099c545adc",
+      "prompt": "docs/art/iterations/shadow-blocks/v01.prompt.md",
+      "runtime": "public/icons/shadow-blocks.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 211862,
+      "runtime_sha256": "83d2a93f1b53fb02a6bf8c19b84171e19e0b57771ac6ba391ed19077482a9e7e",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "picture-islands",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/picture-islands/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "ecdadbf0956c3ae97ec8767a6ed3818afdd715a3f4cd1715361976fafa3449f3",
+      "prompt": "docs/art/iterations/picture-islands/v01.prompt.md",
+      "runtime": "public/icons/picture-islands.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 223869,
+      "runtime_sha256": "bd854778db743cb466b964f6055b94a7c4be77e12876298e1ef24f7dd8e1143d",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "pocket-railroads",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/pocket-railroads/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "3ab5ed1d3c7d5d585a08ab566037fe7794d33c3cb382f209b67bd6109ec89e11",
+      "prompt": "docs/art/iterations/pocket-railroads/v01.prompt.md",
+      "runtime": "public/icons/pocket-railroads.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 235303,
+      "runtime_sha256": "eef42e5b67cfb3c9a72b6097c93cd008808cf70a86ff031f64bcd680c9950358",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "robot-garden",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/robot-garden/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "2f98cfce31ed2575f1fe0bd918bd8ea74bd211d63073342dcf2777958f709516",
+      "prompt": "docs/art/iterations/robot-garden/v01.prompt.md",
+      "runtime": "public/icons/robot-garden.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 231778,
+      "runtime_sha256": "f031f7b7f406bd671750cc9247edf793114710c808f8e17e5abf82cd27890d30",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "bridge-islands",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/bridge-islands/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "83cd709c1c4242a34eef03f7fa31a7ae10a8273a4b174c9a1324fb70f3372df9",
+      "prompt": "docs/art/iterations/bridge-islands/v01.prompt.md",
+      "runtime": "public/icons/bridge-islands.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 229963,
+      "runtime_sha256": "80700ef0053fc766b7721cc18871715938d66adecd5fcf31f1719115ec826ce8",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "flip-garden",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/flip-garden/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "948d560af523f2b90cad68bd0a3ca6f25b973e5fbb9dfd956451a702ee384b39",
+      "prompt": "docs/art/iterations/flip-garden/v01.prompt.md",
+      "runtime": "public/icons/flip-garden.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 238112,
+      "runtime_sha256": "f23894be2e75236bd56d724c2c530fa04301796d2caaaa53cc89f8192bb31cf9",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "tiny-tangrams",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/tiny-tangrams/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "17ae7bf7f89038abda090e3b76888b919bf6c33b11039aba237e4baded209312",
+      "prompt": "docs/art/iterations/tiny-tangrams/v01.prompt.md",
+      "runtime": "public/icons/tiny-tangrams.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 220615,
+      "runtime_sha256": "173ecc240d94b1260bf8bc36f5eff5875f16d5cf5b7a21fa7245b942b5899cb5",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "color-stacks",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/color-stacks/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "a9ba8d51b261329ca8810c12cd620da368d6ff7de3d322c467bc72a2ac6b76b8",
+      "prompt": "docs/art/iterations/color-stacks/v01.prompt.md",
+      "runtime": "public/icons/color-stacks.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 221205,
+      "runtime_sha256": "54ce2ae8924c6245eabe27c25bbaad2179f5e8e4d2c577a1216f6a21306d91f8",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "garden-sudoku",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/garden-sudoku/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "c6bc123183009582c10abe55e049e758da37ccfce5a2c81841b1e8bdfa648714",
+      "prompt": "docs/art/iterations/garden-sudoku/v01.prompt.md",
+      "runtime": "public/icons/garden-sudoku.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 233336,
+      "runtime_sha256": "d96e7c8a8c15aaff1cf0e6b16ddd16d6a94f283ff8963ddd5cc7249503fd03ed",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "rolling-stone",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/rolling-stone/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "1141b8abd9e425a3a30f90967a80f39768315dc2814860deb278117889e2e1ab",
+      "prompt": "docs/art/iterations/rolling-stone/v01.prompt.md",
+      "runtime": "public/icons/rolling-stone.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 216273,
+      "runtime_sha256": "5e641b6450b7a8d94b33a5ca3351b1babb55f4e1591d9fe74c3e553297ccb7b1",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "stepping-stones",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/stepping-stones/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "16f5dc44d41acf5761dc8b15ed852cbf22d0499bf386b2f1aae33903d36ed03f",
+      "prompt": "docs/art/iterations/stepping-stones/v01.prompt.md",
+      "runtime": "public/icons/stepping-stones.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 227224,
+      "runtime_sha256": "68c165e9e2465714c0040d89f015018be95866aa66b14fc3cf9fd622f3c41754",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "water-balance",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/water-balance/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "59c2d2c6fffbb41fb477b7a4e67813a8e0a155d3cdd37a631a0d2bb83f5badd9",
+      "prompt": "docs/art/iterations/water-balance/v01.prompt.md",
+      "runtime": "public/icons/water-balance.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 222333,
+      "runtime_sha256": "83f8b1461aeeedd6662f17498ea1e5eca9de41bedadc4c722547c7e9cf3960e1",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "perspective-paths",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/perspective-paths/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "ebc2b70cb9cc23b456883d3040305571785d7c74f27b9458de46ee697ff10218",
+      "prompt": "docs/art/iterations/perspective-paths/v01.prompt.md",
+      "runtime": "public/icons/perspective-paths.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 224877,
+      "runtime_sha256": "dbe3473d8ab82f65ab0c94e0792ba180ad052e9ce13345fc1e18edeefecc4076",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "pocket-escape",
+      "version": "v01",
+      "generator": "built-in GPT Image",
+      "master": "docs/art/iterations/pocket-escape/v01.png",
+      "master_size": [
+        1254,
+        1254
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "da05ee2e18b0cc3ff4f738ef480243eb5006d9314ae0da7730502dece6b7b940",
+      "prompt": "docs/art/iterations/pocket-escape/v01.prompt.md",
+      "runtime": "public/icons/pocket-escape.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 229291,
+      "runtime_sha256": "ee9e086afc0d0bfcc5980f827f47a07a87e17fd6dfb48e2fdde521c1abbb8b5c",
+      "reference": "docs/art/iterations/petals/v03.png",
+      "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    }
+  ],
+  "reference_sha256": "07d54cd014451c500393fc22d2da20eacdf018261797b400ec6340e48ed68700"
+}

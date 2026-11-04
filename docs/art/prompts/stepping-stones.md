@@ -1,22 +1,22 @@
 # Stepping Stones icon prompt
 
-Status: draft · not generated or approved.
+Status: generated `v01`; technical review complete.
 
 - Catalog ID: `stepping-stones`
-- Intended reviewed asset: `public/icons/stepping-stones.png`
-- Accent: `#c4c9ad`
-- Style contract: [ICON_STYLE.md](../ICON_STYLE.md)
+- Runtime: `public/icons/stepping-stones.png`
+- Master: [unmodified v01](../iterations/stepping-stones/v01.png)
+- Exact request: [v01.prompt.md](../iterations/stepping-stones/v01.prompt.md)
+- Family reference: [Petals v03](../iterations/petals/v03.png)
+- Style: [ICON_STYLE.md](../ICON_STYLE.md)
 
-## Prompt
+## Editable prompt for future revisions
 
-Create one original premium puzzle-game app icon as a standalone 1024×1024 PNG. Use a tactile, Apple-inspired skeuomorphic rounded-square ivory ceramic base containing a miniature isometric puzzle diorama. The style is an original interpretation of carefully crafted desktop app icons, never a copy of an existing app icon or an Apple logo. Use an orthographic 30-degree elevation and 45-degree yaw, a coherent scale, softly beveled chunky geometry, subtle ceramic/wood/brass material texture, gentle ambient occlusion, and one warm soft key light from the upper left. Shadows fall consistently toward the lower right. Favor warm ivory, blush pink, muted sage, dusty blue, and warm brass; use the specified game accent sparingly. Keep the composition centered, with the icon occupying about 84% of the canvas and generous clear padding. The physical rounded-square base is opaque; everything outside the icon and its soft contact shadow is transparent. Limit the miniature to a few large readable objects, with a clear silhouette at 64×64. No title, letters, logos, badges, border frame, UI screenshot, gradients used as decoration, harsh neon, excessive gloss, or clutter. Produce exactly one icon, not a contact sheet or phone mockup.
+Create one original Stepping Stones puzzle-game app icon. The attached Petals image is a STYLE AND COMPOSITION REFERENCE ONLY, not an edit target. Completely replace its Minesweeper miniature with this new game subject: Five thick cream stepping stones curve over a shallow sage pool, with one coral stone as the starting point and one tiny brass goal peg. A faint physical groove links the stones into a single continuous path.
 
-Use the crafted skeuomorphic quality of classic Iconfactory app icons as the design reference: a distinctive miniature physical object, precise bevels, rich but restrained materials, warm believable light and a readable silhouette at 64px. Keep the original puzzle subject and the shared isometric camera. No Iconfactory/Apple logos or copied existing icon compositions. See [the shared style reference](../ICON_STYLE.md).
+Match the reference family's Iconfactory-inspired skeuomorphic craftsmanship: a distinctive physical miniature with clear silhouette, softly beveled satin ceramic and painted wood, selective warm brass, believable fine texture, controlled highlights, warm upper-left light and soft lower-right shadows. Keep the subject isometric with matching camera and comparable visual weight. Palette accent: #c4c9ad; retain warm ivory and restrained pastel harmony.
 
-Game subject: Five thick cream stepping stones curve over a shallow sage pool, with one coral stone as the starting point and one tiny brass goal peg. A faint physical groove links the stones into a single continuous path.
-
-Accent family: #c4c9ad. Preserve the shared ivory base, camera, lighting, scale and visual weight from the style contract. Make the puzzle mechanism readable through objects, not written explanation.
+Use the same opaque, square ivory ceramic backing filling the canvas like a crafted app icon. It must reach all four image edges cleanly; the website supplies the rounded-corner mask. Keep all important objects safely inside that mask. No transparent background, outside backdrop, black matte, checkerboard, floating speckles or edge remnants. No Petals flag, pip tiles or Minesweeper board unless explicitly part of the new subject. No letters, numerals, words, badges, logos, UI, watermark, device or contact sheet. A few large readable objects, recognizable at64px. Output exactly one square PNG, ideally1024×1024. Original artwork, not a reproduction of any existing app icon.
 
 ## Review notes
 
-Pending first generation. Record changes here after review; keep dated generation copies beside their resulting images as described in [the workflow](../README.md).
+Generated with the built-in tool using Petals v03. Keep the current request and master immutable; save the next modification as v02 with its exact prompt and reference input. Runtime PNG is a 384px technical export, not a retouched master.

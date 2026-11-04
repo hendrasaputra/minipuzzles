@@ -1,22 +1,26 @@
 # Tiny Tangrams icon prompt
 
-Status: draft · not generated or approved.
+Status: generated `v01`; technical review complete.
 
 - Catalog ID: `tiny-tangrams`
-- Intended reviewed asset: `public/icons/tiny-tangrams.png`
-- Accent: `#e1c59a`
-- Style contract: [ICON_STYLE.md](../ICON_STYLE.md)
+- Runtime: `public/icons/tiny-tangrams.png`
+- Master: [unmodified v01](../iterations/tiny-tangrams/v01.png)
+- Exact request: [v01.prompt.md](../iterations/tiny-tangrams/v01.prompt.md)
+- Family reference: [Petals v03](../iterations/petals/v03.png)
+- Style: [ICON_STYLE.md](../ICON_STYLE.md)
 
-## Prompt
+## Editable prompt for future revisions
 
-Create one original premium puzzle-game app icon as a standalone 1024×1024 PNG. Use a tactile, Apple-inspired skeuomorphic rounded-square ivory ceramic base containing a miniature isometric puzzle diorama. The style is an original interpretation of carefully crafted desktop app icons, never a copy of an existing app icon or an Apple logo. Use an orthographic 30-degree elevation and 45-degree yaw, a coherent scale, softly beveled chunky geometry, subtle ceramic/wood/brass material texture, gentle ambient occlusion, and one warm soft key light from the upper left. Shadows fall consistently toward the lower right. Favor warm ivory, blush pink, muted sage, dusty blue, and warm brass; use the specified game accent sparingly. Keep the composition centered, with the icon occupying about 84% of the canvas and generous clear padding. The physical rounded-square base is opaque; everything outside the icon and its soft contact shadow is transparent. Limit the miniature to a few large readable objects, with a clear silhouette at 64×64. No title, letters, logos, badges, border frame, UI screenshot, gradients used as decoration, harsh neon, excessive gloss, or clutter. Produce exactly one icon, not a contact sheet or phone mockup.
-
-Use the crafted skeuomorphic quality of classic Iconfactory app icons as the design reference: a distinctive miniature physical object, precise bevels, rich but restrained materials, warm believable light and a readable silhouette at 64px. Keep the original puzzle subject and the shared isometric camera. No Iconfactory/Apple logos or copied existing icon compositions. See [the shared style reference](../ICON_STYLE.md).
+Use case: stylized-concept
+Asset type: original skeuomorphic puzzle-game app icon for tiny-tangrams.
+Reference image role: visual style and composition reference only, not an edit target. Create a new icon for the subject below. Match the reference's handcrafted Iconfactory-inspired physical detail, warm upper-left lighting, restrained ceramic/wood/brass materials, miniature scale and coherent isometric subject. Completely replace Petals' Minesweeper board, pink covered tiles, brass flag and pip clues with this game's own subject. Do not carry over Petals-specific objects.
 
 Game subject: Three thick, softly beveled wooden tangram pieces in honey, coral, and cream fit into a simple bird-shaped recess in an ivory tray. Leave one triangular piece raised just above its obvious matching space.
 
-Accent family: #e1c59a. Preserve the shared ivory base, camera, lighting, scale and visual weight from the style contract. Make the puzzle mechanism readable through objects, not written explanation.
+Accent family: #e1c59a, with warm ivory, muted sage, coral and dusty blue as supporting colors. Use a few large distinct objects so the subject reads at 64px. Keep a clean, friendly silhouette and carefully beveled tangible materials. The subject is a small isometric miniature, approximately 30-degree elevation and 45-degree yaw.
+
+Export as one standalone opaque square app icon, ideally 1024x1024 PNG. A warm ivory ceramic backing fills the whole canvas edge to edge like a classic skeuomorphic desktop app icon. The website supplies its rounded-corner mask. No transparent pixels, black matte, outside backdrop, checkerboard, scattered flecks, text, letters, numerals, logos, watermarks, badges, interface, mockup device or contact sheet. Preserve a generous margin around the miniature so a rounded mask cannot cut it off. Use the same physical backing, visual weight and light direction as the reference. Do not turn this into flat vector art.
 
 ## Review notes
 
-Pending first generation. Record changes here after review; keep dated generation copies beside their resulting images as described in [the workflow](../README.md).
+Generated with the built-in tool using Petals v03. Keep the current request and master immutable; save the next modification as v02 with its exact prompt and reference input. Runtime PNG is a 384px technical export, not a retouched master.

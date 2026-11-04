@@ -1,22 +1,27 @@
 # Crate Garden icon prompt
 
-Status: draft · not generated or approved.
+Status: generated `v01`; technical review complete.
 
 - Catalog ID: `crate-garden`
-- Intended reviewed asset: `public/icons/crate-garden.png`
-- Accent: `#b7c7a0`
-- Style contract: [ICON_STYLE.md](../ICON_STYLE.md)
+- Runtime: `public/icons/crate-garden.png`
+- Master: [unmodified v01](../iterations/crate-garden/v01.png)
+- Exact request: [v01.prompt.md](../iterations/crate-garden/v01.prompt.md)
+- Family reference: [Petals v03](../iterations/petals/v03.png)
+- Style: [ICON_STYLE.md](../ICON_STYLE.md)
 
-## Prompt
+## Editable prompt for future revisions
 
-Create one original premium puzzle-game app icon as a standalone 1024×1024 PNG. Use a tactile, Apple-inspired skeuomorphic rounded-square ivory ceramic base containing a miniature isometric puzzle diorama. The style is an original interpretation of carefully crafted desktop app icons, never a copy of an existing app icon or an Apple logo. Use an orthographic 30-degree elevation and 45-degree yaw, a coherent scale, softly beveled chunky geometry, subtle ceramic/wood/brass material texture, gentle ambient occlusion, and one warm soft key light from the upper left. Shadows fall consistently toward the lower right. Favor warm ivory, blush pink, muted sage, dusty blue, and warm brass; use the specified game accent sparingly. Keep the composition centered, with the icon occupying about 84% of the canvas and generous clear padding. The physical rounded-square base is opaque; everything outside the icon and its soft contact shadow is transparent. Limit the miniature to a few large readable objects, with a clear silhouette at 64×64. No title, letters, logos, badges, border frame, UI screenshot, gradients used as decoration, harsh neon, excessive gloss, or clutter. Produce exactly one icon, not a contact sheet or phone mockup.
+Use case: stylized-concept
+Asset type: one production app icon for Crate Garden, part of a coordinated puzzle-game icon family.
 
-Use the crafted skeuomorphic quality of classic Iconfactory app icons as the design reference: a distinctive miniature physical object, precise bevels, rich but restrained materials, warm believable light and a readable silhouette at 64px. Keep the original puzzle subject and the shared isometric camera. No Iconfactory/Apple logos or copied existing icon compositions. See [the shared style reference](../ICON_STYLE.md).
+The provided Petals image is a STYLE AND COMPOSITION REFERENCE ONLY, not an edit target. Generate a NEW icon with the same handcrafted Iconfactory-inspired skeuomorphic quality: warm ivory ceramic backing, softly beveled chunky miniature objects, believable ceramic/painted wood/brass material texture, restrained upper-left warm lighting, subtle ambient occlusion and a soft lower-right contact shadow. Match its coherent isometric camera and subject scale.
 
-Game subject: A small moss-green square garden plot with two rounded wooden seed crates, one neatly recessed planting target, and a single sprout. One crate sits slightly off its target, making the push-puzzle action readable.
+Completely replace the reference's Minesweeper board, pink tiles, pips and coral flag with this game subject: A small moss-green square garden plot with two rounded wooden seed crates, one neatly recessed planting target, and a single sprout. One crate sits slightly off its target, making the push-puzzle action readable.
 
-Accent family: #b7c7a0. Preserve the shared ivory base, camera, lighting, scale and visual weight from the style contract. Make the puzzle mechanism readable through objects, not written explanation.
+Use the accent family #b7c7a0 within the restrained ivory, blush, sage, dusty-blue and brass palette. Keep a few large, distinctive readable objects, with a clean silhouette recognizable at64px. The puzzle must read through objects rather than written explanation. Do not carry Petals-specific objects into this new subject.
+
+Use a fully OPAQUE square warm-ivory ceramic backing extending cleanly to all four canvas edges. The backing fills the canvas like a classic skeuomorphic app icon; the website will mask the outer corners. Keep the miniature comfortably centered with room for a rounded-corner mask. No transparency, black corner matte, outside backdrop, stray speckles or isolated flecks. No title, letters, numerals, text, logos, badges, UI, watermarks or copied existing icon compositions. Do not turn it into flat vector art. One standalone square PNG, ideally1024×1024; not a contact sheet or device mockup.
 
 ## Review notes
 
-Pending first generation. Record changes here after review; keep dated generation copies beside their resulting images as described in [the workflow](../README.md).
+Generated with the built-in tool using Petals v03. Keep the current request and master immutable; save the next modification as v02 with its exact prompt and reference input. Runtime PNG is a 384px technical export, not a retouched master.

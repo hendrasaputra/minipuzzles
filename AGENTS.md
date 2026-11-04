@@ -9,11 +9,12 @@ USE CODEX NATIVE SUBAGENTS FOR INDEPENDENT PARALLEL SUBTASKS WHEN THAT IMPROVES 
 
 ## Product and layout
 
-Puzzles is a collection of small browser puzzle games. Petals is the first playable game; planned catalog entries must remain clearly unavailable until implemented. Use TypeScript and Vite without adding a framework. The hub stays renderer-neutral; Petals retains Three.js. See `docs/RENDERING.md` before considering a new renderer.
+Puzzles is a collection of small browser puzzle games. Petals and Traffic Garden are playable; planned catalog entries must remain clearly unavailable until implemented. Use TypeScript and Vite without adding a framework. The hub stays renderer-neutral; Petals retains Three.js and Traffic Garden uses Canvas 2D. See `docs/RENDERING.md` before considering a new renderer.
 
 - `src/catalog.ts` owns stable IDs, titles, status and hub links.
 - `src/hub/` owns the selection page; avoid loading Three.js there unnecessarily.
 - `src/games/petals/` owns Minesweeper rules, scene, entry point and game-specific tests.
+- `src/games/traffic-garden/` owns sliding-car rules, solver, seeded puzzles, Canvas scene, UI and validated saves.
 - `src/shared/` contains genuinely reusable audio, camera and input helpers.
 - `games/petals/index.html` is the standalone game page. Native page navigation provides clean game teardown.
 - `docs/art/` holds the shared icon direction and editable GPT prompts.

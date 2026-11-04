@@ -6,6 +6,7 @@ Reviewed 3 November 2026 for the collection restructure.
 
 - **Hub:** HTML/CSS only. It does not import Three.js or load a game renderer.
 - **Petals:** retain the working Three.js renderer, with instanced geometry, active-floor picking, 8× zoom/pan, and floor isolation/explosion.
+- **Traffic Garden:** original Canvas 2D isometric painter with a fixed 480×400 logical scene, depth-ordered car faces, face-based picking and axis-constrained drags. It shares the miniature/fixed-camera approach without copying Pixel Plays renderer source or music. Its production entry is about 22kB (9kB gzip), excluding small shared audio/preload chunks. Physical-phone frame and input checks remain pending.
 - **Future games:** choose a renderer per game. A small fixed-camera puzzle is a good candidate for a Canvas/software-renderer prototype. The page boundary does not require every game to use Three.js.
 
 ## Pixel Plays considered

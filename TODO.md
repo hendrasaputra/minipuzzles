@@ -1,6 +1,6 @@
 # Puzzles progress
 
-Updated: 3 November 2026. Check items only after the relevant implementation and verification exist.
+Updated: 4 November 2026. Check items only after the relevant implementation and verification exist.
 
 ## Current milestone: collection structure
 
@@ -27,16 +27,30 @@ Updated: 3 November 2026. Check items only after the relevant implementation and
 - [x] Confirm trusted HTTPS, enforcement, and live hub/game assets.
 - [x] Document that `mines.hensap.id` saves need export/import across origins.
 
-## Next milestone: GPT artwork
+## GPT artwork: first family
 
-- [ ] Generate and approve the Petals reference icon.
-- [ ] Record exact generation prompt, date and revision notes.
-- [ ] Generate the other 20 icons individually against the approved reference.
-- [ ] Review transparency and consistency at 1024px, 128px and 64px.
-- [ ] Add approved runtime assets and catalog URLs; verify no broken requests.
+- [x] Generate and select the Petals reference icon (v03, agent technical/art review).
+- [x] Record exact generation/edit prompts, reference inputs and revision notes.
+- [x] Generate the other 20 icons individually against the Petals reference.
+- [x] Review actual master size and 128/64px masked renders on light/dark backgrounds.
+- [x] Add reviewed runtime assets and catalog URLs; verify no broken requests.
+- [x] Owner explicitly approved publication of the icon batch and Traffic Garden on 4 November 2026.
+- [ ] Collect owner feedback and create targeted v02/v04 revisions if requested.
 
 - [x] Adopt Iconfactory-inspired skeuomorphic craft in the saved icon direction.
 
+## Traffic Garden
+
+- [x] Implement independent sliding-car rules, undo, shortest-slide solver and seeded solvable puzzles.
+- [x] Add Easy, Medium and Hard, fresh random seeds, exact retry and solver hints.
+- [x] Build a tactile fixed-camera Canvas garden with drag, large buttons and keyboard controls.
+- [x] Validate local saves by replaying legal history; use a separate game key and shared mute preference.
+- [x] Add standalone Vite entry and a real playable shelf link.
+- [x] Run 152 tests, production build and browser checks; see VALIDATION.md.
+- [ ] Verify the approved Traffic Garden/icon deployment live.
+- [ ] Check actual iOS/Android touch gestures and speaker loudness.
+- [ ] Expand the 13 verified layout families if repeated play needs more variety.
+
 ## Later games
 
-Planned entries describe ideas, not commitments or completed games. Choose the next game before implementing its rules, levels and tests. Suggested first candidates: Traffic Garden, Crate Garden, and Crystal Light. Petals Volume mode remains unimplemented.
+The remaining 19 planned entries describe ideas, not commitments or completed games. Crate Garden and Crystal Light are possible next candidates. Petals Volume mode remains unimplemented.
