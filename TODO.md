@@ -154,3 +154,7 @@ The remaining 15 planned entries describe ideas, not commitments or completed ga
 - [x] Build Robot Garden with a rotatable board, command queue, and worked example.
 - [x] Verify blocked runs, restored commands, the first dock win, and the local shelf link.
 - [ ] Review Robot Garden.
+- [x] Publish Robot Garden and verify its shelf link and worked example.
+- [x] Build Bridge Islands with a rotatable 3D board and a worked bridge example.
+- [x] Verify first-level taps, saved completion, rotation, and the local shelf link.
+- [ ] Review Bridge Islands.

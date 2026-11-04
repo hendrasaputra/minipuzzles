@@ -18,6 +18,7 @@ export default defineConfig({
         pictureIslands: fileURLToPath(new URL('./games/picture-islands/index.html', import.meta.url)),
         pocketRailroads: fileURLToPath(new URL('./games/pocket-railroads/index.html', import.meta.url)),
         robotGarden: fileURLToPath(new URL('./games/robot-garden/index.html', import.meta.url)),
+        bridgeIslands: fileURLToPath(new URL('./games/bridge-islands/index.html', import.meta.url)),
       },
     },
   },

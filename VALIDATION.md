@@ -269,3 +269,7 @@ Pocket Railroads passed the 370-test suite and production build. On a 390 × 844
 The Pocket Railroads release passed CI and deployed in Pages run 41794817158. Live browser checks found ten playable games and opened the train destination cards and visual guide.
 
 Robot Garden passed the 375-test suite and production build. Browser checks at 390 × 844 opened the example, stopped a blocked West command, restored East and North after reload, and completed the seed pickup and dock arrival. Rotating preserved the win. The local shelf opens Robot Garden as game eleven. The build retains the shared bundle size warning. Physical phone performance remains untested.
+
+Robot Garden deployed through Pages run 41796026790. The public shelf lists eleven games, and the live See example panel shows the East then North route to the seed and dock.
+
+Bridge Islands passed all 381 tests and the production build. At 320 × 568, direct island taps placed one bridge and then two parallel bridges to finish the first crossing. Reload restored the win. Rotation and the example worked, and the local shelf opened the game. The shared bundle size warning remains. Physical phone performance is untested.

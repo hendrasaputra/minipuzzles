@@ -146,3 +146,7 @@ Pocket Railroads is game ten on the local shelf. Its rules live in src/games/poc
 Pocket Railroads is live as game ten in 1901a78. Pages run 41794817158 succeeded. Robot Garden is the next local game.
 
 Robot Garden is game eleven in local preview. Queue board-relative arrows and Run to collect all seeds and finish on the blue dock. The example shows the first level's East then North route. The pure engine checks blocked moves and solves authored and seeded layouts. Saves restore the command list and validated wins.
+
+Robot Garden is live as game eleven in e735483. Pages run 41796026790 succeeded, and the public shelf and worked example were verified. Bridge Islands is the next local game.
+
+Bridge Islands is game twelve on the local shelf. Match each island’s bridge count and connect all islands into one network. The visual example shows a single bridge and a double bridge meeting at an island that needs three. The game has eight levels, seeded puzzles, 3D rotation, and replay saves.

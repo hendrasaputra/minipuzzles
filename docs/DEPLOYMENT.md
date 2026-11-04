@@ -57,3 +57,5 @@ Marble Workshop shipped in commit 34b1411 through Pages run 41782249698. The pub
 Shadow Blocks and Picture Islands shipped in commit 81dd22e. The public shelf has nine playable games. Both games open from the shelf with their guided first levels and examples.
 
 Pocket Railroads shipped in commit 1901a78 through Pages run 41794817158. The public shelf opens it as the tenth game, and its visual guide loads.
+
+Robot Garden shipped in commit e735483 through Pages run 41796026790. The public shelf opens it as the eleventh game, and its worked route example loads.
