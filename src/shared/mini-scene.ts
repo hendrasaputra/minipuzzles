@@ -44,7 +44,7 @@ export class MiniScene {
   private sun:THREE.DirectionalLight;
   get rotating(){return this.mode==='rotate';}
 
-  constructor(private host:HTMLElement,private onCancel:()=>void){
+  constructor(private host:HTMLElement,private onCancel:()=>void,private orbitWithPinch=false){
     this.renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});
     this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
     this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -115,8 +115,13 @@ export class MiniScene {
     return this.ray.intersectObjects(this.board.children,false)[0]?.object.userData.owner;
   }
   private apply(action:GestureAction|undefined){
-    if(action?.type==='drag'){this.yaw-=action.dx*.008;this.tilt=THREE.MathUtils.clamp(this.tilt+action.dy*.005,.35,1.25);this.resize();}
-    if(action?.type==='zoom'){this.zoom=clampZoom(this.zoom*action.ratio);this.resize();}
+    const orbit=action?.type==='drag'?action:action?.type==='zoom'?action.orbit:undefined;
+    if(orbit){
+      this.yaw-=orbit.dx*.008;
+      this.tilt=THREE.MathUtils.clamp(this.tilt+orbit.dy*.005,.35,1.25);
+    }
+    if(action?.type==='zoom')this.zoom=clampZoom(this.zoom*action.ratio);
+    if(orbit||action?.type==='zoom')this.resize();
   }
   private down=(event:PointerEvent)=>{
     if(event.button!==0)return;this.pointers.add(event.pointerId);this.gesture.down(event.pointerId,event.clientX,event.clientY,0);
@@ -125,7 +130,7 @@ export class MiniScene {
   };
   private move=(event:PointerEvent)=>{
     if(!this.pointers.has(event.pointerId))return;
-    const action=this.gesture.move(event.pointerId,event.clientX,event.clientY);
+    const action=this.gesture.move(event.pointerId,event.clientX,event.clientY,this.orbitWithPinch&&event.pointerType==='touch');
     if(this.rotating||this.multi){event.preventDefault();event.stopImmediatePropagation();this.apply(action);}
   };
   private up=(event:PointerEvent)=>{

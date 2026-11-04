@@ -17,7 +17,7 @@ The Three.js scene and input are separate from pure TypeScript rules, levels and
 
 ## Look around in 3D
 
-Choose **Rotate**, then drag to orbit horizontally or tilt vertically. Pinch or scroll to zoom; **↺** resets the view. Choose **Play** to move cars or the gardener again. Camera movement never counts as a puzzle move. While Rotate is selected and the board has keyboard focus, arrows rotate/tilt and Home resets the camera. Switching modes, opening Menu, canceling a touch or leaving the tab cancels any pending move. Camera orientation is temporary; reload returns to the default view without changing saved puzzle progress.
+In **Play**, swipe or tap with one finger to move the gardener. Drag two fingers together to turn or tilt the board, and pinch to zoom. Lift both fingers before your next move. With a mouse, choose **Rotate** and drag, then choose **Play** to move again. Scroll to zoom and use **↺** to reset. Camera movement never counts as a puzzle move. While Rotate is selected and the board has keyboard focus, arrows rotate/tilt and Home resets the camera. Switching modes, opening Menu, canceling a touch or leaving the tab cancels any pending move. Camera orientation is temporary; reload returns to the default view without changing saved puzzle progress.
 
 ## Random puzzles
 

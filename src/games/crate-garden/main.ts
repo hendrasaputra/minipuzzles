@@ -33,7 +33,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
   { before: '🧑 ⬜', after: '⬜ 🧑', text: 'Tap a tile next to you, swipe, or use the arrows or WASD to move.' },
   { before: '🧑 📦 🟩', after: '⬜ 🧑 📦', text: 'Walk into one crate to push it. Put every crate on a green tile.' },
   { before: '📦 🧱', after: '↶ 📦', text: 'Stuck? Use Undo or Restart.' },
-  { before: '▦', after: '◈', text: 'Choose Rotate and drag. Pinch or scroll to zoom. Use ↺ to reset.' }
+  { before: '▦', after: '◈', text: 'Drag with two fingers to turn the board. Pinch to zoom. Use ↺ to reset.' }
 ])}<button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;
 const menu=$<HTMLDialogElement>('menu');
 let scene:CrateScene|undefined;

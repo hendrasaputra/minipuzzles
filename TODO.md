@@ -184,3 +184,5 @@ The collection now has 21 playable games.
 - [x] Add animated blue ocean waves and water-height bridge splashes.
 - [x] Add shoreline spray to every Bridge Islands island and a one-shot win celebration.
 - [x] Add Petals Volume with three solver-verified lessons and random puzzles.
+- [x] Add a local two-finger orbit prototype to Crate Garden.
+- [ ] Try the Crate Garden prototype on a physical phone.

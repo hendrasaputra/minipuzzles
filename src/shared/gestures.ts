@@ -19,7 +19,7 @@ export class DoubleTap {
 export type GestureAction =
   | { type: 'tap' | 'flag' | 'chord'; tile: TileHit }
   | { type: 'drag'; dx: number; dy: number }
-  | { type: 'zoom'; ratio: number };
+  | { type: 'zoom'; ratio: number; orbit?: { dx: number; dy: number } };
 
 /** Pointer state stays independent of WebGL so interrupted touch sequences are testable. */
 export class BoardGesture {
@@ -46,7 +46,7 @@ export class BoardGesture {
     }
   }
 
-  move(id: number, x: number, y: number): GestureAction | undefined {
+  move(id: number, x: number, y: number, orbitWithPinch = false): GestureAction | undefined {
     const old = this.pointers.get(id);
     if (!old) return;
     this.pointers.set(id, { x, y });
@@ -54,6 +54,10 @@ export class BoardGesture {
       const distance = this.distance();
       const ratio = this.pinch > 0 ? distance / this.pinch : 1;
       this.pinch = distance;
+      if (orbitWithPinch && this.pointers.size === 2) {
+        // Moving either finger moves the midpoint by half that distance.
+        return { type: 'zoom', ratio, orbit: { dx: (x - old.x) / 2, dy: (y - old.y) / 2 } };
+      }
       return { type: 'zoom', ratio };
     }
     if (!this.press || this.press.id !== id || this.multiTouch) return;
