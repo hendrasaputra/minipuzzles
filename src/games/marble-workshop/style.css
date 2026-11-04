@@ -1,0 +1,13 @@
+.actions .primary {
+  background: #865b41;
+  border-color: #865b41;
+}
+.channel-controls button {
+  background: #f0e3d3;
+  border-color: #dac6ad;
+}
+@media (max-width: 360px) {
+  .brand { font-size: 17px; }
+  .actions { gap: 5px; }
+  .actions button { padding-inline: 5px; }
+}

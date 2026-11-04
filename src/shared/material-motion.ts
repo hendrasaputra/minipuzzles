@@ -12,16 +12,21 @@ export class MaterialMotion {
     window.addEventListener('pageshow',()=>{this.suspended=false;this.sync();});
   }
   refresh(){this.active=true;this.sync();}
+  stop(){
+    this.active=false;
+    cancelAnimationFrame(this.frame);
+    this.frame=0;
+  }
   private sync=()=>{
     cancelAnimationFrame(this.frame);this.frame=0;
     if(!this.active||document.hidden||this.suspended)return;
     this.update(this.preference.matches?0:performance.now()/1000);this.paint();
-    if(!this.preference.matches)this.frame=requestAnimationFrame(this.animate);
+    if(this.active&&!this.frame&&!this.preference.matches)this.frame=requestAnimationFrame(this.animate);
   };
   private animate=(time:number)=>{
     this.frame=0;
     if(document.hidden||this.suspended||this.preference.matches)return;
     if(time-this.lastFrame>=1000/30){this.lastFrame=time;this.update(time/1000);this.paint();}
-    this.frame=requestAnimationFrame(this.animate);
+    if(this.active&&!this.frame)this.frame=requestAnimationFrame(this.animate);
   };
 }

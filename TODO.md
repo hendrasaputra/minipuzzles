@@ -129,3 +129,11 @@ The remaining 15 planned entries describe ideas, not commitments or completed ga
 - [x] Use plain descriptions and labels across the game shelf and games.
 - [x] Replace long in-game instructions with animated examples and short captions.
 - [x] Check all seven help panels at 320 px.
+
+## Marble Workshop
+
+- [x] Add eight levels and three seeded difficulty tiers.
+- [x] Add turn, roll, hint, undo, retry, and replay saves.
+- [x] Keep 3D camera controls and animate the marble through track curves with particles.
+- [x] Add plain labels and visual help.
+- [ ] Publish Marble Workshop.

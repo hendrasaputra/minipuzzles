@@ -13,6 +13,7 @@ export default defineConfig({
         crystalLight: fileURLToPath(new URL('./games/crystal-light/index.html', import.meta.url)),
         waterGarden: fileURLToPath(new URL('./games/water-garden/index.html', import.meta.url)),
         frostyPaths: fileURLToPath(new URL('./games/frosty-paths/index.html', import.meta.url)),
+        marbleWorkshop: fileURLToPath(new URL('./games/marble-workshop/index.html', import.meta.url)),
       },
     },
   },

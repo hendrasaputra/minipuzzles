@@ -13,6 +13,14 @@ beforeEach(()=>{
 afterEach(()=>vi.unstubAllGlobals());
 function tick(time:number){const [id,callback]=[...frames][0];frames.delete(id);callback(time);}
 describe('shared material motion',()=>{
+  it('does not schedule another frame when an effect finishes inside its update',()=>{
+    const motion=new MaterialMotion(time=>{if(time===1)motion.stop();},()=>{});
+    motion.refresh();
+    tick(1000);
+    expect(frames.size).toBe(0);
+    events.get('pageshow')!();
+    expect(frames.size).toBe(0);
+  });
   it('stays idle until needed, owns one loop and limits painting to30fps',()=>{
     const update=vi.fn(),paint=vi.fn(),motion=new MaterialMotion(update,paint);expect(frames.size).toBe(0);
     motion.refresh();motion.refresh();expect(frames.size).toBe(1);update.mockClear();paint.mockClear();

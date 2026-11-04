@@ -10,6 +10,8 @@ Every game offers fresh random puzzles at several difficulties. Petals uses boar
 
 Use **How to play** in each game menu for short animated examples.
 
+**Marble Workshop** is the seventh game. Turn the tracks, then tap the marble or press **Roll**.
+
 ## Run locally
 
 Use Node.js 22.12+, 24, or 26+. In macOS/Linux Terminal or Windows PowerShell:
@@ -23,7 +25,7 @@ The homepage is the game library. Petals lives at `/games/petals/`; Traffic Gard
 
 ## Project guide
 
-- [Development](docs/DEVELOPMENT.md) · [Petals gameplay](docs/GAMEPLAY.md) · [Traffic Garden](docs/TRAFFIC_GARDEN.md) · [Crate Garden](docs/CRATE_GARDEN.md) · [Crystal Light](docs/CRYSTAL_LIGHT.md) · [Water Garden](docs/WATER_GARDEN.md) · [Frosty Paths](docs/FROSTY_PATHS.md)
+- [Development](docs/DEVELOPMENT.md) · [Petals gameplay](docs/GAMEPLAY.md) · [Traffic Garden](docs/TRAFFIC_GARDEN.md) · [Crate Garden](docs/CRATE_GARDEN.md) · [Crystal Light](docs/CRYSTAL_LIGHT.md) · [Water Garden](docs/WATER_GARDEN.md) · [Frosty Paths](docs/FROSTY_PATHS.md) · [Marble Workshop](docs/MARBLE_WORKSHOP.md)
 - [Icon prompts and art workflow](docs/art/README.md)
 - [Progress](TODO.md) · [Developer handoff](HANDOFF.md) · [Agent instructions](AGENTS.md)
 - [Deployment and save migration](docs/DEPLOYMENT.md) · [Validation](VALIDATION.md)

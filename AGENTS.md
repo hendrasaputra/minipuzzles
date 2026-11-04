@@ -9,7 +9,7 @@ USE CODEX NATIVE SUBAGENTS FOR INDEPENDENT PARALLEL SUBTASKS WHEN THAT IMPROVES 
 
 ## Product and layout
 
-Puzzles is a collection of small browser puzzle games. Petals, Traffic Garden, Crate Garden, Crystal Light, Water Garden and Frosty Paths are implemented; planned catalog entries must remain clearly unavailable until implemented. Use TypeScript and Vite without adding a framework. The hub stays renderer-neutral; all playable games use Three.js for rotatable 3D boards. Future games must also support 3D rotation. See `docs/RENDERING.md` before considering a new renderer.
+Puzzles is a collection of small browser puzzle games. Petals, Traffic Garden, Crate Garden, Crystal Light, Water Garden, Frosty Paths and Marble Workshop are implemented; planned catalog entries must remain clearly unavailable until implemented. Use TypeScript and Vite without adding a framework. The hub stays renderer-neutral; all playable games use Three.js for rotatable 3D boards. Future games must also support 3D rotation. See `docs/RENDERING.md` before considering a new renderer.
 
 - `src/catalog.ts` owns stable IDs, titles, status and hub links.
 - `src/hub/` owns the selection page; avoid loading Three.js there unnecessarily.
@@ -19,6 +19,7 @@ Puzzles is a collection of small browser puzzle games. Petals, Traffic Garden, C
 - `src/games/crystal-light/` owns pure beam tracing/mirror rules, eight stable levels, bounded solver, 3D scene and replay saves.
 - `src/games/water-garden/` owns pure channel connectivity, eight stable levels, bounded solver, 3D scene and replay saves.
 - `src/games/frosty-paths/` owns pure sliding/fish rules, eight stable paths, bounded solver, 3D scene/ice effects and replay saves.
+- `src/games/marble-workshop/` owns track layouts, rolling rules, the 3D workshop, and replay saves.
 - `src/shared/` contains reusable audio, camera and input helpers. `mini-scene.ts` supplies the shared miniature view for Traffic/Crate Garden, Crystal Light and Water Garden: Play/Rotate, orbit/tilt, zoom, reset and 3D picking. Keep camera gestures separate from puzzle actions and direction cues aligned with the camera. Water, lasers, fire, ice and similar active materials should have fitting motion/particle effects. Reuse `MaterialMotion` for a single capped loop, hidden-tab pausing and reduced-motion support; decorative effects must not block picking or change puzzle rules.
 - `games/petals/index.html` is the standalone game page. Native page navigation provides clean game teardown.
 - `docs/art/` holds the shared icon direction and editable GPT prompts.

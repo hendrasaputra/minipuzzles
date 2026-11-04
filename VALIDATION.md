@@ -245,3 +245,11 @@ Pages run 41780702050 deployed the random puzzle update from 4f6a396. Public bro
 ## Plain language and visual help
 
 Browser checks at 320 × 568 opened four help examples in each game, including the local Marble Workshop. The guide animations were active and no page had horizontal overflow. The production build passes with a shared bundle size warning.
+
+## Marble Workshop local preview
+
+Browser checks covered a failed roll, a successful first level, camera orbit, and a generated Hard route completed in 9 turns. Reload preserved that win. A 320 × 568 viewport fit the board and controls with 44 px camera buttons and 52 px action buttons. Engine tests verify all eight authored layouts and 60 random seeds. Animation tests cover curves, rolling rotation, stopping at gaps, and reduced motion. Physical phone performance remains untested.
+
+Pages run 41781709537 deployed the simpler shelf and animated help from 4edaea3. The live shelf shows six playable games and groups planned games under Coming soon. The live Crystal Light menu opens four animated examples. The local shelf opens Marble Workshop as its seventh game. The final local build passed all 344 tests.
+
+Marble Workshop passed 345 tests and the production build before publication. At 390 × 844, a tap on the marble stopped at a gap before the track was fixed and reached the cup after one turn. The Roll button completed the same path. Camera rotation preserved the win and the page fit the viewport.

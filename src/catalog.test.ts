@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { games } from './catalog';
 
 describe('puzzle catalog', () => {
-  it('has unique stable IDs and six playable games', () => {
+  it('has unique stable IDs and seven playable games', () => {
     expect(games).toHaveLength(21);
     expect(new Set(games.map(game => game.id)).size).toBe(games.length);
     expect(games.filter(game => game.status === 'playable')).toEqual([
@@ -12,6 +12,7 @@ describe('puzzle catalog', () => {
       expect.objectContaining({ id: 'water-garden', title: 'Water Garden', href: './games/water-garden/' }),
       expect.objectContaining({ id: 'crystal-light', title: 'Crystal Light', href: './games/crystal-light/' }),
       expect.objectContaining({ id: 'frosty-paths', title: 'Frosty Paths', href: './games/frosty-paths/' }),
+      expect.objectContaining({ id: 'marble-workshop', title: 'Marble Workshop', href: './games/marble-workshop/' }),
     ]);
   });
 

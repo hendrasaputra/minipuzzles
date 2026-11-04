@@ -120,3 +120,11 @@ The random puzzle update shipped in 4f6a396 through Pages run 41780702050. The p
 ## Plain interface copy
 
 Use short descriptions and clear goals. The hub lists playable games first and puts planned games under Coming soon. In-game help uses four animated examples with text captions. Petals shows them in its help dialog. The other games show them under How to play in Menu. The shared guide respects reduced motion.
+
+## Marble Workshop
+
+The local build includes eight authored layouts and seeded Easy, Medium, and Hard modes. Track tiles form a single route. Hints compute the shortest number of turns. Roll traces the current connections and stops at the first gap or reaches the cup. Only a successful Roll completes the level.
+
+The scene reuses the 3D camera and animates the marble along the track curves. Small dust and arrival particles use MaterialMotion, which stops after each run. Reduced motion completes the run immediately. Local saves replay track turns and validate wins. The seventh game is available on the local shelf.
+
+The simpler shelf and help for the six live games shipped in 4edaea3 through Pages run 41781709537. Marble Workshop remains in local preview. Final local verification passed 344 tests and the production build.
