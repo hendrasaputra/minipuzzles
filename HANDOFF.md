@@ -4,7 +4,7 @@ Updated: 4 November 2026.
 
 ## Current state
 
-The repository is now **minipuzzles**, hosting the **Puzzles** collection. Live: **Petals**, **Traffic Garden**, **Crate Garden**, **Crystal Light** and **Water Garden**, all with 3D rotation. Water Garden includes flowing water particles; Crystal Light includes animated lasers. Frosty Paths is implemented locally; the local shelf has six playable games and 15 planned entries. Native Vite multi-page entries isolate the hub and game without a client router.
+The repository is now **minipuzzles**, hosting the **Puzzles** collection. Live: **Petals**, **Traffic Garden**, **Crate Garden**, **Crystal Light**, **Water Garden** and **Frosty Paths**, all with 3D rotation. Water Garden includes flowing water particles; Crystal Light includes animated lasers. The live shelf has six playable games and 15 planned entries. Native Vite multi-page entries isolate the hub and game without a client router.
 
 The selection page now uses 21 generated skeuomorphic icons. Petals v03 is the family reference; other subjects use v01. All raw masters, exact requests, reference paths and reviews are in `docs/art/iterations/`; editable prompts and the **Iconfactory-inspired** style contract remain in `docs/art/`. Runtime files are 384px PNGs under `public/icons/`. Their rounded mask/backing bleed is required because the masters are opaque app-icon squares, not transparent cutouts.
 
@@ -38,7 +38,7 @@ Browser saves cannot follow a hostname change automatically. Use Petals' **Menu 
 1. Review the generated icon family with the owner; use versioned GPT edits for requested changes.
 2. Preserve raw outputs/exact prompts and update `docs/art/assets.json` when selecting a new version. Reference Petals v03 unless intentionally versioning the family's style.
 3. Keep icon status independent from game status: 15 entries still have no playable implementation.
-4. Owner-approved icons and Traffic Garden are deployed and verified. Crate Garden and 3D rotation are live at 3e2eef4. Crystal Light is published in 8bfeee8. Water Garden and shared material motion are live in 569cf93. Frosty Paths is the local development build.
+4. Owner-approved icons and Traffic Garden are deployed and verified. Crate Garden and 3D rotation are live at 3e2eef4. Crystal Light is published in 8bfeee8. Water Garden and shared material motion are live in 569cf93. Frosty Paths is live in 5420daf.
 5. Hardware-test Traffic Garden on iOS/Android; extend its verified layout families if more variety is needed.
 
 Volume mode remains future work. Original design history stays in `INITIAL_IDEAS.md`; it is not the current release checklist.
@@ -101,8 +101,12 @@ Commit **569cf93** deployed successfully through Pages run **41755490204**. Live
 
 FrostScene uses MiniScene + MaterialMotion. Penguin mesh parts interpolate a straight visual slide over 0.25s while rules/save state advance immediately; reduced motion snaps to the target. IceEffect has at most20 glints +18 drifting snow particles. Effects remain non-pickable, capped and independent of rules. Inputs use camera-projected swipes, neighboring tile taps, large direction buttons and keyboard; glyphs follow the camera. Existing material effects remain unchanged.
 
-301 tests and the production build pass. Browser checks completed all eight paths, restored win/undo/fish, verified rotated swipe and camera isolation, completion persistence, responsive fit and navigation. Frosty Paths is local/uncommitted, not deployed; the live site remains the five-game 569cf93 release. No new dependency or save transfer UI was added. Physical-device input/GPU/battery checks remain pending. Suggested next game: Marble Workshop.
+301 tests and the production build pass. Browser checks completed all eight paths, restored win/undo/fish, verified rotated swipe and camera isolation, completion persistence, responsive fit and navigation. Frosty Paths is live in the six-game 5420daf release. No new dependency or save transfer UI was added. Physical-device input/GPU/battery checks remain pending. Suggested next game: Marble Workshop.
 
 ## Frosty Paths publication
 
-The owner explicitly requested publishing Frosty Paths with its 3D rotation and appropriate animation/particle effects. The existing verified implementation retains smooth 0.25s slides, ice glints, drifting snow, camera orbit/tilt/zoom/reset, hidden-tab pausing and reduced-motion handling. All 301 tests and the production build passed again before publication. Live deployment verification follows after Pages completes.
+The owner explicitly requested publishing Frosty Paths with its 3D rotation and appropriate animation/particle effects. The existing verified implementation retains smooth 0.25s slides, ice glints, drifting snow, camera orbit/tilt/zoom/reset, hidden-tab pausing and reduced-motion handling. All 301 tests and the production build passed again before publication. Pages completed successfully; live verification is recorded below.
+
+## Verified Frosty Paths release
+
+**4 November 2026:** source commit **5420daf** and Pages run **41758892888** succeeded. All 301 tests and the production build pass locally and in CI. Live browser checks confirmed the six-game shelf, full 3D orbit without changing progress, east/north slides collecting a fish and completing First glide in 2 slides, saved win after reload, native shelf navigation and no console warnings/errors. Smooth slides, ice glints and drifting snow remain included, using MaterialMotion's hidden-tab/reduced-motion handling. `docs/frosty-paths-live.jpg` records the public result. Physical-phone GPU/battery performance remains unchecked.

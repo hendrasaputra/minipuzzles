@@ -115,5 +115,5 @@ The remaining 15 planned entries describe ideas, not commitments or completed ga
 - [x] Add swipe/tap, large direction buttons, camera-relative glyphs and keyboard play.
 - [x] Validate separate replay saves and completed paths.
 - [x] Verify all eight paths, saved win/undo/fish restoration, rotated swipe, responsive fit, 301 tests and build.
-- [ ] Verify the owner-authorized Frosty Paths publication, retaining rotation, eased slides, ice glints and snow.
+- [x] Publish and verify Frosty Paths (5420daf, Pages run 41758892888), retaining rotation, eased slides, ice glints and snow.
 - [ ] Check physical-phone input, GPU and battery cost.

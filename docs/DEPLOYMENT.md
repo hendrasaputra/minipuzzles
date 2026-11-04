@@ -10,7 +10,7 @@
 - Crate Garden route: `/games/crate-garden/`
 - Crystal Light route: `/games/crystal-light/`
 - Water Garden route: `/games/water-garden/`
-- Frosty Paths route: `/games/frosty-paths/` (local development build; not yet deployed)
+- Frosty Paths route: `/games/frosty-paths/`
 
 ## DNS and Pages
 
@@ -49,3 +49,5 @@ Pushes to `main` run `npm ci`, tests, TypeScript checking, the Vite multi-page b
 **Crystal Light release:** 8bfeee8 deployed successfully via Pages run 41753843808 after explicit owner approval. Live first-light completion and four-game shelf checks pass. Animated lasers are included. Water Garden is the next local build.
 
 **Animated Water Garden release:** 569cf93 deployed successfully via Pages run 41755490204. Live water effects, first-turn completion and five-game shelf checks pass. The shared MaterialMotion controller and laser refactor are included.
+
+**Frosty Paths release:** 5420daf deployed successfully via Pages run 41758892888. Live checks verified six shelf links, 3D orbit, first-puzzle completion and saved win after refresh, with no console warnings/errors. Rotation, smooth slides, ice glints, snow and reduced-motion handling are retained. All six implemented games are now deployed.

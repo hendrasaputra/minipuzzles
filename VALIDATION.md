@@ -222,3 +222,14 @@ Browser checks verified:
 - Local shelf has six real play links and15 planned entries. Hub → Frosty Paths, back and direct refresh restore the selected path/progress. No console warnings/errors on the tested path.
 
 [Frosty Paths mobile preview](docs/frosty-paths-preview.jpg). Frosty Paths is local and uncommitted; the live release remains569cf93 with five games and animated water/lasers. Physical iOS/Android input, GPU/battery performance and hardware motion-preference behavior remain untested.
+
+## Published Frosty Paths
+
+On 4 November 2026, source commit **5420daf** deployed through [successful Pages run 41758892888](https://github.com/hendrasaputra/minipuzzles/actions/runs/41758892888). **301 tests pass** and the production build passes locally and in CI. Live HTTPS browser checks verified:
+
+- The hub lists six playable games, including Frosty Paths, with real native links.
+- Rotate mode orbits the full 3D board and changes direction glyphs while preserving 0 slides / 0 fish.
+- Play mode east then north collects the fish and wins First glide at 2 slides / 1 fish. Reload preserves that win; hub navigation returns to the saved game.
+- Ice glints, snow and eased sliding remain in the published build. The prior unit checks cover capped decorative meshes, interpolation and reduced-motion/visibility handling. No console warnings/errors appeared on the tested route.
+
+[Live Frosty Paths screenshot](docs/frosty-paths-live.jpg). This supersedes the earlier local-only status. Physical-device touch, GPU and battery checks remain pending.
