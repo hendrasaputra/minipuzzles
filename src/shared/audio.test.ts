@@ -5,13 +5,31 @@ function gain() {
   return { gain: { value: 0, setTargetAtTime: vi.fn(), setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() }, connect: vi.fn(), disconnect: vi.fn() };
 }
 function oscillator() {
-  return { type: '', frequency: { setValueAtTime: vi.fn() }, connect: vi.fn(), disconnect: vi.fn(), start: vi.fn(), stop: vi.fn(), onended: null as (() => void) | null };
+  return { type: '', frequency: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() }, connect: vi.fn(), disconnect: vi.fn(), start: vi.fn(), stop: vi.fn(), onended: null as (() => void) | null };
+}
+function noiseFilter() {
+  return { type: '', frequency: { setValueAtTime: vi.fn() }, Q: { value: 0 }, connect: vi.fn(), disconnect: vi.fn() };
+}
+function noiseSource() {
+  return { buffer: null, onended: null as (() => void) | null, connect: vi.fn(), disconnect: vi.fn(), start: vi.fn(), stop: vi.fn() };
 }
 class FakeContext {
   static instances: FakeContext[] = [];
   state = 'suspended'; currentTime = 10; destination = {};
   gains: ReturnType<typeof gain>[] = [];
   tones: ReturnType<typeof oscillator>[] = [];
+  sampleRate = 48000;
+  createBuffer = vi.fn((_channels: number, length: number) => ({ getChannelData: () => new Float32Array(length) }));
+  filters: ReturnType<typeof noiseFilter>[] = [];
+  sources: ReturnType<typeof noiseSource>[] = [];
+  createBiquadFilter() {
+    const filter = noiseFilter();
+    this.filters.push(filter); return filter;
+  }
+  createBufferSource() {
+    const source = noiseSource();
+    this.sources.push(source); return source;
+  }
   constructor() { FakeContext.instances.push(this); }
   resume = vi.fn(() => { this.state = 'running'; return Promise.resolve(); });
   createGain() { const node = gain(); this.gains.push(node); return node; }
@@ -66,6 +84,21 @@ describe('game sounds', () => {
     storage.getItem.mockReturnValue('off');
     const muted = new GameAudio(); muted.unlock(); muted.play('loss');
     expect(muted.enabled).toBe(false); expect(FakeContext.instances).toHaveLength(1);
+  });
+
+  it('plays a pitched pour with a filtered splash and reuses the noise buffer', async () => {
+    const audio = new GameAudio('water-balance');
+    await audio.play('reveal');
+    await audio.play('flag');
+    const ctx = FakeContext.instances[0];
+    expect(ctx.tones[0].type).toBe('sine');
+    expect(ctx.tones[0].frequency.exponentialRampToValueAtTime).toHaveBeenCalledWith(790, 10.22);
+    expect(ctx.createBuffer).toHaveBeenCalledOnce();
+    expect(ctx.filters[0].type).toBe('bandpass');
+    expect(ctx.filters[0].frequency.setValueAtTime).toHaveBeenCalledWith(1450, 10);
+    expect(ctx.sources[0].stop).toHaveBeenCalledWith(10.27);
+    ctx.sources[0].onended?.();
+    expect(ctx.filters[0].disconnect).toHaveBeenCalledOnce();
   });
 
   it('waits for audio permission and does not play a pending cue after muting', async () => {

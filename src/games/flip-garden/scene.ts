@@ -63,7 +63,7 @@ export class FlipScene {
     this.previous = seconds;
     let changing = false;
     for (const { parts, growing, delay } of this.flowers) {
-      const t = seconds === 0 ? 1 : Math.max(0, Math.min(1, (this.elapsed - delay) / .26));
+      const t = seconds === 0 ? 1 : Math.max(0, Math.min(1, (this.elapsed - delay) / .20));
       const scale = growing
         ? 1 - .34 * (1 - t) ** 2 * Math.cos(t * Math.PI * 2)
         : (1 - t) ** 2;
@@ -111,8 +111,9 @@ export class FlipScene {
       }
     }
     const bud = changed.find(cell => game.current & (1 << cell));
-    if (bud !== undefined) {
-      this.burst.start(bud % size + .5, .18, Math.floor(bud / size) + .5, 'leaf', bud, 5);
+    const contact = bud ?? pressed;
+    if (contact !== undefined) {
+      this.burst.start(contact % size + .5, .18, Math.floor(contact / size) + .5, bud === undefined ? 'dust' : 'leaf', contact, 5);
     }
     this.mini.render();
     if (this.flowers.length) this.motion.refresh();

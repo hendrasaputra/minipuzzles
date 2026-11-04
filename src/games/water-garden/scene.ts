@@ -57,7 +57,7 @@ export class WaterScene {
   private animate = (seconds: number) => {
     const pulse = this.pulse;
     if (pulse && seconds > 0) {
-      if (pulse.last !== undefined) pulse.elapsed += Math.min(.08, Math.max(0, seconds - pulse.last));
+      if (pulse.last !== undefined) pulse.elapsed += Math.min(.08, Math.max(0, seconds - pulse.last)) * 1.2;
       pulse.last = seconds;
     }
     const elapsed = seconds === 0 ? Infinity : pulse?.elapsed ?? Infinity;
@@ -65,9 +65,10 @@ export class WaterScene {
     for (const { ring, material, at, petals } of this.arrivals) {
       const t = elapsed - at;
       const active = t >= 0 && t < .42;
+      const progress = active ? t / .42 : 1;
       ring.visible = active;
-      ring.scale.setScalar(active ? .28 + t * 2.8 : 1);
-      material.opacity = active ? .65 * (1 - t / .42) : 0;
+      ring.scale.setScalar(.28 + (1 - (1 - progress) ** 2) * 1.176);
+      material.opacity = active ? .65 * (1 - progress) ** 2 : 0;
       const sway = active ? Math.sin(t * 24) * Math.exp(-t * 8) * .09 : 0;
       for (const { mesh, x } of petals) mesh.position.x = x + sway;
     }

@@ -73,3 +73,21 @@ describe('mine impact', () => {
     expect(burst.visible).toBe(false);
   });
 });
+
+it('plays short action feedback and clears it when changing floors', () => {
+  const { scene, game } = fixture();
+  const effects = scene as unknown as {
+    chips: { object: THREE.Group };
+    ripple: THREE.LineLoop;
+    animateEffect(seconds: number): void;
+  };
+  scene.update(game, 1, true, undefined, { floor: 1, index: 224, kind: 'flag' });
+  expect(effects.chips.object.visible).toBe(true);
+  expect(effects.ripple.visible).toBe(true);
+  for (let frame = 1; frame <= 18; frame++) effects.animateEffect(performance.now() / 1000 + frame / 60);
+  expect(effects.chips.object.visible).toBe(false);
+  expect(effects.ripple.visible).toBe(false);
+  scene.update(game, 1, true, undefined, { floor: 1, index: 224, kind: 'chord' });
+  scene.update(game, 0, false);
+  expect(effects.chips.object.visible).toBe(false);
+});

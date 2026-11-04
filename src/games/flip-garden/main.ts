@@ -9,7 +9,7 @@ import { FlipScene, tileName } from './scene';
 import { readSave, writeSave, type Save } from './storage';
 
 const key = 'puzzles-flip-garden-v1';
-const audio = new GameAudio();
+const audio = new GameAudio('flip-garden');
 const tiers = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 let data: Save = { game: createGame(levels[0]), completed: [] };
 let notice = '';

@@ -8,7 +8,7 @@ import { GardenScene } from './scene';
 import { readSave, saveKey, writeSave, type RandomSetup } from './storage';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
-const audio = new GameAudio();
+const audio = new GameAudio('garden-sudoku');
 const icons = ['', '🌱', '🌷', '🌻', '🍀'];
 const names = ['', 'Sprout', 'Tulip', 'Sunflower', 'Clover'];
 let game = createGame(levels[0]);

@@ -67,3 +67,5 @@ The full 21-game collection shipped in commit 3149d6f through Pages run 41819062
 Bridge Islands shoreline spray and win confetti shipped in commit 17f1656 through Pages run 41839736682. The public route serves the release bundle and confetti asset.
 
 The full effects rollout and Petals Volume shipped in commit 5df1f17 through Pages run 41845037859. All 21 public game routes reference the release assets. The live Petals bundle includes Volume.
+
+The Crate Garden two-finger camera prototype shipped in commit 17047f0 through Pages run 41847811339. The live game serves the prototype bundle. Physical phone testing is open.

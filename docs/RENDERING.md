@@ -12,7 +12,7 @@ Reviewed 3 November 2026 for the collection restructure.
 - **Frosty Paths:** uses the same 3D camera and material controller, with a friendly penguin, eased visual slides, capped ice glints and drifting snow. Effects never affect the sliding/fish engine.
 - **Future games:** the owner requested rotatable 3D boards across the collection on 4 November 2026. Use the existing Three.js dependency and camera helpers. The former fixed Canvas views have been replaced and deployed; a fixed image or CSS transform does not meet this requirement.
 
-Three.js is now shared across the playable entries (roughly 122kB gzip for the common engine/audio chunk); the hub still does not load it. This increases the new games' download cost compared with the former Canvas views. No package was added. Static scenes render on input. Material effects use the shared `MaterialMotion` loop, capped at 30fps, paused when hidden and still under reduced motion. Effects redraw with cached shadows.
+Three.js is now shared across the playable entries (roughly 122kB gzip for the common engine/audio chunk); the hub still does not load it. This increases the new games' download cost compared with the former Canvas views. No package was added. Static scenes render on input. Material effects use the shared `MaterialMotion` loop, limited to one update per 15 ms, paused when hidden and still under reduced motion. Effects redraw with cached shadows.
 
 ## Pixel Plays considered
 
@@ -29,3 +29,7 @@ Apply effects where the scene actually contains water, laser/energy, fire, ice o
 Keep Pixel Plays as a reference for tactile miniature geometry, warm pastel surfaces and generous whitespace. Rotation needs full geometry, camera-relative game input and depth-correct picking. Compare touch behavior and frame cost on phones when adding a new game. Reuse the shared miniature camera rather than adding another renderer framework.
 
 If reusing Pixel Plays code later, retain its MIT notices; its music has a separate license. No Pixel Plays renderer source or music has been copied.
+
+## Action feedback
+
+The boards use their original smooth materials and soft shadows. Short animation and particle cues show where each move lands, from a crate settling to a bridge reaching the next island. Effects use the shared scene clock and existing particle pools. Each game has its own synthesized action sounds and uses the shared mute setting.

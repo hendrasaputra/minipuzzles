@@ -9,7 +9,7 @@ import { BalanceScene } from './scene';
 import { readSave, writeSave } from './storage';
 
 const key = 'puzzles-water-balance-v1';
-const audio = new GameAudio();
+const audio = new GameAudio('water-balance');
 const tiers = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 let game = createGame(levels[0]);
 let completed: string[] = [];
@@ -161,6 +161,7 @@ function startPour() {
   moving = true;
   awaitingDestination = false;
   notice = `Pouring from ${names[source]} into ${names[destination]}.`;
+  audio.play('reveal');
   draw(false);
   const finish = () => {
     moving = false;

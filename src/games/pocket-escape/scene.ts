@@ -122,12 +122,12 @@ export class EscapeScene {
     }
     motion.previous = seconds;
     if (motion.unlocked) {
-      const latch = Math.min(1, motion.elapsed / .1);
-      const swing = Math.min(1, Math.max(0, (motion.elapsed - .1) / .45));
+      const latch = Math.min(1, motion.elapsed / .08);
+      const swing = Math.min(1, Math.max(0, (motion.elapsed - .08) / .32));
       this.positionDoor(-1.7 * (1 - (1 - swing) ** 3), -.055 * latch * (1 - swing));
       if (this.burst.update(motion.elapsed) || swing < 1) return;
     } else {
-      const t = Math.min(1, motion.elapsed / .22);
+      const t = Math.min(1, motion.elapsed / .17);
       this.positionDoor(0, .038 * Math.sin(t * Math.PI * 3) * (1 - t));
       if (t < 1) return;
     }

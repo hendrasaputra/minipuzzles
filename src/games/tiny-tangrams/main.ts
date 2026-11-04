@@ -10,7 +10,7 @@ import { TangramScene } from './scene';
 import { readSave, writeSave, type Save } from './storage';
 
 const key = 'puzzles-tiny-tangrams-v1';
-const audio = new GameAudio();
+const audio = new GameAudio('tiny-tangrams');
 const tiers = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 let data: Save = { game: createGame(levels[0]), completed: [] };
 let selected = 0;

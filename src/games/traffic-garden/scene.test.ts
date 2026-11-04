@@ -116,6 +116,17 @@ describe('rotatable 3D Traffic Garden input',()=>{
     expect(mini.effects.children[0].visible).toBe(false);
     expect(game.history).toHaveLength(1);
   });
+  it('shows blocked contact without committing a move and skips the cue in reduced motion',()=>{
+    const {scene,mini,game}=renderedScene();
+    scene.showBlocked(game.cars[0],1);
+    miniState.tick(1);
+    for(let i=1;i<=5;i++) miniState.tick(1+i*.04);
+    expect(mini.effects.children[0].visible).toBe(true);
+    expect(game.history).toHaveLength(0);
+    scene.showBlocked(game.cars[0],1);
+    miniState.tick(0);
+    expect(mini.effects.children[0].visible).toBe(false);
+  });
   it('drags correctly after camera rotation even when selection rerenders the same game',()=>{
     const {mini,move,send,game}=renderedScene(true);
     mini.horizontal={x:-30,y:10};

@@ -7,6 +7,7 @@ import { oceanSurface } from './ocean';
 
 const dropletsPerIsland = 5;
 const confettiFrames = 20;
+const bridgeBuildTime = .22;
 
 export function islandName(index: number): string {
   return String.fromCharCode(65 + index);
@@ -73,8 +74,8 @@ export class BridgeScene {
     this.previous = seconds;
     if (this.growth) {
       const { mesh, axis, start, end } = this.growth;
-      const progress = seconds === 0 ? 1 : Math.min(1, this.elapsed / .26);
-      const extent = 1 - (1 - progress) ** 2;
+      const progress = seconds === 0 ? 1 : Math.min(1, this.elapsed / bridgeBuildTime);
+      const extent = 1 - (1 - progress) ** 3;
       mesh.scale[axis] = Math.max(.001, extent);
       mesh.position[axis] = start + (end - start) * extent / 2;
       mesh.position.y = .2 - Math.sin(progress * Math.PI) * .034;
@@ -125,7 +126,7 @@ export class BridgeScene {
   }
 
   celebrate() {
-    this.celebrationStart = this.elapsed + (this.growth ? .26 : 0);
+    this.celebrationStart = this.elapsed + (this.growth ? bridgeBuildTime : 0);
     this.motion.refresh();
   }
 

@@ -10,6 +10,7 @@ export class StoneScene {
   private press?: { id: number; x: number; y: number; tile: string; last: string; dragging: boolean };
   private readonly burst = new PixelBurst();
   private pulse?: { mesh: THREE.Mesh };
+  private ripple?: { mesh: THREE.Mesh; material: THREE.MeshBasicMaterial };
   private retract?: { mesh: THREE.Mesh; x: number; z: number; dx: number; dz: number };
   private elapsed = 0;
   private previous?: number;
@@ -69,8 +70,15 @@ export class StoneScene {
     if (seconds === 0) this.elapsed = .6;
     else if (this.previous !== undefined) this.elapsed += Math.min(.075, Math.max(0, seconds - this.previous));
     this.previous = seconds;
-    const t = Math.min(1, this.elapsed / .24);
+    const t = Math.min(1, this.elapsed / .18);
     if (this.pulse) this.pulse.mesh.position.y = .17 - .038 * Math.sin(t * Math.PI * 2) * (1 - t);
+    const ripple = this.ripple;
+    if (ripple) {
+      const age = Math.min(1, this.elapsed / .36);
+      ripple.mesh.scale.setScalar(.6 + (1 - (1 - age) ** 2) * 1.5);
+      ripple.material.opacity = .7 * (1 - age);
+      ripple.mesh.visible = age < 1;
+    }
     if (this.retract) {
       const { mesh, x, z, dx, dz } = this.retract;
       mesh.scale.set(dx ? 1 - t : 1, 1, dz ? 1 - t : 1);
@@ -84,6 +92,7 @@ export class StoneScene {
     this.motion.stop();
     this.burst.clear();
     this.pulse = undefined;
+    this.ripple = undefined;
     this.retract = undefined;
     this.elapsed = 0;
     this.previous = undefined;
@@ -119,7 +128,14 @@ export class StoneScene {
     }
     const x = head % size + .5;
     const z = Math.floor(head / size) + .5;
-    if (animate) this.burst.start(x, .205, z, 'water', head, 5);
+    if (animate) {
+      this.burst.start(x + .42, .025, z, 'water', head, 5);
+      const material = new THREE.MeshBasicMaterial({ color: '#d9f4df', transparent: true, depthWrite: false });
+      const mesh = this.mini.mesh(new THREE.RingGeometry(.31, .34, 16), material, x, z, .011);
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.castShadow = mesh.receiveShadow = false;
+      this.ripple = { mesh, material };
+    }
     if (removed !== undefined) {
       const dx = removed % size + .5 - x;
       const dz = Math.floor(removed / size) + .5 - z;

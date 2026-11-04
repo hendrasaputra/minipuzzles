@@ -93,4 +93,17 @@ describe('Crystal Light 3D mirror input',()=>{
     expect(view.meshes.some(mesh=>!mesh.owner&&mesh.geometry.type==='OctahedronGeometry')).toBe(true);
     game.mirrors[0].slash=true;scene.update(game,'mirror-1');expect(view.meshes.find(mesh=>mesh.owner==='mirror-1')!.yaw).toBeCloseTo(Math.PI/4);
   });
+  it('eases the selected mirror from its old angle to the new direction',()=>{
+    const {view,scene,game}=fixture();
+    game.mirrors[0].slash=true;
+    game.history.push('mirror-1');
+    game.moves++;
+    scene.update(game,'mirror-1');
+    const mirror=view.meshes.find(mesh=>mesh.owner==='mirror-1')!.object;
+    expect(mirror.rotation.y).toBeCloseTo(-Math.PI/4);
+    for(const time of [12345,12425]){
+      const [id,callback]=[...frames][0];frames.delete(id);callback(time);
+    }
+    expect(mirror.rotation.y).toBeCloseTo(Math.PI/4);
+  });
 });

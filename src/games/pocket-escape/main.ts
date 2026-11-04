@@ -8,7 +8,7 @@ import { EscapeScene, places } from './scene';
 import { readSave, writeSave, type Save } from './storage';
 
 const key = 'puzzles-pocket-escape-v1';
-const audio = new GameAudio();
+const audio = new GameAudio('pocket-escape');
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const blank = (room: Room, completed: string[], random?: RandomRoom): Save => ({
   room, completed, random, inspected: [], code: room.clues.map(() => ''), won: false,
@@ -128,6 +128,7 @@ function inspect(index: number) {
   if (menu.open || example.open || clueDialog.open) return;
   const clue = saved.room.clues[index];
   if (!clue) return;
+  audio.play('flag');
   if (!saved.inspected.includes(index)) saved.inspected.push(index);
   const title = `Clue ${index + 1} · ${places[index]}`;
   $('clue-title').textContent = title;
@@ -188,6 +189,7 @@ $('unlock').onclick = () => {
   else if (!saved.code.every(Boolean)) notice = 'Enter one digit for each clue.';
   else if (!unlock(saved.room, saved.inspected, saved.code)) {
     notice = 'The code does not match. Check the clues in number order.';
+    audio.play('loss');
     scene?.reject();
   }
   else {

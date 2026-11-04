@@ -26,7 +26,7 @@ export class MaterialMotion {
   private animate=(time:number)=>{
     this.frame=0;
     if(document.hidden||this.suspended||this.preference.matches)return;
-    if(time-this.lastFrame>=1000/30){this.lastFrame=time;this.update(time/1000);this.paint();}
+    if(time-this.lastFrame>=15){this.lastFrame=time;this.update(time/1000);this.paint();}
     if(this.active&&!this.frame)this.frame=requestAnimationFrame(this.animate);
   };
 }

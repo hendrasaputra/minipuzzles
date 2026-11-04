@@ -56,7 +56,7 @@ export class GardenScene {
     if (time === 0) { this.clearFeedback(); return; }
     if (plant.previous !== undefined) plant.elapsed += Math.min(.075, Math.max(0, time - plant.previous));
     plant.previous = time;
-    const progress = Math.min(1, plant.elapsed / .24);
+    const progress = Math.min(1, plant.elapsed / .18);
     this.posePlant(1 - .42 * (1 - progress) ** 2 * Math.cos(progress * Math.PI * 2));
     if (!this.leaves.update(plant.elapsed)) this.clearFeedback();
   };

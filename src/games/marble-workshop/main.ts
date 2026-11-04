@@ -10,7 +10,7 @@ import { GameAudio } from '../../shared/audio';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 
 const key = 'puzzles-marble-workshop-v1';
-const audio = new GameAudio();
+const audio = new GameAudio('marble-workshop');
 const difficultyNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 const directionNames = { n: 'north', e: 'east', s: 'south', w: 'west' };
 let game = createGame(levels[0]);
@@ -156,6 +156,7 @@ function rollMarble() {
   const route = trace(game);
   rolling = true;
   notice = 'The marble is rolling.';
+  audio.play('reveal');
   draw(false);
   const finish = () => {
     rolling = false;

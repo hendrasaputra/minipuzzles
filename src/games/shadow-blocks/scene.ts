@@ -57,7 +57,7 @@ export class ShadowScene {
     if (!drop) return;
     if (drop.previous !== undefined) drop.elapsed += Math.min(.075, Math.max(0, time - drop.previous));
     drop.previous = time;
-    const fall = .18;
+    const fall = .14;
     const progress = time === 0 ? 1 : Math.min(1, drop.elapsed / fall);
     drop.mesh.position.y = drop.height + .22 * (1 - progress ** 2);
     if (progress < 1) return;
@@ -69,12 +69,10 @@ export class ShadowScene {
         this.burst.start(x, drop.height - (blockHeight - .025) / 2, z, 'dust', Math.round(drop.height * 100), 6);
       }
       const since = drop.elapsed - fall;
-      const compression = .085 * Math.sin(Math.min(1, since / .15) * Math.PI);
-      drop.mesh.scale.y = 1 - compression;
-      drop.mesh.position.y = drop.height - compression * (blockHeight - .025) / 2;
+      const bounce = Math.min(1, since / .1);
+      drop.mesh.position.y = drop.height + .035 * 4 * bounce * (1 - bounce);
       if (this.burst.update(since)) return;
     }
-    drop.mesh.scale.y = 1;
     drop.mesh.position.y = drop.height;
     this.burst.clear();
     this.drop = undefined;

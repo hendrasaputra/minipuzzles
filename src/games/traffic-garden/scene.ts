@@ -154,7 +154,7 @@ export class TrafficScene {
     const center = start + car.length / 2;
     if (slide.previous !== undefined) slide.elapsed += Math.min(.075, Math.max(0, time - slide.previous));
     slide.previous = time;
-    const duration = slide.blocked ? .19 : .2 + Math.min(.14, Math.abs(slide.offset) * .055);
+    const duration = slide.blocked ? .14 : .15 + Math.min(.12, Math.abs(slide.offset) * .045);
     const progress = time === 0 ? 1 : Math.min(1, slide.elapsed / duration);
     const travel = slide.offset * (1 - progress) ** 2;
     const squash = slide.blocked ? .045 * Math.sin(Math.PI * progress) : 0;
@@ -164,14 +164,15 @@ export class TrafficScene {
       part.mesh.scale[axis] = part.scale * (1 - squash);
       if (part.wheel) part.mesh.rotation[axis === 'x' ? 'z' : 'x'] = (axis === 'x' ? -1 : 1) * travel / .115;
     }
-    if (time === 0 || (slide.blocked && progress === 1)) { this.clearEffect(); return; }
+    if (time === 0) { this.clearEffect(); return; }
     if (progress < 1) return;
     if (!slide.contact) {
       slide.contact = true;
       slide.elapsed = duration;
       const rear = slide.sign > 0 ? .18 : car.length - .18;
-      this.burst.start(car.x + (axis === 'x' ? rear : .5), .025, car.y + (axis === 'x' ? .5 : rear),
-        car.id === 'coral' && car.x >= 6 ? 'spark' : 'dust', this.game?.history.length, 6);
+      const contact = slide.blocked ? car.length - rear : rear;
+      this.burst.start(car.x + (axis === 'x' ? contact : .5), .025, car.y + (axis === 'x' ? .5 : contact),
+        slide.blocked || (car.id === 'coral' && car.x >= 6) ? 'spark' : 'dust', this.game?.history.length, slide.blocked ? 4 : 6);
     }
     if (!this.burst.update(slide.elapsed - duration)) this.clearEffect();
   };

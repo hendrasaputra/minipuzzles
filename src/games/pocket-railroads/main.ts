@@ -9,7 +9,7 @@ import { RailScene, stations } from './scene';
 import { readSave, writeSave } from './storage';
 
 const key = 'puzzles-pocket-railroads-v1';
-const audio = new GameAudio();
+const audio = new GameAudio('pocket-railroads');
 const tierNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 let game = createGame(levels[0]);
 let completed: string[] = [];
@@ -169,6 +169,7 @@ function send() {
   const route = trace(game);
   moving = true;
   notice = 'The train is on its way.';
+  audio.play('reveal');
   draw(false);
   const finish = () => {
     moving = false;

@@ -62,6 +62,15 @@ function fixture() {
 beforeEach(() => vi.clearAllMocks());
 
 describe('Rolling Stone landing', () => {
+  it('recoils slightly at contact without deforming the stone', () => {
+    const { rollEast, frame, stone } = fixture();
+    rollEast();
+    for (let i = 0; i <= 3; i++) frame(1 + i * .08);
+    expect(stone.position.y).toBeGreaterThan(.5);
+    expect(stone.position.y).toBeLessThan(.52);
+    expect(stone.scale.toArray()).toEqual([1, 1, 1]);
+  });
+
   it('shows different cues for flat and upright contact and ends at the exact pose', () => {
     const { game, rollEast, frame, stone } = fixture();
     rollEast();

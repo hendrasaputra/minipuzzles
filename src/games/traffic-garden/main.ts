@@ -10,7 +10,7 @@ import { GameAudio } from '../../shared/audio';
 
 type Difficulty=Puzzle['difficulty'];
 const KEY='puzzles-traffic-garden-v1';
-const sounds=new GameAudio();
+const sounds=new GameAudio('traffic-garden');
 let game:Game,selected='coral',notice='',storageAvailable=true;
 let loading=false;
 try {

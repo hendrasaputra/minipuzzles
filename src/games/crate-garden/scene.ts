@@ -5,7 +5,7 @@ import { PixelBurst } from '../../shared/pixel-burst';
 import { MiniScene } from '../../shared/mini-scene';
 
 type Point = { x: number; y: number };
-type Part = { mesh: Mesh; x: number; z: number };
+type Part = { mesh: Mesh; x: number; y: number; z: number };
 export type StepCue = 'move' | { blocked: Direction };
 const vectors: Record<Direction, Point> = {
   n: { x: 0, y: -1 }, e: { x: 1, y: 0 }, s: { x: 0, y: 1 }, w: { x: -1, y: 0 },
@@ -105,17 +105,18 @@ export class CrateScene {
     if (!move) return;
     if (move.previous !== undefined) move.elapsed += Math.min(.075, Math.max(0, seconds - move.previous));
     move.previous = seconds;
-    const duration = move.blocked ? .17 : move.crate ? .25 : .16;
+    const duration = move.blocked ? .12 : move.crate ? .19 : .12;
     const progress = seconds === 0 ? 1 : Math.min(1, move.elapsed / duration);
-    const position = (parts: Part[], distance: number) => {
-      for (const { mesh, x, z } of parts) {
+    const position = (parts: Part[], distance: number, lift = 0) => {
+      for (const { mesh, x, y, z } of parts) {
         mesh.position.x = x + move.dx * distance;
+        mesh.position.y = y + lift;
         mesh.position.z = z + move.dy * distance;
       }
     };
     const walk = move.blocked ? .1 * Math.sin(progress * Math.PI) : -((1 - progress) ** 2);
     // A push accelerates the crate after the gardener leans into it.
-    position(this.parts, walk);
+    position(this.parts, walk, move.blocked ? 0 : .055 * Math.sin(progress * Math.PI));
     position(this.crateParts, -(1 - progress * progress * (3 - 2 * progress)));
     if (progress < 1) return;
     if (seconds !== 0 && move.crate) {
@@ -123,9 +124,9 @@ export class CrateScene {
         move.contact = true;
         move.elapsed = duration;
         this.burst.start(move.crate.x + .5, .03, move.crate.y + .5,
-          move.planted ? 'leaf' : 'dust', this.game?.pushes, move.planted ? 8 : 5);
+          move.planted ? 'leaf' : 'dust', this.game?.pushes, move.planted ? 12 : 8);
       }
-      if (this.burst.update(move.elapsed - duration)) return;
+    if (this.burst.update((move.elapsed - duration) * 1.8)) return;
     }
     this.burst.clear();
     this.moving = undefined;
@@ -156,7 +157,7 @@ export class CrateScene {
       const {x,y}=crate,owner=`tile:${x},${y}`,onGoal=has(goals,x,y),wood=onGoal?'#9bae73':'#c79c62',trim=onGoal?'#cad69e':'#e3bd7b';
       const part = (px: number, py: number, w: number, h: number, low: number, high: number, color: string) => {
         const mesh = this.box(px, py, w, h, low, high, color, owner);
-        if (mesh && this.moving?.crate === crate) this.crateParts.push({ mesh, x: mesh.position.x, z: mesh.position.z });
+        if (mesh && this.moving?.crate === crate) this.crateParts.push({ mesh, ...mesh.position });
       };
       part(x+.1,y+.1,.8,.8,.02,.7,wood);
       part(x+.09,y+.09,.82,.82,.69,.78,trim);
@@ -175,7 +176,7 @@ export class CrateScene {
     const {x,y}=game.player,owner=`tile:${game.player.x},${game.player.y}`;
     const part = (px: number, py: number, w: number, h: number, low: number, high: number, color: string) => {
       const mesh = this.box(px, py, w, h, low, high, color, owner);
-      if (mesh && this.moving) this.parts.push({ mesh, x: mesh.position.x, z: mesh.position.z });
+      if (mesh && this.moving) this.parts.push({ mesh, ...mesh.position });
     };
     part(x+.25,y+.3,.19,.4,0,.15,'#705b54');part(x+.55,y+.3,.19,.4,0,.15,'#705b54');
     part(x+.25,y+.28,.5,.44,.14,.6,'#ba8995');

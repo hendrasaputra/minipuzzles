@@ -14,8 +14,8 @@ function orientation(block: Block): THREE.Quaternion {
     block.stance === 'y' ? Math.PI / 2 : 0, 0, block.stance === 'x' ? Math.PI / 2 : 0));
 }
 
-const rollDuration = .23;
-const settleDuration = .16;
+const rollDuration = .19;
+const settleDuration = .12;
 
 export class StoneScene {
   private readonly mini: MiniScene;
@@ -138,11 +138,7 @@ export class StoneScene {
     }
     const age = roll.elapsed - rollDuration;
     const t = Math.min(1, age / settleDuration);
-    const compression = 1 - (upright ? .055 : .085) * Math.sin(Math.PI * t) ** 2;
-    // Scale along the stone's local axis that points up in its landing pose.
-    const vertical = block.stance === 'x' ? 'x' : block.stance === 'y' ? 'z' : 'y';
-    this.stone.scale[vertical] = compression;
-    this.stone.position.y *= compression;
+    this.stone.position.y += (upright ? .028 : .016) * Math.sin(Math.PI * t) ** 2;
     const active = this.burst.update(age);
     if (!active && t === 1) {
       this.pose();

@@ -9,7 +9,7 @@ import { StoneScene } from './scene';
 import { readSave, writeSave, type Save } from './storage';
 
 const key = 'puzzles-rolling-stone-v1';
-const audio = new GameAudio();
+const audio = new GameAudio('rolling-stone');
 const names = { n: 'North', e: 'East', s: 'South', w: 'West' };
 const glyphs = { n: '↗', e: '↘', s: '↙', w: '↖' };
 const difficultyNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };

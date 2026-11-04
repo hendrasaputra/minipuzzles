@@ -179,7 +179,7 @@ export class RailScene {
   send(points: Point[], correct: boolean, done: () => void) {
     this.cancelInput();
     const path = curve(points);
-    this.ride = { path, duration: Math.max(.45, path.getLength() / 3.4), elapsed: 0, done, correct };
+    this.ride = { path, duration: Math.max(.4, path.getLength() / 4.25), elapsed: 0, done, correct };
     this.burst.start(points[0].x - .2, .09, points[0].y, 'dust', 1, 5);
     this.motion.refresh();
   }
@@ -207,13 +207,17 @@ export class RailScene {
     else this.burst.update(ride.elapsed);
     this.steam.forEach((puff, index) => {
       const delay = .055 + index * .068;
-      puff.visible = progress < 1 && ride.elapsed > delay;
+      puff.visible = seconds !== 0 && progress < 1 && ride.elapsed > delay;
       if (!puff.visible) return;
       const t = (ride.elapsed - delay) / ride.duration;
-      const point = ride.path.getPoint(t * t * (3 - 2 * t));
-      puff.position.set(point.x, .56 + delay, point.z + Math.sin(index * 2.1) * .05);
-      puff.scale.setScalar(.63 + index * .13);
-      (puff.material as THREE.MeshLambertMaterial).opacity = .72 - index * .09;
+      const emittedAt = t * t * (3 - 2 * t);
+      const point = ride.path.getPoint(emittedAt);
+      const heading = ride.path.getTangent(emittedAt);
+      puff.position.set(point.x + heading.x * .18 + delay * .13, .57 + delay * .67,
+        point.z + heading.z * .18 + Math.sin(index * 2.1) * delay * .17);
+      puff.scale.setScalar(.47 + delay * 2.65);
+      const fade = Math.min(1, (ride.duration - ride.elapsed) / .15);
+      (puff.material as THREE.MeshLambertMaterial).opacity = (.78 - delay * 1.65) * fade;
     });
     if (progress < 1) return;
     this.ride = undefined;

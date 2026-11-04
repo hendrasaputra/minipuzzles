@@ -9,7 +9,7 @@ import { StoneScene } from './scene';
 import { readSave, writeSave, type Save } from './storage';
 
 const key = 'puzzles-stepping-stones-v1';
-const audio = new GameAudio();
+const audio = new GameAudio('stepping-stones');
 const arrows = { n: '↑', e: '→', s: '↓', w: '←' };
 const names = { n: 'North', e: 'East', s: 'South', w: 'West' };
 const tiers = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };

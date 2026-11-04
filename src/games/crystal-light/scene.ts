@@ -6,6 +6,7 @@ import { beamArrival, LaserLight } from './laser';
 import { PixelBurst } from '../../shared/pixel-burst';
 
 type Point={x:number;y:number};
+const turnDuration = .12;
 
 /** Mirror turns are tap-only; the shared camera owns orbit, tilt and pinch. */
 export class CrystalScene {
@@ -16,7 +17,7 @@ export class CrystalScene {
   private lit = new Set<string>();
   private moves = 0;
   private pulse?: { elapsed: number; last?: number; target?: Point; arrival: number };
-  private mirrorParts: { mesh: THREE.Mesh; yaw: number }[] = [];
+  private mirrorParts: { mesh: THREE.Mesh; yaw: number; from: number }[] = [];
   private motion:MaterialMotion;
   private selected:string|null=null;
   private pointers=new Set<number>();
@@ -69,9 +70,11 @@ export class CrystalScene {
       pulse.last = seconds;
     }
     const t = seconds === 0 ? Infinity : pulse?.elapsed ?? Infinity;
-    this.laser?.update(seconds, t);
-    const kick = t < .28 ? Math.sin(t * 34) * Math.exp(-t * 15) * .15 : 0;
-    for (const { mesh, yaw } of this.mirrorParts) mesh.rotation.y = yaw + kick;
+    this.laser?.update(seconds, t - turnDuration);
+    const turn = Math.min(1, t / turnDuration);
+    for (const { mesh, yaw, from } of this.mirrorParts) {
+      mesh.rotation.y = yaw + (from - yaw) * (1 - turn) ** 2;
+    }
     if (pulse?.target && t >= pulse.arrival && seconds > 0) {
       const { x, y } = pulse.target;
       this.glint.start(x + .5, .55, y + .5, 'spark', x + y * 17, 7);
@@ -102,7 +105,7 @@ export class CrystalScene {
     }
     this.laser=new LaserLight(this.mini,light.segments,forward);
     this.pulse = forward ? { elapsed: 0, target,
-      arrival: target ? beamArrival(light.segments, target) / this.laser.pulseSpeed : Infinity } : undefined;
+      arrival: target ? turnDuration + beamArrival(light.segments, target) / this.laser.pulseSpeed : Infinity } : undefined;
     for(const {x,y} of crystals){
       const lit=light.lit.some(cell=>cell.x===x&&cell.y===y);
       this.mini.box(x+.18,y+.18,x+.82,y+.82,0,.09,'#c5b9d1');
@@ -116,7 +119,11 @@ export class CrystalScene {
       this.mini.box(x+.41,y+.41,x+.59,y+.59,.12,.3,'#b79a62',id);
       const frame = this.mini.mesh(new THREE.BoxGeometry(1.02,.76,.12),new THREE.MeshLambertMaterial({color:'#c6a468'}),x+.5,y+.5,.62,id,yaw);
       const glass = this.mini.mesh(new THREE.BoxGeometry(.84,.58,.14),new THREE.MeshLambertMaterial({color:'#b6cbd2'}),x+.5,y+.5,.62,id,yaw);
-      if (forward && id === game.history.at(-1)) this.mirrorParts.push({mesh:frame,yaw},{mesh:glass,yaw});
+      if (forward && id === game.history.at(-1)) {
+        const from = -yaw;
+        frame.rotation.y = glass.rotation.y = from;
+        this.mirrorParts.push({ mesh: frame, yaw, from }, { mesh: glass, yaw, from });
+      }
       if(this.selected===id){
         for(const dy of [.07,.9])this.mini.box(x+.07,y+dy,x+.93,y+dy+.03,.025,.055,'#c19944',id);
         for(const dx of [.07,.9])this.mini.box(x+dx,y+.07,x+dx+.03,y+.93,.025,.055,'#c19944',id);

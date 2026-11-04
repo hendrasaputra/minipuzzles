@@ -8,7 +8,7 @@ import { GameAudio } from '../../shared/audio';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { generateGarden, type RandomGarden } from './random';
 
-const KEY='puzzles-water-garden-v1',audio=new GameAudio();
+const KEY='puzzles-water-garden-v1',audio=new GameAudio('water-garden');
 let random: RandomGarden | undefined;
 let index=0,game=createGame(levels[0]),selected=game.pipes[0].id,completed:string[]=[],notice='',saving=true;
 try{const raw=localStorage.getItem(KEY),saved=readSave(raw);if(saved){({index,game,selected,completed,random}=saved);}else if(raw)notice='Could not load your save. A new puzzle is open.';}catch{saving=false;}

@@ -9,7 +9,7 @@ import { ShadowScene, columns } from './scene';
 import { readSave, writeSave } from './storage';
 
 const key = 'puzzles-shadow-blocks-v1';
-const audio = new GameAudio();
+const audio = new GameAudio('shadow-blocks');
 const difficultyNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 let game = createGame(levels[0]);
 let selected = 0;

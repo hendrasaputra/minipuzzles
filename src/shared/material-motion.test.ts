@@ -21,10 +21,10 @@ describe('shared material motion',()=>{
     events.get('pageshow')!();
     expect(frames.size).toBe(0);
   });
-  it('stays idle until needed, owns one loop and limits painting to30fps',()=>{
+  it('stays idle until needed and caps painting on high-refresh screens',()=>{
     const update=vi.fn(),paint=vi.fn(),motion=new MaterialMotion(update,paint);expect(frames.size).toBe(0);
     motion.refresh();motion.refresh();expect(frames.size).toBe(1);update.mockClear();paint.mockClear();
-    tick(1000);tick(1016);tick(1034);expect(update.mock.calls.map(call=>call[0])).toEqual([1,1.034]);expect(paint).toHaveBeenCalledTimes(2);expect(frames.size).toBe(1);
+    tick(1000);tick(1008);tick(1016);expect(update.mock.calls.map(call=>call[0])).toEqual([1,1.016]);expect(paint).toHaveBeenCalledTimes(2);expect(frames.size).toBe(1);
   });
   it('stops hidden or suspended pages and resumes only one loop',()=>{
     const update=vi.fn(),motion=new MaterialMotion(update,()=>{});motion.refresh();

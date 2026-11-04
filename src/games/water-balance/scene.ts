@@ -19,6 +19,7 @@ export class BalanceScene {
   private shells: { mesh: THREE.Mesh; height: number }[][] = [];
   private readonly splash = new PixelBurst('splash');
   private readonly stream = new THREE.QuadraticBezierCurve3();
+  private readonly tangent = new THREE.Vector3();
   private pourNumber = 0;
   private drops: THREE.Mesh[] = [];
   private press?: { id: number; x: number; y: number; jug: string };
@@ -105,10 +106,11 @@ export class BalanceScene {
     }
     const top = Math.max(...level.capacities) * literHeight + .7;
     for (let i = 0; i < 12; i++) {
-      const drop = this.mini.mesh(new THREE.SphereGeometry(.034, 8, 6),
+      const drop = this.mini.mesh(new THREE.OctahedronGeometry(.043),
         new THREE.MeshBasicMaterial({ color: i % 3 === 0 ? '#c1ecf0' : '#66b6cd' }),
         spacing, 0, top);
       drop.castShadow = false;
+      drop.scale.y = 1.65;
       drop.visible = false;
       this.drops.push(drop);
     }
@@ -184,8 +186,11 @@ export class BalanceScene {
       const emitted = elapsed - age;
       drop.visible = seconds !== 0 && latest >= 0 && emitted <= returnStart && elapsed < pourEnd;
       if (drop.visible) {
-        this.stream.getPoint(age / dropTravel, drop.position);
+        const progress = age / dropTravel;
+        this.stream.getPoint(progress, drop.position);
         drop.position.z += Math.sin(i * 2.4) * .06;
+        this.stream.getTangent(progress, this.tangent);
+        drop.rotation.z = Math.atan2(-this.tangent.x, this.tangent.y);
       }
     });
 

@@ -88,7 +88,7 @@ export class RollEffect {
   ) {
     this.path = rollCurve(points, reached);
     this.length = this.path.getLength();
-    this.duration = Math.max(.36, this.length / 3.5);
+    this.duration = Math.max(.31, this.length / 4.4);
     this.end = this.path.getPoint(1);
     this.marble.position.copy(this.path.getPoint(0));
     this.marble.quaternion.identity();
@@ -102,7 +102,7 @@ export class RollEffect {
       return true;
     }
 
-    const settle = this.reached ? .42 : .18;
+    const settle = this.reached ? .34 : .18;
     const travel = this.duration;
     const progressAt = (elapsed: number) => {
       const t = Math.min(1, elapsed / travel);
@@ -113,7 +113,7 @@ export class RollEffect {
     };
     const before = progressAt(this.elapsed);
     if (this.previousTime !== undefined) {
-      this.elapsed += Math.min(.09, Math.max(0, seconds - this.previousTime));
+      this.elapsed += Math.min(.07, Math.max(0, seconds - this.previousTime));
     }
     this.previousTime = seconds;
     const progress = progressAt(this.elapsed);
@@ -142,7 +142,7 @@ export class RollEffect {
         return;
       }
 
-      const delay = .12 + index * .018;
+      const delay = .08 + index * .017;
       const behind = progressAt(this.elapsed - delay);
       mesh.visible = index < 8 && this.elapsed > delay;
       if (!mesh.visible) return;

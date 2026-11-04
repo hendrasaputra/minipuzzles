@@ -4,12 +4,14 @@ import { PixelBurst } from '../../shared/pixel-burst';
 import { MiniScene } from '../../shared/mini-scene';
 import { currentGap, type Game, type Point, type View } from './engine';
 
+const bridgeDuration = .22;
+
 export class PathScene {
   private readonly mini: MiniScene;
   private readonly motion: MaterialMotion;
   private readonly direction = new THREE.Vector3();
   private readonly burst = new PixelBurst();
-  private growing?: { mesh: THREE.Mesh; elapsed: number; previous?: number; sparked: boolean };
+  private growing?: { mesh: THREE.Mesh; end: Point; elapsed: number; previous?: number; sparked: boolean };
   private game?: Game;
 
   constructor(private readonly host: HTMLElement, onView: () => void) {
@@ -59,7 +61,9 @@ export class PathScene {
     }
     for (let i = 0; i < game.history.length; i++) {
       const mesh = this.bridge(points[i], points[i + 1]);
-      if (animateBridge && i === game.history.length - 1) this.growing = { mesh, elapsed: 0, sparked: false };
+      if (animateBridge && i === game.history.length - 1) {
+        this.growing = { mesh, end: points[i + 1], elapsed: 0, sparked: false };
+      }
     }
     this.mini.render();
     if (this.growing) this.motion.refresh();
@@ -82,14 +86,14 @@ export class PathScene {
       growing.elapsed += Math.min(.075, Math.max(0, seconds - growing.previous));
     }
     growing.previous = seconds;
-    const t = Math.min(1, growing.elapsed / .3);
-    growing.mesh.scale.x = .08 + .92 * (1 - (1 - t) ** 3) + .07 * Math.sin(t * Math.PI * 2) * (1 - t);
-    if (seconds !== 0 && !growing.sparked && growing.elapsed >= .2) {
-      const { x, y, z } = growing.mesh.position;
-      this.burst.start(x, y + .065, z, 'spark', this.game?.history.length, 5);
+    const t = Math.min(1, growing.elapsed / bridgeDuration);
+    growing.mesh.scale.x = .08 + .92 * (1 - (1 - t) ** 3);
+    if (seconds !== 0 && !growing.sparked && t === 1) {
+      const { x, y, z } = growing.end;
+      this.burst.start(x, z + .16, y, 'spark', this.game?.history.length, 5);
       growing.sparked = true;
     }
-    if (!this.burst.update(growing.elapsed - .2) && t === 1) {
+    if (!this.burst.update(growing.elapsed - bridgeDuration) && t === 1) {
       this.growing = undefined;
       this.motion.stop();
     }

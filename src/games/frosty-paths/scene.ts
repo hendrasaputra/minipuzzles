@@ -19,7 +19,7 @@ export class FrostScene {
   private ice?:IceEffect;
   private game?:Game;
   private logical?:Point;
-  private slide?:{from:Point;to:Point;elapsed:number;last:number;pickups:Point[]};
+  private slide?:{from:Point;to:Point;elapsed:number;last:number;duration:number;pickups:Point[]};
   private burst = new PixelBurst();
   private moves = 0;
   private effectTime = 0;
@@ -50,7 +50,8 @@ export class FrostScene {
     if (from) pickups.sort((a, b) =>
       Math.hypot(a.x - from.x, a.y - from.y) - Math.hypot(b.x - from.x, b.y - from.y));
     this.slide = this.game === game && from && game.moves >= this.moves && (from.x !== to.x || from.y !== to.y)
-      ? { from, to, elapsed: 0, last: performance.now() / 1000, pickups }
+      ? { from, to, elapsed: 0, last: performance.now() / 1000, pickups,
+        duration: Math.min(.29, .15 + Math.hypot(to.x - from.x, to.y - from.y) * .025) }
       : undefined;
     this.moves = game.moves;
     this.burst.clear();
@@ -98,7 +99,7 @@ export class FrostScene {
         slide.elapsed += Math.min(.08, Math.max(0, seconds - slide.last));
         slide.last = seconds;
       }
-      const progress = seconds === 0 ? 1 : slide.elapsed / .32;
+      const progress = seconds === 0 ? 1 : slide.elapsed / slide.duration;
       const point = slidePoint(slide.from, slide.to, progress);
       for (const part of this.penguin) {
         part.mesh.position.set(part.position.x + (point.x - slide.to.x), part.position.y,
@@ -124,7 +125,7 @@ export class FrostScene {
     }
     if (this.landing && !this.pendingPickups.length && seconds > 0 && this.effectTime - this.burstAt >= .18) {
       const {x,y} = this.landing;
-      this.burst.start(x + .5, .02, y + .5, 'ice', x + y * 17, 6);
+      this.burst.start(x + .5, .02, y + .5, 'ice', x + y * 17, 8);
       this.burstAt = this.effectTime;
       this.landing = undefined;
     }

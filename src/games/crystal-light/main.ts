@@ -8,7 +8,7 @@ import { GameAudio } from '../../shared/audio';
 import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { generateRandomLight, type RandomLight } from './random';
 
-const KEY='puzzles-crystal-light-v1',audio=new GameAudio();
+const KEY='puzzles-crystal-light-v1',audio=new GameAudio('crystal-light');
 let index=0,game=createGame(levels[0]),selected=game.mirrors[0].id,completed:string[]=[],notice='',saving=true;
 let random: RandomLight | undefined;
 try{const raw=localStorage.getItem(KEY),saved=readSave(raw);if(saved){({index,game,selected,completed,random}=saved);}else if(raw)notice='Could not load your save. A new puzzle is open.';}catch{saving=false;}

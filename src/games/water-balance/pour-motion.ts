@@ -1,8 +1,8 @@
-export const pourStart = .08;
-export const dropTravel = .16;
+export const pourStart = .06;
+export const dropTravel = .13;
 export const firstContact = pourStart + dropTravel;
-export const pourEnd = .65;
-export const settleEnd = .86;
+export const pourEnd = .53;
+export const settleEnd = .72;
 
 export function transferProgress(elapsed: number): number {
   return Math.min(1, Math.max(0, (elapsed - firstContact) / (pourEnd - firstContact)));

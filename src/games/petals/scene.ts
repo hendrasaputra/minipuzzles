@@ -7,6 +7,14 @@ import { MaterialMotion } from '../../shared/material-motion';
 import { PixelBurst } from '../../shared/pixel-burst';
 
 const colors = ['#596fa2', '#558976', '#bc657a', '#8573ae', '#b07845', '#4e919c', '#7c7182', '#514454'];
+export type TileFeedback = TileHit & { kind: 'reveal' | 'flood' | 'flag' | 'unflag' | 'chord' };
+const feedback = {
+  reveal: { color: '#ba7896', reach: 1, count: 6 },
+  flood: { color: '#ba7896', reach: 1.5, count: 10 },
+  flag: { color: '#ba6888', reach: .95, count: 8 },
+  unflag: { color: '#ba7896', reach: .85, count: 4 },
+  chord: { color: '#aa7d43', reach: 1.55, count: 12 },
+};
 interface Batch {
   geometry: THREE.BufferGeometry;
   material: THREE.Material;
@@ -45,6 +53,8 @@ export class BoardScene {
   private active = -1;
   private hold?: ReturnType<typeof setTimeout>;
   private burst = new PixelBurst('mine');
+  private chips = new PixelBurst();
+  private rippleReach = 1;
   private ripple = new THREE.LineLoop(
     new THREE.BufferGeometry().setFromPoints([[-.4, -.4], [.4, -.4], [.4, .4], [-.4, .4]]
       .map(([x, z]) => new THREE.Vector3(x, 0, z))),
@@ -68,7 +78,7 @@ export class BoardScene {
     this.sun.position.set(-6, 12, 5); this.sun.castShadow = true;
     this.sun.shadow.mapSize.set(2048, 2048); this.sun.shadow.normalBias = .03;
     this.ripple.visible = false;
-    this.scene.add(this.sun, this.board, this.burst.object, this.ripple);
+    this.scene.add(this.sun, this.board, this.burst.object, this.chips.object, this.ripple);
     this.motion = new MaterialMotion(this.animateEffect, () => {
       const shadows = this.renderer.shadowMap.autoUpdate;
       this.renderer.shadowMap.autoUpdate = false;
@@ -104,7 +114,7 @@ export class BoardScene {
     if(!this.labelMaterials.has(materialKey)) this.labelMaterials.set(materialKey,new THREE.MeshBasicMaterial({map:this.textures.get(key),transparent:true,depthWrite:false,opacity:this.dimmed ? .35 : 1}));
     return this.labelMaterials.get(materialKey)!;
   }
-  update(game:Game, active:number, exploded:boolean, inspected?:TileHit, revealed?:TileHit) {
+  update(game:Game, active:number, exploded:boolean, inspected?:TileHit, action?:TileFeedback) {
     const hit = game === this.game && game.status === 'lost' && !this.lost ? game.exploded : undefined;
     if (game !== this.game || active !== this.active || exploded !== this.exploded) this.clearEffect();
     this.lost = game.status === 'lost';
@@ -170,7 +180,7 @@ export class BoardScene {
     const shadowExtent=Math.max(width,height)+floors*3;
     Object.assign(this.sun.shadow.camera,{left:-shadowExtent,right:shadowExtent,top:shadowExtent,bottom:-shadowExtent});this.sun.shadow.camera.updateProjectionMatrix();
     this.resize();
-    const cue = hit ?? revealed;
+    const cue = hit ?? action;
     if (cue && (exploded || cue.floor === active)) {
       this.clearEffect();
       const offset = exploded ? (cue.floor - (floors - 1) / 2) * 1.4 : 0;
@@ -178,9 +188,14 @@ export class BoardScene {
       const z = Math.floor(cue.index / width) - (height - 1) / 2 - offset;
       const y = (exploded ? cue.floor * 2.3 : 0) + .235;
       if (hit) this.burst.start(x, y, z, 'dust', cue.index, 10);
-      else {
+      else if (action) {
+        const style = feedback[action.kind];
+        this.rippleReach = style.reach;
         this.ripple.position.set(x, y, z);
+        this.ripple.material.color.set(style.color);
         this.ripple.visible = true;
+        this.chips.start(x, y, z, action.kind === 'flag' || action.kind === 'chord' ? 'spark' : 'dust',
+          cue.index, style.count);
       }
       this.motion.refresh();
     }
@@ -189,6 +204,7 @@ export class BoardScene {
   private clearEffect() {
     this.motion.stop();
     this.burst.clear();
+    this.chips.clear();
     this.ripple.visible = false;
     this.effectTime = 0;
     this.lastEffectTime = undefined;
@@ -201,12 +217,14 @@ export class BoardScene {
     }
     this.lastEffectTime = seconds;
     if (this.ripple.visible) {
-      const progress = this.effectTime / .26;
+      const progress = Math.min(1, this.effectTime / .22);
       this.ripple.visible = progress < 1;
-      this.ripple.scale.setScalar(.75 + progress * .5);
-      this.ripple.material.opacity = .55 * (1 - Math.min(1, progress));
+      this.ripple.scale.setScalar(.68 + (this.rippleReach - .68) * (1 - (1 - progress) ** 3));
+      this.ripple.material.opacity = .66 * (1 - progress) ** 2;
     }
-    if (!this.burst.update(this.effectTime) && !this.ripple.visible) this.clearEffect();
+    const impact = this.burst.update(this.effectTime);
+    const chips = this.chips.update(this.effectTime * 2.4);
+    if (!impact && !chips && !this.ripple.visible) this.clearEffect();
   };
 
   private resize(){

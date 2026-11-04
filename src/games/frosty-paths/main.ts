@@ -9,7 +9,7 @@ import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { generatePath, type RandomPath } from './random';
 
 const KEY='puzzles-frosty-paths-v1';
-const audio=new GameAudio();
+const audio=new GameAudio('frosty-paths');
 let index=0,completed:string[]=[],game=createGame(levels[0]),notice='',saving=true;
 let random:RandomPath|undefined;
 try{const saved=readSave(localStorage.getItem(KEY));if(saved){index=saved.index;game=saved.game;completed=saved.completed;random=saved.random;}}catch{saving=false;}

@@ -18,8 +18,8 @@ export function stackName(index: number): string {
 
 const pitch = 1.17;
 const blockHeight = .53;
-const travelTime = .26;
-const settleTime = .13;
+const travelTime = .20;
+const settleTime = .10;
 
 export class StackScene {
   private readonly mini: MiniScene;
@@ -85,7 +85,7 @@ export class StackScene {
     const bottom = moving.to.y - (blockHeight - .023) / 2;
     if (!moving.landed) {
       moving.landed = true;
-      this.dust.start(moving.to.x, bottom, moving.to.z, 'dust', 5, moving.sorted ? 8 : 5);
+      this.dust.start(moving.to.x, bottom, moving.to.z, moving.sorted ? 'spark' : 'dust', 5, moving.sorted ? 8 : 5);
     }
     const settle = Math.min(1, landedTime / settleTime);
     moving.mesh.scale.y = 1 - .08 * Math.sin(Math.PI * settle) * (1 - settle);

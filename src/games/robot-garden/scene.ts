@@ -7,6 +7,7 @@ import type { Direction, Level, Position } from './engine';
 const vectors: Record<Direction, [number, number]> = {
   n: [0, -1], e: [1, 0], s: [0, 1], w: [-1, 0],
 };
+const stepDuration = .22;
 
 export class RobotScene {
   private readonly mini: MiniScene;
@@ -124,7 +125,7 @@ export class RobotScene {
       if (!recovery) return;
       recovery.elapsed += Math.min(.1, Math.max(0, seconds - recovery.previous));
       recovery.previous = seconds;
-      const t = seconds === 0 ? 1 : Math.min(1, recovery.elapsed / .22);
+      const t = seconds === 0 ? 1 : Math.min(1, recovery.elapsed / .17);
       this.place(recovery.position, recovery.position, 0, t === 1 ? 0 : Math.sin(t * Math.PI) * .12, recovery.direction);
       if (seconds === 0 || !this.burst.update(recovery.elapsed)) {
         this.burst.clear();
@@ -134,10 +135,10 @@ export class RobotScene {
       return;
     }
     const last = trip.path.length - 1;
-    if (seconds === 0) trip.elapsed = last * .28;
+    if (seconds === 0) trip.elapsed = last * stepDuration;
     else if (trip.previous !== undefined) trip.elapsed += Math.min(.1, Math.max(0, seconds - trip.previous));
     trip.previous = seconds;
-    const progress = seconds === 0 ? last : Math.min(last, trip.elapsed / .28);
+    const progress = seconds === 0 ? last : Math.min(last, trip.elapsed / stepDuration);
     const index = Math.floor(progress);
     const position = trip.path[index];
     const next = trip.path[Math.min(last, index + 1)];

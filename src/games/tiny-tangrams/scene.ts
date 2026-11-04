@@ -4,6 +4,9 @@ import { MaterialMotion } from '../../shared/material-motion';
 import { bounceHeight, PixelBurst } from '../../shared/pixel-burst';
 import { canPlace, colors, complete, footprint, vertices, type Game, type Placement, type Point, type Triangle } from './engine';
 
+const dropTime = .13;
+const bounceTime = .12;
+
 function boundary(tiles: readonly Triangle[]): [Point, Point][] {
   const edges = new Map<string, [Point, Point]>();
   for (const tile of tiles) {
@@ -94,17 +97,20 @@ export class TangramScene {
       this.motion.stop();
       return;
     }
-    const wasAirborne = this.elapsed < .17;
+    const wasAirborne = this.elapsed < dropTime;
     if (this.previous !== undefined) this.elapsed += Math.max(0, Math.min(.05, seconds - this.previous));
     this.previous = seconds;
     if (this.drop) {
       const { mesh, x, y, piece } = this.drop;
-      const t = Math.min(1, this.elapsed / .17);
-      mesh.position.y = t < 1 ? .23 * (1 - t * t) : bounceHeight(.57, this.elapsed - .17);
+      const t = Math.min(1, this.elapsed / dropTime);
+      mesh.position.y = t < 1 ? .23 * (1 - t * t) : bounceHeight(.48, this.elapsed - dropTime);
       if (t === 1 && wasAirborne) this.burst.start(x, .05, y, 'spark', piece, 4);
-      if (this.elapsed >= .31) this.drop = undefined;
+      if (this.elapsed >= dropTime + bounceTime) {
+        mesh.position.y = 0;
+        this.drop = undefined;
+      }
     }
-    if (!this.burst.update(Math.max(0, this.elapsed - .17)) && !this.drop) this.motion.stop();
+    if (!this.burst.update(Math.max(0, this.elapsed - dropTime)) && !this.drop) this.motion.stop();
   };
 
   draw(game: Game, selected: number, draft: Placement, placedPiece?: number) {

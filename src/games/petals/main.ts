@@ -2,7 +2,7 @@ import './style.css';
 import { gameGuide } from '../../shared/game-guide';
 import { randomSeed } from '../../shared/random-puzzle';
 import { startGame, retryGame, reveal, toggleFlag, chord, clueNeighbors, type Game } from './engine';
-import { BoardScene } from './scene';
+import { BoardScene, type TileFeedback } from './scene';
 import { GameAudio, type SoundCue } from '../../shared/audio';
 import { BoardGesture, type GestureAction, type TileHit } from '../../shared/gestures';
 import { campaign } from './campaign';
@@ -11,7 +11,7 @@ import { nextDeduction } from './solver';
 import { readSession, readTransfer, matchesLevel, MAX_SAVE_BYTES, writeSession, type Session } from './storage';
 
 const KEY = 'petal-save-v2';
-const sounds=new GameAudio();
+const sounds=new GameAudio('petals');
 type Chapter = (typeof campaign)[number]['chapter'];
 const ids = campaign.map(level => level.id);
 let game = startGame(randomConfig('beginner',1,randomSeed()));
@@ -164,30 +164,38 @@ function act(floor:number,index:number,flag:boolean,doubleTap=false) {
   if (menu.open || rules.open || floor !== active) return;
   const cell = game.cells[floor][index]; notice = '';
   if (doubleTap && cell.revealed && !cell.mine) {performChord(floor,index);return;}
-  let revealed: TileHit | undefined;
+  let feedback: TileFeedback | undefined;
   if (cell.revealed && !flag) inspect(floor,index);
-  else if (flag || action === 'flag') moveSound(toggleFlag(game,floor,index),'flag');
+  else if (flag || action === 'flag') {
+    const changed = toggleFlag(game,floor,index);
+    moveSound(changed,'flag');
+    if (changed) feedback = { floor, index, kind: cell.flagged ? 'flag' : 'unflag' };
+  }
   else {
     const changed = reveal(game, floor, index);
     moveSound(changed, 'reveal');
     const opened = game.cells[floor][index];
-    if (changed && !opened.mine && opened.adjacent === 0) revealed = { floor, index };
+    if (changed && !opened.mine) feedback = { floor, index, kind: opened.adjacent === 0 ? 'flood' : 'reveal' };
   }
-  markCompletion(); draw(revealed); save();
+  markCompletion(); draw(feedback); save();
 }
 function performChord(floor:number,index:number) {
   notice='';
+  const origin = floor === active ? { floor, index } : clueNeighbors(game,floor,index).find(p => {
+    const cell = game.cells[p.floor][p.index];
+    return p.floor === active && !cell.revealed && !cell.flagged;
+  });
   const changed=chord(game,floor,index);moveSound(changed,'reveal');
   if(!changed) {
     const cell=game.cells[floor][index];
     if(!cell.revealed) notice='Reveal a number first.';
     else if(clueNeighbors(game,floor,index).filter(p=>game.cells[p.floor][p.index].flagged).length!==cell.adjacent) notice='Match the number with flags first.';
   }
-  markCompletion(); draw(); save();
+  markCompletion(); draw(changed && origin ? { ...origin, kind: 'chord' } : undefined); save();
 }
-function draw(revealed?: TileHit) {
+function draw(feedback?: TileFeedback) {
   const statusChanged=displayedStatus!==game.status;displayedStatus=game.status;
-  scene?.update(game,active,exploded,inspected,revealed);
+  scene?.update(game,active,exploded,inspected,feedback);
   const cells=game.cells.flat(), cleared=cells.filter(c=>c.revealed&&!c.mine).length;
   const c=chapter(), level=campaign.find(l=>l.id===levelId), terminal=game.status==='won'||game.status==='lost';
   $('sound-toggle').textContent=sounds.enabled?'Sound: on':'Sound: off';
@@ -335,9 +343,10 @@ $('hint').onclick=$('flat-hint').onclick=()=>{
   if(step==='contradiction'){notice='Check your flags before using Hint.';draw();return;}
   if(!step){notice='No hint found. Check your flags or try a new puzzle.';draw();return;}
   active=step.floor;
-  moveSound(step.action==='flag'?toggleFlag(game,step.floor,step.index):reveal(game,step.floor,step.index),step.action==='flag'?'flag':'reveal');
+  const changed = step.action==='flag'?toggleFlag(game,step.floor,step.index):reveal(game,step.floor,step.index);
+  moveSound(changed,step.action==='flag'?'flag':'reveal');
   inspected=step.sources[0];notice=`Hint: ${step.action==='flag'?'flagged':'opened'} floor ${step.floor+1}, row ${Math.floor(step.index/game.config.width)+1}, column ${step.index%game.config.width+1}.`;
-  markCompletion();draw();save();
+  markCompletion();draw(changed ? { floor: step.floor, index: step.index, kind: step.action } : undefined);save();
 };
 function openSheet(dialog:HTMLDialogElement) {
   scene?.cancelInput();cancelFlatInput();menu.close();

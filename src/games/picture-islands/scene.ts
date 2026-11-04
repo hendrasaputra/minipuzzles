@@ -4,11 +4,14 @@ import { PixelBurst } from '../../shared/pixel-burst';
 import { MiniScene } from '../../shared/mini-scene';
 import { clues, type Game } from './engine';
 
+const dropDuration = .16;
+const dropHeight = .13;
+
 export class IslandScene {
   private readonly mini: MiniScene;
   private readonly motion: MaterialMotion;
   private readonly finish = new PixelBurst();
-  private lift?: { mesh: THREE.Mesh; y: number; elapsed: number; previous?: number };
+  private lift?: { mesh: THREE.Mesh; y: number; elapsed: number; previous?: number; contact?: { cell: number; won: boolean } };
   private press?: { id: number; cell: string; x: number; y: number };
 
   constructor(host: HTMLElement, onCell: (cell: number) => void) {
@@ -51,9 +54,15 @@ export class IslandScene {
     if (time === 0) { this.clearFeedback(); return; }
     if (lift.previous !== undefined) lift.elapsed += Math.min(.075, Math.max(0, time - lift.previous));
     lift.previous = time;
-    const progress = Math.min(1, lift.elapsed / .24);
-    lift.mesh.position.y = lift.y + .12 * Math.sin(Math.PI * progress) * (1 - progress);
-    if (!this.finish.update(lift.elapsed) && progress === 1) this.clearFeedback();
+    const progress = Math.min(1, lift.elapsed / dropDuration);
+    lift.mesh.position.y = lift.y + dropHeight * (1 - progress ** 2);
+    if (progress < 1) return;
+    if (lift.contact) {
+      const { cell, won } = lift.contact;
+      this.finish.start(lift.mesh.position.x, .25, lift.mesh.position.z, won ? 'spark' : 'dust', cell, won ? 5 : 3);
+      lift.contact = undefined;
+    }
+    if (!this.finish.update(lift.elapsed - dropDuration)) this.clearFeedback();
   };
 
   draw(game: Game, guide: readonly number[], filled?: number, won = false) {
@@ -69,10 +78,9 @@ export class IslandScene {
         const height = .35;
         const center = -.11 + height / 2;
         const mesh = this.mini.mesh(new THREE.BoxGeometry(.91, height, .91),
-          new THREE.MeshLambertMaterial({ color: '#a775ab' }), x + .5, y + .5, center, String(cell));
+          new THREE.MeshLambertMaterial({ color: '#a775ab' }), x + .5, y + .5, center + dropHeight, String(cell));
         mesh.castShadow = false;
-        this.lift = { mesh, y: center, elapsed: 0 };
-        if (won) this.finish.start(x + .5, .25, y + .5, 'spark', cell, 5);
+        this.lift = { mesh, y: center, elapsed: 0, contact: { cell, won } };
       } else {
         this.mini.box(x + .045, y + .045, x + .955, y + .955, -.11, mark === 1 ? .24 : .045,
           mark === 1 ? '#a775ab' : guide.includes(cell) ? '#e9bc6e' : '#f2e5d7', String(cell));

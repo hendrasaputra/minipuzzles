@@ -186,3 +186,10 @@ The collection now has 21 playable games.
 - [x] Add Petals Volume with three solver-verified lessons and random puzzles.
 - [x] Add a local two-finger orbit prototype to Crate Garden.
 - [ ] Try the Crate Garden prototype on a physical phone.
+- [x] Verify two-finger rotation on a physical phone.
+- [x] Add a touch hint and prototype a grainier Crate Garden render.
+- [ ] Review the pixel finish and gesture hint on a physical phone.
+- [x] Give Crate Garden distinct pixel textures and build out the terrain and gardener.
+- [x] Give all 21 boards distinct pixel materials, setting details, and game-specific sound.
+- [ ] Review the full art pass and listen to the new cues on a physical phone.
+- [x] Restore the earlier board look across the collection and tune action motion and particles.

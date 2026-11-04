@@ -7,7 +7,7 @@ import { clues, complete, createGame, hint, levels, markCell, randomPuzzle, undo
 import { IslandScene } from './scene';
 import { readSave, saveKey, writeSave, type RandomSetup } from './storage';
 
-const audio = new GameAudio();
+const audio = new GameAudio('picture-islands');
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 let game = createGame(levels[0]);
 let finished: string[] = [];

@@ -9,7 +9,7 @@ import { RobotScene } from './scene';
 import { readSave, writeSave, type Save } from './storage';
 
 const key = 'puzzles-robot-garden-v1';
-const audio = new GameAudio();
+const audio = new GameAudio('robot-garden');
 const names = { n: 'North', e: 'East', s: 'South', w: 'West' };
 const arrows = { n: '↑', e: '→', s: '↓', w: '←' };
 const tiers = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
@@ -182,6 +182,7 @@ function startRun() {
   step = 0;
   position = startPosition(saved.level);
   notice = 'The robot is following your steps.';
+  audio.play('reveal');
   draw(false);
   const finish = () => {
     moving = false;
@@ -191,7 +192,10 @@ function startRun() {
       if (!saved.random && !saved.completed.includes(saved.level.id)) saved.completed.push(saved.level.id);
       audio.play('win');
     }
-    if (result.blocked) notice = `Step ${result.path.length} is blocked. Change your steps and run again.`;
+    if (result.blocked) {
+      notice = `Step ${result.path.length} is blocked. Change your steps and run again.`;
+      audio.play('loss');
+    }
     else if (position.cell !== saved.level.dock) notice = 'The robot must finish on the blue dock marked D.';
     else if (!result.won) notice = 'The robot reached the dock. Collect every seed first.';
     draw(false);

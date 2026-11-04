@@ -9,7 +9,7 @@ import { palette, StackScene, stackName } from './scene';
 import { readSave, writeSave, type Save } from './storage';
 
 const key = 'puzzles-color-stacks-v1';
-const audio = new GameAudio();
+const audio = new GameAudio('color-stacks');
 const tierNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 let data: Save = { game: createGame(levels[0]), completed: [] };
 let from = 0;
