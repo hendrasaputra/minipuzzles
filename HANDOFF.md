@@ -110,3 +110,7 @@ The owner explicitly requested publishing Frosty Paths with its 3D rotation and 
 ## Verified Frosty Paths release
 
 **4 November 2026:** source commit **5420daf** and Pages run **41758892888** succeeded. All 301 tests and the production build pass locally and in CI. Live browser checks confirmed the six-game shelf, full 3D orbit without changing progress, east/north slides collecting a fish and completing First glide in 2 slides, saved win after reload, native shelf navigation and no console warnings/errors. Smooth slides, ice glints and drifting snow remain included, using MaterialMotion's hidden-tab/reduced-motion handling. `docs/frosty-paths-live.jpg` records the public result. Physical-phone GPU/battery performance remains unchecked.
+
+## Random puzzle modes
+
+Crate Garden, Crystal Light, Water Garden, and Frosty Paths now offer seeded Easy, Medium, and Hard puzzles in Menu. Each keeps its eight authored levels. Retry restores the opening, reload replays the saved moves, and random wins stay separate from campaign completion. Existing save keys and authored level IDs are retained. Petals already offers four sizes and connected floors. Traffic Garden already has three solver-checked tiers. Both retain their existing generation rules.

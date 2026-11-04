@@ -1,4 +1,5 @@
 import './style.css';
+import { randomSeed } from '../../shared/random-puzzle';
 import { startGame, retryGame, reveal, toggleFlag, chord, clueNeighbors, type Game } from './engine';
 import { BoardScene } from './scene';
 import { GameAudio, type SoundCue } from '../../shared/audio';
@@ -13,7 +14,7 @@ const sounds=new GameAudio();
 const chapters = ['classic', 'layered', 'connected'] as const;
 type Chapter = typeof chapters[number];
 const ids = campaign.map(level => level.id);
-let game = startGame(randomConfig('beginner',1,newSeed()));
+let game = startGame(randomConfig('beginner',1,randomSeed()));
 let active = 0, exploded = false, elapsed = 0;
 let action: Session['action'] = 'reveal';
 let levelId: string | null = null;
@@ -23,7 +24,6 @@ let flatHold:ReturnType<typeof setTimeout>|undefined;
 let inspected: {floor:number;index:number} | undefined;
 let notice = '', storageAvailable = true;
 let lastTick = performance.now(), elapsedRemainder = 0;
-function newSeed() { return Array.from(crypto.getRandomValues(new Uint32Array(4)), n => n.toString(16).padStart(8,'0')).join(''); }
 function applySession(session:Session) {
   ({game,active,elapsed,exploded,action,levelId,completed}=session);
   if(action==='inspect')action='reveal';
@@ -283,7 +283,7 @@ function resetUI() {
 }
 function loadLevel(id:string) {const index=campaign.findIndex(l=>l.id===id);if(index<0||!unlocked(index))return;levelId=id;game=startGame(campaign[index].config);resetUI();}
 function freePlay(c:Chapter,floors=c==='classic'?1:2,size=findBoardSize(game.config)) {
-  levelId=null;game=startGame(randomConfig(size,c==='classic'?1:Math.max(2,floors),newSeed()));resetUI();
+  levelId=null;game=startGame(randomConfig(size,c==='classic'?1:Math.max(2,floors),randomSeed()));resetUI();
 }
 function setFloor(floor:number) {if(floor<game.config.floors){cancelFlatInput();active=floor;draw();save();}}
 $('retry').onclick=()=>{menu.close();try {game=retryGame(game);resetUI();}catch{notice='This legacy puzzle cannot be reproduced from its seed. Choose New puzzle to continue.';draw();}};

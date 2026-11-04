@@ -1,5 +1,6 @@
 import { createGame, legalMoves, moveCar, type Difficulty, type Move, type Puzzle } from './engine';
 import { solve } from './solver';
+import { seededRandom } from '../../shared/random-puzzle';
 
 type Layout = readonly (readonly [number, number, 2 | 3, 'h' | 'v'])[];
 // shortcut: scrambles use thirteen verified lane families; add families when puzzle variety needs expanding.
@@ -27,16 +28,6 @@ const LAYOUTS: Record<Difficulty, readonly Layout[]> = {
 const COLORS = ['#df8c83','#b7c7a0','#9fc8c6','#b5add7','#e1c59a','#a9c8cc','#d9abc0','#c0bacb','#d9b998','#c4c9ad','#b4cddc','#d4bba4'];
 const RANGES: Record<Difficulty, readonly [number, number]> = { easy: [2,4], medium: [5,9], hard: [10,30] };
 
-function random(seed: string): () => number {
-  let state = 2166136261;
-  for (let i = 0; i < seed.length; i++) state = Math.imul(state ^ seed.charCodeAt(i), 16777619);
-  return () => {
-    state += 0x6d2b79f5;
-    let n = Math.imul(state ^ (state >>> 15), state | 1);
-    n ^= n + Math.imul(n ^ (n >>> 7), n | 61);
-    return ((n ^ (n >>> 14)) >>> 0) / 4294967296;
-  };
-}
 function puzzle(layout: Layout, seed: string, difficulty: Difficulty): Puzzle {
   return { seed, difficulty, cars: layout.map(([x,y,length,axis], i) => ({ id: i === 0 ? 'coral' : `car-${i}`, x,y,length,axis,color:COLORS[i] })) };
 }
@@ -44,7 +35,7 @@ function puzzle(layout: Layout, seed: string, difficulty: Difficulty): Puzzle {
 /** Bounded seeded scrambles with solver-verified difficulty, never unsolvable random parking. */
 export function generatePuzzle(seed: string, difficulty: Difficulty): Puzzle {
   if (typeof seed !== 'string' || !seed.length || seed.length > 128 || !Object.hasOwn(LAYOUTS, difficulty)) throw new RangeError('Invalid traffic generation settings');
-  const next = random(seed), layouts = LAYOUTS[difficulty], [minimum, maximum] = RANGES[difficulty];
+  const next = seededRandom(seed), layouts = LAYOUTS[difficulty], [minimum, maximum] = RANGES[difficulty];
   let fallback: Puzzle | undefined;
   for (let attempt = 0; attempt < 24; attempt++) {
     const base = puzzle(layouts[Math.floor(next() * layouts.length)], seed, difficulty);

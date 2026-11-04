@@ -1,4 +1,5 @@
 import './style.css';
+import { randomSeed } from '../../shared/random-puzzle';
 import { createGame, moveCar, undo, canMove, legalMoves, type Car, type Game, type Puzzle } from './engine';
 import { generatePuzzle } from './puzzles';
 import { solve } from './solver';
@@ -11,12 +12,11 @@ const KEY='puzzles-traffic-garden-v1';
 const sounds=new GameAudio();
 let game:Game,selected='coral',notice='',storageAvailable=true;
 let loading=false;
-function seed(){return Array.from(crypto.getRandomValues(new Uint32Array(4)),n=>n.toString(16).padStart(8,'0')).join('');}
 try {
   const raw=localStorage.getItem(KEY),saved=readSave(raw);
   if(saved){game=saved.game;selected=saved.selected;}
-  else{game=createGame(generatePuzzle(seed(),'easy'));if(raw)notice='Previous save could not be restored. A fresh puzzle is ready.';}
-}catch{game=createGame(generatePuzzle(seed(),'easy'));storageAvailable=false;}
+  else{game=createGame(generatePuzzle(randomSeed(),'easy'));if(raw)notice='Previous save could not be restored. A fresh puzzle is ready.';}
+}catch{game=createGame(generatePuzzle(randomSeed(),'easy'));storageAvailable=false;}
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <header class="topbar"><a class="hub-back" href="../../" aria-label="Back to Puzzles">←</a><span class="brand">Traffic Garden</span><button id="open-menu" class="menu-button" aria-haspopup="dialog">Menu</button></header>
@@ -87,7 +87,7 @@ async function newPuzzle(difficulty:Difficulty){
   if(loading)return;scene?.cancelInput();loading=true;notice='';draw();menu.close();
   // Let the loading message paint before bounded puzzle search.
   await new Promise(resolve=>setTimeout(resolve,0));
-  try{game=createGame(generatePuzzle(seed(),difficulty));selected='coral';notice='';}
+  try{game=createGame(generatePuzzle(randomSeed(),difficulty));selected='coral';notice='';}
   catch{notice='Could not prepare a puzzle. Try New puzzle again.';}
   loading=false;draw();save();$('scene').focus();
 }

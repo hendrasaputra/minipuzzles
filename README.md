@@ -6,7 +6,7 @@ A shelf of small browser puzzle games, with tactile isometric worlds and touch-f
 
 Play **Petals** (Minesweeper), **Traffic Garden** (sliding cars), **Crate Garden** (crate pushing), **Crystal Light** (mirrors and animated lasers), **Water Garden** (flowing channels), and **Frosty Paths** (penguin sliding). All have rotatable 3D boards, touch and keyboard controls, sound, and local saves.
 
-Frosty Paths includes eight puzzles, smooth slides, ice glints, and drifting snow.
+Every game offers fresh random puzzles at several difficulties. Petals uses board sizes and floor counts. The other games offer Easy, Medium, and Hard. Open Menu to start a random puzzle or choose an authored level where available.
 
 ## Run locally
 

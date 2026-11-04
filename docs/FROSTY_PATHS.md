@@ -14,3 +14,9 @@ Eight stable 5×5 to 7×7 paths have 1–3 fish and shortest solutions of 2,3,4,
 The Three.js miniature includes a scarf-wearing penguin, icy tiles, snow-capped rocks, fish and a blue home beacon. Visual slides ease over 0.25s; logical moves/save state update immediately. Ice glints and snow use the shared capped motion controller, pause in hidden tabs and stay still with reduced-motion preference. Reduced motion also skips visual sliding. No dependency was added.
 
 Local saves use `puzzles-frosty-paths-v1`, validate and replay direction history, and retain completed IDs. Saves are bounded at 5,000 slides / 1MiB; failures display a warning and retain the last stored save. There is no save export/import UI yet. Frosty Paths is live at https://puzzles.hensap.id/games/frosty-paths/ in release 5420daf. Live deployment verification is recorded in VALIDATION.md.
+
+## Random puzzles
+
+Choose **Random difficulty** and **New random puzzle** in Menu. Easy needs 2–4 slides, Medium needs 5–8, and Hard needs at least 9.
+
+Retry and reload keep the same opening. Random wins are separate from the eight authored levels.

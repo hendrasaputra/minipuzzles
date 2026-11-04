@@ -17,3 +17,9 @@ Rules and levels remain independent of Three.js. The miniature scene uses facete
 ## Moving light
 
 Beams have a soft golden halo, bright traveling pulses and small amber particles following the exact reflected route. Turning a mirror replaces the route immediately; animation never changes puzzle state. Effects run at up to 30 updates per second, reuse meshes between frames and stop while the tab is hidden. The system’s reduced-motion preference keeps the effect still. Particle count is capped at 80, and animation reuses existing shadow maps rather than recomputing them each frame.
+
+## Random puzzles
+
+Choose **Random difficulty** and **New random puzzle** in Menu. Easy, Medium, and Hard have shortest solutions of 1–2, 3–4, and 5–6 mirror turns, respectively.
+
+Retry and reload keep the same opening. Random wins are separate from the eight authored levels.

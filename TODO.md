@@ -117,3 +117,9 @@ The remaining 15 planned entries describe ideas, not commitments or completed ga
 - [x] Verify all eight paths, saved win/undo/fish restoration, rotated swipe, responsive fit, 301 tests and build.
 - [x] Publish and verify Frosty Paths (5420daf, Pages run 41758892888), retaining rotation, eased slides, ice glints and snow.
 - [ ] Check physical-phone input, GPU and battery cost.
+
+## Random puzzle replayability
+
+- [x] Audit Petals size and floor presets plus Traffic Garden difficulty bands.
+- [x] Add seeded Easy, Medium, and Hard puzzles to Crate Garden, Crystal Light, Water Garden, and Frosty Paths.
+- [x] Keep authored campaigns and compatible save keys, with random wins separate from campaign progress.

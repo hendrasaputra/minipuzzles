@@ -233,3 +233,9 @@ On 4 November 2026, source commit **5420daf** deployed through [successful Pages
 - Ice glints, snow and eased sliding remain in the published build. The prior unit checks cover capped decorative meshes, interpolation and reduced-motion/visibility handling. No console warnings/errors appeared on the tested route.
 
 [Live Frosty Paths screenshot](docs/frosty-paths-live.jpg). This supersedes the earlier local-only status. Physical-device touch, GPU and battery checks remain pending.
+
+## Random puzzle release checks
+
+- Petals preset and campaign tests pass. Traffic Garden's seeded difficulty tests pass.
+- Generated puzzles are checked for deterministic openings, variety, solvability, and difficulty. Save tests cover authored and random runs.
+- Browser checks completed Hard puzzles with hints in Crate Garden, Crystal Light, Water Garden, and Frosty Paths. All four restored a move after reload. Crate Garden's random controls fit a 320 px viewport.

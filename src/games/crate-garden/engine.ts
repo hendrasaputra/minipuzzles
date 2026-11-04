@@ -9,6 +9,8 @@ const vectors: Record<Direction, Cell> = { n: { x: 0, y: -1 }, e: { x: 1, y: 0 }
 const key = (cell: Cell) => `${cell.x},${cell.y}`;
 const equal = (a: Cell, b: Cell) => a.x === b.x && a.y === b.y;
 const copy = (cells: Cell[]) => cells.map(cell => ({ ...cell }));
+const blocked = (level: Level, cell: Cell) => cell.x < 0 || cell.x >= level.width || cell.y < 0 || cell.y >= level.height
+  || level.walls.some(wall => equal(wall, cell));
 const completed = (level: Level, crates: Cell[]) => crates.every(crate => level.goals.some(goal => equal(crate, goal)));
 
 export function validateLevel(value: unknown): Level | null {
@@ -43,13 +45,11 @@ function step(level: Level, player: Cell, crates: Cell[], direction: Direction):
   if (!DIRECTIONS.includes(direction)) return null;
   const delta = vectors[direction];
   const next = { x: player.x + delta.x, y: player.y + delta.y };
-  const blocked = (cell: Cell) => cell.x < 0 || cell.x >= level.width || cell.y < 0 || cell.y >= level.height
-    || level.walls.some(wall => equal(wall, cell));
-  if (blocked(next)) return null;
+  if (blocked(level, next)) return null;
   const crateIndex = crates.findIndex(crate => equal(crate, next));
   if (crateIndex < 0) return { player: next, crates, pushed: false };
   const destination = { x: next.x + delta.x, y: next.y + delta.y };
-  if (blocked(destination) || crates.some(crate => equal(crate, destination))) return null;
+  if (blocked(level, destination) || crates.some(crate => equal(crate, destination))) return null;
   const moved = crates.slice(); moved[crateIndex] = destination;
   return { player: next, crates: moved, pushed: true };
 }
@@ -78,6 +78,20 @@ export function undo(game: Game): boolean {
 export function solve(game: Game, maxStates = 30000): Direction[] | null {
   if (completed(game.level, game.crates)) return [];
   if (!Number.isInteger(maxStates) || maxStates < 1 || maxStates > 100000) return null;
+  const { level } = game;
+  const possible = new Set(level.goals.map(key));
+  const destinations = [...level.goals];
+  // A crate that cannot reach any bed even on an otherwise empty board cannot be part of a solution.
+  for (const destination of destinations) for (const delta of Object.values(vectors)) {
+    const previous = { x: destination.x - delta.x, y: destination.y - delta.y };
+    const pusher = { x: previous.x - delta.x, y: previous.y - delta.y };
+    const id = key(previous);
+    if (possible.has(id) || blocked(level, previous) || blocked(level, pusher)) continue;
+    possible.add(id);
+    destinations.push(previous);
+  }
+  if (game.crates.some(crate => !possible.has(key(crate)))) return null;
+
   const stateKey = (player: Cell, crates: Cell[]) => `${key(player)}:${crates.map(key).sort().join(';')}`;
   type Node = { player: Cell; crates: Cell[]; parent: number; direction?: Direction };
   const nodes: Node[] = [{ player: game.player, crates: game.crates, parent: -1 }];
@@ -86,7 +100,7 @@ export function solve(game: Game, maxStates = 30000): Direction[] | null {
     const node = nodes[head];
     for (const direction of DIRECTIONS) {
       const next = step(game.level, node.player, node.crates, direction);
-      if (!next) continue;
+      if (!next || (next.pushed && next.crates.some(crate => !possible.has(key(crate))))) continue;
       const id = stateKey(next.player, next.crates);
       if (visited.has(id)) continue;
       if (nodes.length >= maxStates) return null;

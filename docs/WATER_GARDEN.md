@@ -15,3 +15,9 @@ Local saves use `puzzles-water-garden-v1` on the browser origin. Reads validate/
 Three.js rendering remains independent of the puzzle engine. No dependencies were added. Water Garden and its water particles are live in release 569cf93.
 
 Water is animated with moving foam/droplets on connected routes, a shimmering turquoise surface, and expanding ripples/bubbles at the spring. Effects stop in hidden tabs and stay still with the system’s reduced-motion preference. They never affect channel picking or puzzle turns.
+
+## Random puzzles
+
+Choose **Random difficulty** and **New random puzzle** in Menu. Easy waters one flower in 3–4 turns. Medium waters two in 5–7 turns. Hard waters three in 8–11 turns.
+
+Retry and reload keep the same opening. Random wins are separate from the eight authored levels.
