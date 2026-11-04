@@ -4,7 +4,9 @@ A shelf of small browser puzzle games, with tactile isometric worlds and touch-f
 
 **[Play at puzzles.hensap.id](https://puzzles.hensap.id/)**
 
-Play **Petals** (Minesweeper), **Traffic Garden** (sliding cars), **Crate Garden** (crate pushing), **Crystal Light** (mirrors and animated lasers), and **Water Garden** (flowing channels). All have rotatable 3D boards, touch and keyboard controls, sound, and local saves.
+Play **Petals** (Minesweeper), **Traffic Garden** (sliding cars), **Crate Garden** (crate pushing), **Crystal Light** (mirrors and animated lasers), **Water Garden** (flowing channels), and **Frosty Paths** (penguin sliding). All have rotatable 3D boards, touch and keyboard controls, sound, and local saves.
+
+Frosty Paths includes eight puzzles, smooth slides, ice glints, and drifting snow.
 
 ## Run locally
 
@@ -15,11 +17,11 @@ npm ci
 npm run dev
 ```
 
-The homepage is the game library. Petals lives at `/games/petals/`; Traffic Garden at `/games/traffic-garden/`; Crate Garden at `/games/crate-garden/`; Crystal Light at `/games/crystal-light/`; Water Garden at `/games/water-garden/`.
+The homepage is the game library. Petals lives at `/games/petals/`; Traffic Garden at `/games/traffic-garden/`; Crate Garden at `/games/crate-garden/`; Crystal Light at `/games/crystal-light/`; Water Garden at `/games/water-garden/`; Frosty Paths at `/games/frosty-paths/`.
 
 ## Project guide
 
-- [Development](docs/DEVELOPMENT.md) · [Petals gameplay](docs/GAMEPLAY.md) · [Traffic Garden](docs/TRAFFIC_GARDEN.md) · [Crate Garden](docs/CRATE_GARDEN.md) · [Crystal Light](docs/CRYSTAL_LIGHT.md) · [Water Garden](docs/WATER_GARDEN.md)
+- [Development](docs/DEVELOPMENT.md) · [Petals gameplay](docs/GAMEPLAY.md) · [Traffic Garden](docs/TRAFFIC_GARDEN.md) · [Crate Garden](docs/CRATE_GARDEN.md) · [Crystal Light](docs/CRYSTAL_LIGHT.md) · [Water Garden](docs/WATER_GARDEN.md) · [Frosty Paths](docs/FROSTY_PATHS.md)
 - [Icon prompts and art workflow](docs/art/README.md)
 - [Progress](TODO.md) · [Developer handoff](HANDOFF.md) · [Agent instructions](AGENTS.md)
 - [Deployment and save migration](docs/DEPLOYMENT.md) · [Validation](VALIDATION.md)

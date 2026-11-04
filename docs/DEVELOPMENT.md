@@ -14,7 +14,7 @@ npm run build
 npm run preview
 ```
 
-Open `/` for the library `/games/petals/` for Minesweeper, and `/games/traffic-garden/` for the sliding-car puzzle. Crate Garden lives at `/games/crate-garden/` Crystal Light at `/games/crystal-light/`, and Water Garden at `/games/water-garden/`. Serve `dist/` over HTTP(S), rather than opening files directly.
+Open `/` for the library `/games/petals/` for Minesweeper, and `/games/traffic-garden/` for the sliding-car puzzle. Crate Garden lives at `/games/crate-garden/` Crystal Light at `/games/crystal-light/`, and Water Garden at `/games/water-garden/`, and Frosty Paths at `/games/frosty-paths/`. Serve `dist/` over HTTP(S), rather than opening files directly.
 
 ## Layout
 
@@ -29,6 +29,7 @@ Open `/` for the library `/games/petals/` for Minesweeper, and `/games/traffic-g
 - `games/crate-garden/index.html`, `src/games/crate-garden/`: pure Sokoban rules, stable curated levels, bounded BFS hints, Three.js scene, UI and validated replay saves.
 - `games/crystal-light/index.html`, `src/games/crystal-light/`: pure reflection rules/tracing, stable levels, binary-state hints, mirror interaction and validated replay saves.
 - `games/water-garden/index.html`, `src/games/water-garden/`: pure reciprocal channel connectivity, stable gardens, bounded BFS hints, 3D channels and validated replay saves.
+- `games/frosty-paths/index.html`, `src/games/frosty-paths/`: pure sliding/fish rules, stable paths, bounded hints, penguin/ice animation and validated direction replay saves.
 - `src/shared/`: reusable audio, camera math and pointer gestures. Shared gesture tests also exercise Petals fixtures. `mini-scene.ts` provides rotatable miniature geometry/picking and camera controls for the newer games. Every future game must support 3D rotation; keep camera gestures independent of puzzle actions.
 - `vite.config.ts`: explicit HTML inputs for every playable game.
 - `docs/art/`: shared icon direction, exact editable prompts and future review iterations.

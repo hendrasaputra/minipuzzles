@@ -12,6 +12,6 @@ Eight stable 5×5 to 7×7 gardens have shortest openings of 1,2,3,3,4,5,6,7 cloc
 
 Local saves use `puzzles-water-garden-v1` on the browser origin. Reads validate/replay channel IDs from the original level rather than trusting saved positions or win flags. Selection and completed IDs persist; shared mute uses the existing preference. Saves are bounded at 5,000 turns / 1MiB, with a visible warning if saving fails. There is no file transfer UI yet.
 
-Three.js rendering remains independent of the puzzle engine. No dependencies were added. Water Garden is currently available in the local build; live release 8bfeee8 has the previous four games.
+Three.js rendering remains independent of the puzzle engine. No dependencies were added. Water Garden and its water particles are live in release 569cf93.
 
 Water is animated with moving foam/droplets on connected routes, a shimmering turquoise surface, and expanding ripples/bubbles at the spring. Effects stop in hidden tabs and stay still with the system’s reduced-motion preference. They never affect channel picking or puzzle turns.

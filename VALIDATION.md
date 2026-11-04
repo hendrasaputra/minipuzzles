@@ -204,3 +204,21 @@ Browser checks on production preview:
 269 tests across28 files pass; production build passes without warnings. Shared MaterialMotion tests verify one capped30fps loop, hidden/page lifecycle pausing, resumption and live reduced-motion preferences. Water tests verify particles stay within valid wet segments, cap64foam particles plus6bubbles/3rings, ignore raycasting and shadows, retain picking/input safety and rebuild with changed routes. Crystal laser tests remain passing after sharing the controller.
 
 Browser review found348 changed pixels above threshold15 between two no-input frames, confined to the spring/wet-region bounds (479,287)–(737,353) at1280×720. Blooming network stays at7turns/3flowers; undo restores6turns/1flower and Hint returns7/3 without stale water routes or console errors. [Animated water screenshot](docs/water-garden-motion.jpg). Physical-phone GPU/battery performance remains unmeasured. Owner explicitly authorized publication of this Water Garden/material-effects release.
+
+## Published animated Water Garden
+
+Commit **569cf93** and [Pages run 41755490204](https://github.com/hendrasaputra/minipuzzles/actions/runs/41755490204) completed successfully. Live HTTPS browser checks verified five playable shelf links, animated spring/water surfaces, Water Garden first-turn completion and no console warnings/errors. [Live water screenshot](docs/water-garden-live.jpg). This supersedes earlier local-only Water Garden status.
+
+## Frosty Paths local vertical slice
+
+**301 tests across32 files pass** and production build emits seven HTML pages without warnings. The32 new checks cover slide boundaries/rocks, blocked/no-count moves, passing fish pickup, stopping-only home completion, validation, undo/win, all eight solutions, bounded/non-mutating hints, saved fish/direction replay, camera-relative input/cancellation, eased axis-aligned slides and capped non-pickable ice effects. Existing five-game suites remain passing. Frosty Paths' own entry is about17.4kB /7.0kB gzip plus existing shared renderer/material/audio assets; no dependencies were added.
+
+Browser checks verified:
+
+- First glide collects its fish with Slide east, then ArrowUp wins in2 slides. Reload restores the win. Undo reopens it at1slide/1fish; a second Undo restores0slides/0fish.
+- The other seven paths complete through visible Hint/Next in3,4,5,6,7,9,11 slides, each with every fish and a final stop at home. All eight completion marks survive reload.
+- Camera orbit preserves0slides/0fish. A rotated up-right swipe plays the east slide, reaches1slide/1fish, and Undo restores the opening. Button glyphs follow the camera. Shared mute stays restored.
+- 320×568,390×844 and844×390 fit without page overflow. Shared camera controls are44px; slide/action controls are52–56px. The board and controls adapt to landscape.
+- Local shelf has six real play links and15 planned entries. Hub → Frosty Paths, back and direct refresh restore the selected path/progress. No console warnings/errors on the tested path.
+
+[Frosty Paths mobile preview](docs/frosty-paths-preview.jpg). Frosty Paths is local and uncommitted; the live release remains569cf93 with five games and animated water/lasers. Physical iOS/Android input, GPU/battery performance and hardware motion-preference behavior remain untested.

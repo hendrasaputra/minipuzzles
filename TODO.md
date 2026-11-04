@@ -64,7 +64,7 @@ Updated: 4 November 2026. Check items only after the relevant implementation and
 
 ## Later games
 
-The remaining 16 planned entries describe ideas, not commitments or completed games. Frosty Paths is a possible next candidate. Petals Volume mode remains unimplemented.
+The remaining 15 planned entries describe ideas, not commitments or completed games. Marble Workshop is a possible next candidate. Petals Volume mode remains unimplemented.
 
 ## Shared 3D rotation
 
@@ -96,7 +96,7 @@ The remaining 16 planned entries describe ideas, not commitments or completed ga
 - [x] Support channel taps, dropdown/Turn with opening directions, keyboard, hints, undo and retry.
 - [x] Validate local replay saves and preserve completed gardens under a separate key.
 - [x] Complete all eight gardens in-browser; verify reload, rotation safety, responsive layouts, 261 tests and build.
-- [x] Owner authorized publishing Water Garden with water particles and motion; deployment verification follows.
+- [x] Publish and verify animated Water Garden (569cf93; successful Pages run 41755490204).
 - [ ] Test physical-phone input and GPU performance.
 
 ## Material effects
@@ -105,3 +105,15 @@ The remaining 16 planned entries describe ideas, not commitments or completed ga
 - [x] Share the capped, visibility-aware, reduced-motion MaterialMotion controller with laser effects.
 - [x] Require fitting water/laser/fire/ice effects as those materials appear in future games.
 - [x] Verify 269 tests, production build, route changes and decorative picking safety.
+
+## Frosty Paths
+
+- [x] Add slide-until-blocked rules, fish collection, home-stop win, undo and bounded shortest-slide hints.
+- [x] Create eight stable paths with 1–3 fish and verified solutions from 2 to 11 slides.
+- [x] Add friendly penguin, snow-capped rocks, ice, fish and home beacon with full 3D rotation.
+- [x] Animate visual slides, ice glints and drifting snow through MaterialMotion.
+- [x] Add swipe/tap, large direction buttons, camera-relative glyphs and keyboard play.
+- [x] Validate separate replay saves and completed paths.
+- [x] Verify all eight paths, saved win/undo/fish restoration, rotated swipe, responsive fit, 301 tests and build.
+- [ ] Verify the owner-authorized Frosty Paths publication, retaining rotation, eased slides, ice glints and snow.
+- [ ] Check physical-phone input, GPU and battery cost.

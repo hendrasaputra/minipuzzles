@@ -9,7 +9,8 @@
 - Traffic Garden route: `/games/traffic-garden/`
 - Crate Garden route: `/games/crate-garden/`
 - Crystal Light route: `/games/crystal-light/`
-- Water Garden route: `/games/water-garden/` (local development build; not yet deployed)
+- Water Garden route: `/games/water-garden/`
+- Frosty Paths route: `/games/frosty-paths/` (local development build; not yet deployed)
 
 ## DNS and Pages
 
@@ -46,3 +47,5 @@ Pushes to `main` run `npm ci`, tests, TypeScript checking, the Vite multi-page b
 **4 November 2026 rotation release:** 3e2eef4 deployed successfully via Pages run 41749026138. Live checks verified all three game pages and rotating Crate/Traffic views with preserved progress. Crystal Light is the next local build and is not yet deployed.
 
 **Crystal Light release:** 8bfeee8 deployed successfully via Pages run 41753843808 after explicit owner approval. Live first-light completion and four-game shelf checks pass. Animated lasers are included. Water Garden is the next local build.
+
+**Animated Water Garden release:** 569cf93 deployed successfully via Pages run 41755490204. Live water effects, first-turn completion and five-game shelf checks pass. The shared MaterialMotion controller and laser refactor are included.
