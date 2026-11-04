@@ -36,6 +36,7 @@ document.querySelector('#app')!.innerHTML = `
 <main class="game-shell">
   <div class="puzzle-heading"><h1 id="title"></h1><span id="level-number"></span></div>
   <p id="storage-warning" class="storage-warning" hidden>Progress isn’t being saved. Keep this tab open.</p>
+  <p class="bridge-goal">Connect every island. Match each bridge count.</p>
   <div class="stats bridge-stats">
     <div><strong id="moves"></strong><span>Islands matched</span></div>
     <button id="show-help" aria-haspopup="dialog">See example</button>
@@ -44,8 +45,8 @@ document.querySelector('#app')!.innerHTML = `
     <div id="scene" class="scene" tabindex="0" role="group" aria-label="3D island board. Tap two islands in the same row or column to connect them."></div>
   </section>
   <div class="bridge-cards" aria-live="polite">
-    <div><span id="target-label">Island A needs</span><strong id="target-count"></strong></div>
-    <div><span id="current-label">Island A has</span><strong id="current-count"></strong></div>
+    <div><span id="target-label">Island A · Goal</span><strong id="target-count"></strong></div>
+    <div><span id="current-label">Island A · Current</span><strong id="current-count"></strong></div>
   </div>
   <p id="status" class="status" role="status" aria-live="polite"></p>
   <div class="bridge-controls">
@@ -64,11 +65,11 @@ document.querySelector('#app')!.innerHTML = `
     <label>Random difficulty<select id="random-difficulty"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>
     <div class="menu-pair"><button id="new-random">New random puzzle</button></div>
     <p id="progress" class="muted"></p>
-    <p>Match each island’s number and join all the islands into one group.</p>
+    <p>Connect every island. Each label shows bridges built / bridges needed. An island marked 1/2 still needs one bridge.</p>
     ${gameGuide([
       { before: '<span class="bridge-example"><b>1</b> <b>3</b></span>',
         after: '<span class="bridge-example"><b>1</b><i></i><b>3</b></span>',
-        text: 'Tap one island, then its neighbor to add a bridge. You can also use the two lists and Add bridge.' },
+        text: 'Tap one island, then its neighbor. Or pick them in the lists and press Add bridge.' },
       { before: '<span class="bridge-example"><b>3</b><i></i><b>2</b></span>',
         after: '<span class="bridge-example"><b>3</b><i class="double"></i><b>2</b></span>',
         text: 'Repeat the same pair for two bridges. Repeat once more to clear both.' },
@@ -113,7 +114,7 @@ function edgeIndex(a: number, b: number): number {
     (edge.a === a && edge.b === b) || (edge.a === b && edge.b === a));
 }
 
-function draw(updateBoard = true) {
+function draw(updateBoard = true, extended?: number) {
   const { game, completed, random } = saveData;
   const { level, bridges } = game;
   const won = complete(game);
@@ -125,17 +126,17 @@ function draw(updateBoard = true) {
   const edge = edgeIndex(selected, neighbor);
   const count = bridges[edge] ?? 0;
 
-  if (updateBoard) scene?.draw(game, selected, counts);
+  if (updateBoard) scene?.draw(game, selected, counts, extended);
   $('title').textContent = level.title;
   $('level-number').textContent = random ? tiers[random.difficulty] : `${index + 1} / ${levels.length}`;
   $('moves').textContent = `${matched} / ${level.islands.length}`;
-  $('target-label').textContent = `Island ${islandName(selected)} needs`;
-  $('current-label').textContent = `Island ${islandName(selected)} has`;
+  $('target-label').textContent = `Island ${islandName(selected)} · Goal`;
+  $('current-label').textContent = `Island ${islandName(selected)} · Current`;
   $('target-count').textContent = String(level.islands[selected].goal);
   $('current-count').textContent = String(counts[selected]);
-  let instruction = 'Tap two neighboring islands to connect them.';
+  let instruction = 'Tap an island, then a neighbor. 0/2 means 0 built, 2 needed.';
   if (level.id === 'bridge-1' && !game.history.length && !pending) {
-    instruction = 'Tap A, then B to add your first bridge.';
+    instruction = 'Tap A, then B. Watch A change from 0/1 to 1/1.';
   }
   if (pending) instruction = `Island ${islandName(selected)} selected. Tap a neighboring island.`;
   if (matched === level.islands.length && !won) instruction = 'The numbers match. Join all islands into one group.';
@@ -180,17 +181,22 @@ function newRandom(tier: Difficulty) {
 
 function change(move: Move) {
   const { game, completed, random } = saveData;
+  const previous = game.bridges[move.edge];
   if (!applyMove(game, move)) {
     notice = 'Bridges cannot cross. Clear the other bridge first.';
+    scene?.reject(game, move.edge);
     draw(false);
     return;
   }
   const won = complete(game);
   if (won && !random && !completed.includes(game.level.id)) completed.push(game.level.id);
   audio.play(won ? 'win' : 'flag');
-  draw();
+  draw(true, move.count > previous ? move.edge : undefined);
   save();
-  if (won) $('next').focus();
+  if (won) {
+    scene?.celebrate();
+    $('next').focus();
+  }
 }
 
 function connect() {

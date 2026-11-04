@@ -19,6 +19,7 @@ export function cameraGround(camera:THREE.Camera,x:number,y:number,rect:{left:nu
 export class MiniScene {
   readonly canvas:HTMLCanvasElement;
   readonly camera=new THREE.OrthographicCamera();
+  readonly effects = new THREE.Group();
   private renderer:THREE.WebGLRenderer;
   private scene=new THREE.Scene();
   private board=new THREE.Group();
@@ -51,7 +52,7 @@ export class MiniScene {
     this.canvas=this.renderer.domElement;this.canvas.setAttribute('role','img');
     this.canvas.setAttribute('aria-label','3D puzzle board. Choose Rotate to look around; choose Play to interact.');
     this.canvas.style.touchAction='none';host.append(this.canvas);
-    this.scene.add(this.board,new THREE.AmbientLight('#fff7ec',2));
+    this.scene.add(this.board,this.effects,new THREE.AmbientLight('#fff7ec',2));
     this.sun=new THREE.DirectionalLight('#fff7e8',3);this.sun.position.set(-6,14,5);this.sun.castShadow=true;
     this.sun.shadow.mapSize.set(1024,1024);this.sun.shadow.bias=-.001;this.scene.add(this.sun,this.sun.target);
     this.controls=document.createElement('div');this.controls.className='mini-camera';this.controls.setAttribute('role','group');this.controls.setAttribute('aria-label','Board camera');
@@ -78,7 +79,7 @@ export class MiniScene {
   box(x0:number,y0:number,x1:number,y1:number,z0:number,z1:number,color:string,owner?:string){
     let material=this.materials.get(color);if(!material){material=new THREE.MeshLambertMaterial({color});this.materials.set(color,material);}
     const mesh=new THREE.Mesh(this.geometry,material);mesh.position.set((x0+x1)/2,(z0+z1)/2,(y0+y1)/2);mesh.scale.set(x1-x0,z1-z0,y1-y0);
-    mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.owner=owner;this.board.add(mesh);
+    mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.owner=owner;this.board.add(mesh);return mesh;
   }
   mesh(geometry:THREE.BufferGeometry,material:THREE.Material,x:number,y:number,z:number,owner?:string,yaw=0){
     const mesh=new THREE.Mesh(geometry,material);mesh.position.set(x,z,y);mesh.rotation.y=yaw;mesh.userData.owner=owner;mesh.castShadow=true;mesh.receiveShadow=true;
@@ -90,7 +91,7 @@ export class MiniScene {
     ctx.font='bold 82px ui-monospace,monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff9eb';ctx.fillText(text,64,67);
     const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
     const mesh=new THREE.Mesh(new THREE.PlaneGeometry(.55,.55),new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1}));
-    mesh.rotation.x=-Math.PI/2;mesh.position.set(x,z,y);mesh.raycast=()=>{};this.board.add(mesh);this.labels.push(mesh);
+    mesh.rotation.x=-Math.PI/2;mesh.position.set(x,z,y);mesh.raycast=()=>{};this.board.add(mesh);this.labels.push(mesh);return mesh;
   }
   render(){
     this.bounds.setFromObject(this.board);if(this.bounds.isEmpty())return;this.bounds.getCenter(this.center);

@@ -9,3 +9,9 @@ The left island has one bridge. The middle island has three, with one to the lef
 Select an island, then select its nearest neighbor in the same row or column. Each connection can hold one or two bridges. Bridges cannot cross or pass through another island. Compare the current and target counts to see what each island still needs.
 
 Open **See example** beside the board to view the worked crossing. Choose **Rotate** and drag to look around. Menu offers eight levels and seeded Easy, Medium, and Hard puzzles. Progress is saved in this browser.
+
+The board labels each island with its letter and bridge count. **D 0/1** means D has no bridges and needs one. Tap D, then A in Crossing 2 to see D reach **1/1**. The badges stay upright as the board turns.
+
+The blue ocean has moving wave crests. When a bridge reaches the next island, droplets arc up and fall back to the water. Reduced motion shows a still ocean and places the bridge immediately.
+
+Waves kick up small droplets around every island. Finish a crossing to see a short pixel confetti burst. Reduced motion skips the spray and confetti.
