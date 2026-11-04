@@ -23,6 +23,10 @@ Puzzles is a collection of small browser puzzle games. Petals, Traffic Garden, C
 - `games/petals/index.html` is the standalone game page. Native page navigation provides clean game teardown.
 - `docs/art/` holds the shared icon direction and editable GPT prompts.
 
+## Player-facing text and help
+
+Use plain words, short labels, and a clear goal on the board. Put the playable games first. Show each main action with a small animated example in the help menu. Keep a short text caption for screen readers and show a still example when reduced motion is enabled.
+
 ## Run and verify
 
 Use a supported Node.js version from README. These commands work in macOS/Linux Terminal and Windows PowerShell:

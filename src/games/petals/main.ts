@@ -1,4 +1,5 @@
 import './style.css';
+import { gameGuide } from '../../shared/game-guide';
 import { randomSeed } from '../../shared/random-puzzle';
 import { startGame, retryGame, reveal, toggleFlag, chord, clueNeighbors, type Game } from './engine';
 import { BoardScene } from './scene';
@@ -30,7 +31,7 @@ function applySession(session:Session) {
   const level=campaign.find(level=>level.id===levelId);
   if(level&&!matchesLevel(game.config,level.config)) {
     game=startGame(level.config);elapsed=0;active=0;
-    notice='This level was updated. Your attempt has restarted; chapter progress is kept.';
+    notice='This level changed. Your saved progress is kept, and this level has restarted.';
   }
 }
 function currentSession():Session {return {game,active,elapsed,exploded,action,levelId,completed};}
@@ -39,12 +40,12 @@ try {
   const raw = localStorage.getItem(KEY) ?? localStorage.getItem('petal-save-v1');
   const session = readSession(raw, ids);
   if (session) applySession(session);
-  else if (raw) notice = 'The previous save could not be restored. A fresh puzzle is ready.';
+  else if (raw) notice = 'Could not load the save. A new puzzle is ready.';
 } catch { storageAvailable = false; }
 
 const $ = <T extends HTMLElement = HTMLElement>(id:string) => document.getElementById(id) as T;
 if(!levelId&&game.config.floors>1&&game.config.mode!=='connected'){
-  notice='Saved independent floors. New puzzles are connected.';
+  notice='This save has separate floors. New puzzles connect them.';
 }
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <header class="topbar">
@@ -60,13 +61,13 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <div><strong id="progress"></strong><span>Cleared</span></div>
   </div>
   <section class="play-area" aria-label="Minesweeper game">
-    <div class="scene" id="scene" aria-label="3D puzzle board. Tap to reveal, hold to flag, double-tap a number to chord."></div>
+    <div class="scene" id="scene" aria-label="3D board. Tap to open a tile. Hold to flag. Double-tap a number to open nearby tiles when the flags match."></div>
     <span id="floor-caption" class="sr-only" aria-live="polite"></span>
   </section>
   <nav id="floor-nav" class="floor-nav" aria-label="Choose floor"><div id="floor-buttons"></div></nav>
   <div class="context-slot">
     <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
-    <p id="context-tip">Double-tap numbers · Pinch to zoom</p>
+    <p id="context-tip">Tap to open · Hold to flag</p>
     <div id="result" class="result" role="status" hidden></div>
     <section id="inspector" class="inspector" aria-label="Selected clue" hidden>
       <div class="clue-summary"><strong id="clue-title"></strong><span id="clue-targets"></span></div>
@@ -86,12 +87,12 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   </div>
 </main>
 <dialog id="menu" class="sheet" aria-labelledby="menu-title">
-  <div class="sheet-heading"><h2 id="menu-title">Your game</h2><button id="close-menu" class="sheet-close">Done</button></div>
+  <div class="sheet-heading"><h2 id="menu-title">Game options</h2><button id="close-menu" class="sheet-close">Done</button></div>
   <div class="sheet-body">
     <section class="menu-section" aria-label="Choose puzzle">
-      <label>Play<select id="play-type"><option value="free">Random puzzles</option><option value="campaign">Learn the rules · fixed puzzles</option></select></label>
+      <label>Play<select id="play-type"><option value="free">Random puzzles</option><option value="campaign">Learn with levels</option></select></label>
       <label id="level-label">Level<select id="level-select"></select></label>
-      <label id="mode-label" hidden>Game mode<select id="free-mode"><option value="classic">Classic · one floor</option><option value="connected">Connected floors</option></select></label>
+      <label id="mode-label" hidden>Game mode<select id="free-mode"><option value="classic">One floor</option><option value="connected">Connected floors</option></select></label>
       <label id="size-label" hidden>Board size<select id="board-size">${BOARD_SIZES.map(size=>`<option value="${size.id}">${size.label} · ${size.width}×${size.height} · ${size.mines} mines</option>`).join('')}</select></label>
       <label id="count-label" hidden>Floors<select id="floor-count"><option value="2">2 floors</option><option value="3">3 floors</option></select></label>
       <p id="campaign-progress" class="muted"></p>
@@ -103,26 +104,21 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <button id="reset-view" class="menu-row">Reset camera</button>
     </section>
     <section class="menu-section"><button id="sound-toggle" class="menu-row" aria-pressed="true">Sound: on</button><button id="help" class="menu-row">How to play <span aria-hidden="true">→</span></button><button id="open-flat" class="menu-row">2D & keyboard board <span aria-hidden="true">→</span></button></section>
-    <section class="menu-section" aria-label="Move saved game"><div class="menu-pair"><button id="export-save">Export save</button><button id="import-save">Import save</button></div><input id="save-file" type="file" accept=".json,application/json" aria-label="Import Petals save file" hidden><p class="muted">Export before moving to a new domain. Import the file there to keep your puzzle and lessons.</p><p id="transfer-notice" class="muted" role="status" aria-live="polite"></p></section>
+    <section class="menu-section" aria-label="Move saved game"><div class="menu-pair"><button id="export-save">Export save</button><button id="import-save">Import save</button></div><input id="save-file" type="file" accept=".json,application/json" aria-label="Import Petals save file" hidden><p class="muted">Export a file to move your game to another browser or site. Use Import save there.</p><p id="transfer-notice" class="muted" role="status" aria-live="polite"></p></section>
     <p class="muted">Time played: <span id="timer">00:00</span></p><p id="save-state" class="muted"></p><p id="seed" class="puzzle-id"></p>
   </div>
 </dialog>
 <dialog id="rules" class="sheet" aria-labelledby="rules-title">
   <div class="sheet-heading"><h2 id="rules-title">How to play</h2><button id="close-help" class="sheet-close">Back</button></div>
   <div class="sheet-body rules-copy">
-    <p>Reveal every safe tile on every floor. A mine ends the attempt.</p>
-    <ul>
-      <li><strong>Reveal:</strong> tap a hidden tile.</li>
-      <li><strong>Flag:</strong> select Flag, hold a tile, or right-click.</li>
-      <li><strong>Open around a number:</strong> double-click or double-tap it when its flag count matches. Wrong flags can expose a mine.</li>
-      <li><strong>Look around:</strong> drag to rotate, pinch or scroll to zoom. Once zoomed in, drag to move around the board. Camera options are in Menu.</li>
-    </ul>
-    <h3>Follow the clues</h3>
-    <p>Plain numbers count eight same-floor neighbors. Layered floors are independent.</p>
-    <p>Connected arrows ↑ and ↓ count the 3×3 footprint on the immediately adjacent floor, including the aligned tile. Edges clip the footprint. Tap a revealed clue to highlight its targets; View floor takes you there.</p>
-    <p>Zeros and chording use that same neighborhood. Hints assume your flags are correct.</p>
-    <h3>Random puzzles or learning</h3>
-    <p>Random puzzles use a fresh seed for every new game. Choose Small, Beginner, Intermediate or Expert in Menu. Multiple floors use connected ↑ and ↓ clues. Random puzzles can require guesses. The optional learning campaign uses fixed, validated layouts and introduces independent floors before connected clues. Retry and resume keep the current layout; New random puzzle creates a new one.</p>
+    <p>Open every safe tile. Hitting a mine ends the game.</p>
+    ${gameGuide([
+      { before: '◇', after: '2', text: 'Tap a tile to open it. The number counts nearby mines.' },
+      { before: '◇', after: '⚑', text: 'Hold or right-click a tile to flag it. You can also choose Flag.' },
+      { before: '⚑ 1 ◇', after: '⚑ 1 □', text: 'Place the right flags, then double-tap the number to open the other tiles.' },
+      { before: '↑ 1', after: '▦', text: 'An arrow counts mines in a 3×3 square one floor up or down. Tap it to see the tiles it counts.' },
+    ], true)}
+    <p>Drag to turn the board. Pinch or scroll to zoom. When zoomed in, drag to move the view.</p>
     <button id="start-play" class="primary full">Back to game</button>
   </div>
 </dialog>
@@ -130,9 +126,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="sheet-heading"><h2 id="flat-title">2D board</h2><button id="close-flat" class="sheet-close">Back</button></div>
   <div class="sheet-body">
     <label id="flat-floor-label">Floor<select id="flat-floor" aria-label="2D board floor"></select></label>
-    <p class="keyboard-help">Arrows move. Enter uses the selected action; F flags; I inspects; C opens around a clue.</p>
+    <p class="keyboard-help">Arrows move. Enter uses the selected action. F flags, I shows nearby tiles, and C opens them.</p>
     <div class="grid-scroll"><div id="accessible-board" role="grid" aria-label="Current floor" aria-describedby="clue-description"></div></div>
-    <section class="flat-inspector" aria-label="Clue neighborhood"><p id="clue-description" aria-live="polite">Tap a revealed clue to see its neighborhood.</p><div class="menu-pair"><button id="flat-target">View target floor</button><button id="flat-chord">Open tiles</button></div></section>
+    <section class="flat-inspector" aria-label="Clue neighborhood"><p id="clue-description" aria-live="polite">Tap a number to see the tiles it counts.</p><div class="menu-pair"><button id="flat-target">View target floor</button><button id="flat-chord">Open tiles</button></div></section>
     <p id="flat-notice" class="flat-notice" role="status"></p>
   </div>
   <div class="flat-actions"><div id="flat-play-actions" class="action-strip" aria-label="2D board actions"><button id="flat-reveal" aria-pressed="true">Reveal</button><button id="flat-flag" aria-pressed="false">Flag</button><button id="flat-hint">Hint</button></div><button id="flat-continue" class="primary full" hidden>Next level</button><button id="flat-retry" class="primary full" hidden>Try again</button></div>
@@ -152,7 +148,7 @@ function save() {
   $('storage-warning').hidden=storageAvailable;
 }
 function inspect(floor:number,index:number) {
-  if (!game.cells[floor][index].revealed || game.cells[floor][index].mine) { notice = 'Reveal a safe clue before inspecting its neighborhood.'; return; }
+  if (!game.cells[floor][index].revealed || game.cells[floor][index].mine) { notice = 'Open a number first.'; return; }
   inspected = {floor,index}; notice = '';
 }
 function moveSound(changed:boolean,cue:SoundCue) {
@@ -176,7 +172,7 @@ function performChord(floor:number,index:number) {
   if(!changed) {
     const cell=game.cells[floor][index];
     if(!cell.revealed) notice='Reveal a number first.';
-    else if(clueNeighbors(game,floor,index).filter(p=>game.cells[p.floor][p.index].flagged).length!==cell.adjacent) notice='Flag count must match the number.';
+    else if(clueNeighbors(game,floor,index).filter(p=>game.cells[p.floor][p.index].flagged).length!==cell.adjacent) notice='Match the number with flags first.';
   }
   markCompletion(); draw(); save();
 }
@@ -191,13 +187,13 @@ function draw() {
   $('progress').textContent=`${cleared} / ${cells.length-game.config.mines*game.config.floors}`;
   $('chapter').textContent=`${c==='connected'?'Connected floors':c[0].toUpperCase()+c.slice(1)}${level?' · Learn':' · Random'}`;
   $('subtitle').textContent=level?level.title:`${game.config.width} × ${game.config.height} board`;
-  $('lesson').textContent=level?level.lesson:c==='layered'?'This saved puzzle has independent floors. New random puzzles connect floors with ↑ and ↓ clues.':c==='connected'?'↑ and ↓ clues connect neighboring floors. Zoom in and drag to reach distant tiles. Random puzzles may require guesses.':'Fresh seeded layouts with safe openings. Zoom in and drag on larger boards. Random puzzles may require guesses.';
+  $('lesson').textContent=level?level.lesson:c==='layered'?'This puzzle has separate floors.':c==='connected'?'↑ and ↓ count mines one floor up or down. You may need to guess.':'The first tile is safe. You may need to guess later.';
   $<HTMLSelectElement>('play-type').value=levelId?'campaign':'free';
   $('level-label').hidden=!levelId; $('mode-label').hidden=!!levelId; $('size-label').hidden=!!levelId;
   $('count-label').hidden=!!levelId||c!=='connected';
   $<HTMLSelectElement>('board-size').value=findBoardSize(game.config);
   $<HTMLSelectElement>('floor-count').value=String(game.config.floors);
-  $('free-mode').innerHTML=`<option value="classic">Classic · one floor</option>${c==='layered'&&!level?'<option value="layered" disabled>Independent floors · saved game</option>':''}<option value="connected">Connected floors</option>`;
+  $('free-mode').innerHTML=`<option value="classic">One floor</option>${c==='layered'&&!level?'<option value="layered" disabled>Separate floors (saved)</option>':''}<option value="connected">Connected floors</option>`;
   $<HTMLSelectElement>('free-mode').value=c;
   $('level-select').innerHTML=campaign.map((l,i)=>`<option value="${l.id}" ${l.id===levelId?'selected':''} ${unlocked(i)?'':'disabled'}>${completed.includes(l.id)?'✓ ':''}${i+1}. ${l.title}${unlocked(i)?'':' · locked'}</option>`).join('');
   $('campaign-progress').textContent=level?`${completed.length} of ${campaign.length} lessons cleared · ${game.config.mines} mines per floor`:game.config.floors>1?`${game.config.mines} mines per floor · ${game.config.mines*game.config.floors} total`:`${game.config.mines} mines`;
@@ -211,7 +207,7 @@ function draw() {
   $('flat-floor-label').hidden=game.config.floors===1;
   $('flat-floor').innerHTML=game.cells.map((_,f)=>`<option value="${f}" ${active===f?'selected':''}>Floor ${f+1}</option>`).join('');
   $('result').hidden=!terminal;
-  $('result').textContent=game.status==='won'?'Every safe tile is clear.':'A mine. Try the same puzzle again.';
+  $('result').textContent=game.status==='won'?'You win! All safe tiles are open.':'You hit a mine.';
   $('result').classList.toggle('loss',game.status==='lost');
   $('play-actions').hidden=terminal; $('continue').hidden=game.status!=='won'; $('retry-now').hidden=game.status!=='lost';
   $('context-tip').hidden=!!inspected||terminal||!!notice;
@@ -221,7 +217,7 @@ function draw() {
   $('flat-retry').hidden=game.status!=='lost';
   $('flat-continue').textContent=nextLabel;
   $('flat-title').textContent=level?level.title:'2D board';
-  $('seed').textContent=`${levelId?'Lesson '+levelId:'Seed '+game.config.seed} · Generator 1`;
+  $('seed').textContent=`${levelId?'Lesson '+(campaign.findIndex(l=>l.id===levelId)+1):'Puzzle code '+game.config.seed}`;
   $('notice').textContent=notice; $('notice').hidden=!notice||flat.open||terminal;
   $('flat-notice').textContent=terminal?$('result').textContent:notice;
   for(const [id,on] of [['focus',!exploded],['explode',exploded],['reveal-mode',action==='reveal'],['flag-mode',action==='flag'],['flat-reveal',action==='reveal'],['flat-flag',action==='flag']] as const){$(id).classList.toggle('selected',on);$(id).setAttribute('aria-pressed',String(on));}
@@ -231,7 +227,7 @@ function draw() {
 function drawInspector() {
   $('inspector').hidden=!inspected||!!notice||game.status==='won'||game.status==='lost';
   if(!inspected){
-    $('clue-description').textContent='Tap a revealed clue to highlight its neighborhood.';
+    $('clue-description').textContent='Tap a number to see the tiles it counts.';
     $<HTMLButtonElement>('flat-chord').disabled=$<HTMLButtonElement>('flat-target').disabled=true;
     return;
   }
@@ -242,7 +238,7 @@ function drawInspector() {
   const visiting=type!=='local'&&active!==targetFloor;
   $('clue-title').textContent=`${type==='above'?'↑ ':type==='below'?'↓ ':''}${cell.adjacent} ${type==='local'?'nearby':`on floor ${targetFloor+1}`}`;
   $('clue-targets').textContent=`${flags} of ${cell.adjacent} flags${type==='local'?'':` · from floor ${floor+1}`}`;
-  $('clue-description').textContent=`Floor ${floor+1}, row ${Math.floor(index/game.config.width)+1}, column ${index%game.config.width+1}: ${type} ${cell.adjacent}. Counts ${targets.length} cells on floor ${targetFloor+1}. ${flags} flags. ${type==='local'?'The clue cell is excluded.':'The aligned tile is included; the source floor is excluded.'}`;
+  $('clue-description').textContent=`Floor ${floor+1}, row ${Math.floor(index/game.config.width)+1}, column ${index%game.config.width+1}: ${type} ${cell.adjacent}. Checks ${targets.length} tiles on floor ${targetFloor+1}. ${flags} flags. ${type==='local'?'The number’s tile is skipped.':'The tile straight up or down is included.'}`;
   $('target-floor').hidden=!visiting; $('target-floor').textContent=`View floor ${targetFloor+1}`;
   $('chord').hidden=visiting;
   for(const id of ['chord','flat-chord'])$<HTMLButtonElement>(id).disabled=!canChord;
@@ -286,7 +282,7 @@ function freePlay(c:Chapter,floors=c==='classic'?1:2,size=findBoardSize(game.con
   levelId=null;game=startGame(randomConfig(size,c==='classic'?1:Math.max(2,floors),randomSeed()));resetUI();
 }
 function setFloor(floor:number) {if(floor<game.config.floors){cancelFlatInput();active=floor;draw();save();}}
-$('retry').onclick=()=>{menu.close();try {game=retryGame(game);resetUI();}catch{notice='This legacy puzzle cannot be reproduced from its seed. Choose New puzzle to continue.';draw();}};
+$('retry').onclick=()=>{menu.close();try {game=retryGame(game);resetUI();}catch{notice='This old puzzle cannot restart. Choose New puzzle.';draw();}};
 function nextPuzzle() {if(levelId){const next=campaign.findIndex(l=>l.id===levelId)+1;if(next<campaign.length)loadLevel(campaign[next].id);else freePlay('connected');}else freePlay(chapter(),game.config.floors);}
 $('new').onclick=()=>{menu.close();freePlay(chapter(),game.config.floors);};
 $('continue').onclick=$('flat-continue').onclick=nextPuzzle;
@@ -309,7 +305,7 @@ $('hint').onclick=$('flat-hint').onclick=()=>{
   if(game.status==='won'||game.status==='lost'){notice='Retry or start the next puzzle to continue.';draw();return;}
   const step=nextDeduction(game);
   if(step==='contradiction'){notice='Check your flags before using Hint.';draw();return;}
-  if(!step){notice='No logical move found. Check flags or try a new puzzle.';draw();return;}
+  if(!step){notice='No hint found. Check your flags or try a new puzzle.';draw();return;}
   active=step.floor;
   moveSound(step.action==='flag'?toggleFlag(game,step.floor,step.index):reveal(game,step.floor,step.index),step.action==='flag'?'flag':'reveal');
   inspected=step.sources[0];notice=`Hint: ${step.action==='flag'?'flagged':'opened'} floor ${step.floor+1}, row ${Math.floor(step.index/game.config.width)+1}, column ${step.index%game.config.width+1}.`;
@@ -324,7 +320,7 @@ $('export-save').onclick=()=>{
   const url=URL.createObjectURL(blob),link=document.createElement('a');
   link.href=url;link.download='petals-save.json';menu.append(link);link.click();link.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
-  $('transfer-notice').textContent='Save file exported. Import it on the new domain to continue.';
+  $('transfer-notice').textContent='Save file exported. Import it where you want to play.';
 };
 $('import-save').onclick=()=>$('save-file').click();
 $<HTMLInputElement>('save-file').onchange=async e=>{
@@ -332,10 +328,10 @@ $<HTMLInputElement>('save-file').onchange=async e=>{
   if(!file)return;
   try {
     const session=file.size<=MAX_SAVE_BYTES?readTransfer(await file.text(),campaign):null;
-    if(!session){$('transfer-notice').textContent='That file is not a valid Petals save (maximum 1 MB). Your current puzzle is unchanged.';return;}
+    if(!session){$('transfer-notice').textContent='Choose a Petals save file under 1 MB.';return;}
     scene?.cancelInput();cancelFlatInput();applySession(session);inspected=undefined;elapsedRemainder=0;lastTick=performance.now();notice='Save imported.';
-    markCompletion();draw();save();$('transfer-notice').textContent='Save imported. Your puzzle and progress are ready.';
-  }catch{$('transfer-notice').textContent='Could not read this save file. Your current puzzle is unchanged.';}
+    markCompletion();draw();save();$('transfer-notice').textContent='Save imported.';
+  }catch{$('transfer-notice').textContent='Could not read the save file.';}
 };
 $('sound-toggle').onclick=()=>{sounds.setEnabled(!sounds.enabled);if(sounds.enabled)sounds.play('flag');draw();};
 for(const event of ['pointerdown','pointerup','keydown'])document.addEventListener(event,()=>sounds.unlock(),{capture:true});

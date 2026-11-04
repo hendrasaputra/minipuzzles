@@ -4,6 +4,7 @@ import { levels } from './levels';
 import { CrateScene } from './scene';
 import { readSave, writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
+import { gameGuide } from '../../shared/game-guide';
 import { randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { randomGarden, type RandomGarden } from './random';
 
@@ -20,22 +21,27 @@ try {
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <header class="topbar"><a class="hub-back" href="../../" aria-label="Back to Puzzles">←</a><span class="brand">Crate Garden</span><button id="open-menu" class="menu-button" aria-haspopup="dialog">Menu</button></header>
-<main class="game-shell"><div class="puzzle-heading"><h1 id="title"></h1><span id="level-number"></span></div><p id="storage-warning" class="storage-warning" hidden>Progress isn’t being saved. Keep this tab open.</p>
+<main class="game-shell"><div class="puzzle-heading"><h1 id="title"></h1><span id="level-number"></span></div><p id="storage-warning" class="storage-warning" hidden>Save failed. Keep this tab open.</p>
 <div class="stats"><div><strong id="moves">0</strong><span>Steps</span></div><div><strong id="pushes">0</strong><span>Pushes</span></div></div>
-<section class="play-area" aria-label="Crate puzzle"><div id="scene" class="scene" tabindex="0" role="group" aria-label="Isometric crate garden. Swipe or use arrow keys to walk. Push every crate onto a planting spot."></div></section>
+<section class="play-area" aria-label="Crate puzzle"><div id="scene" class="scene" tabindex="0" role="group" aria-label="3D board. Swipe or use the arrow keys to move. Push each crate onto a green tile."></div></section>
 <p id="status" class="status" role="status" aria-live="polite"></p>
 <div class="walk-controls" aria-label="Walk"><button data-dir="n" aria-label="Walk north">↗</button><button data-dir="e" aria-label="Walk east">↘</button><button data-dir="s" aria-label="Walk south">↙</button><button data-dir="w" aria-label="Walk west">↖</button></div>
-<div class="actions"><button id="undo">Undo</button><button id="hint">Hint</button><button id="retry">Retry</button><button id="next" class="primary" hidden>Next garden</button></div></main>
-<dialog id="menu" class="sheet" aria-labelledby="menu-title"><div class="sheet-heading"><h2 id="menu-title">Your garden</h2><button id="close-menu">Done</button></div><div class="sheet-body"><label>Choose a garden<select id="level-select"></select></label><p id="progress" class="muted"></p>
+<div class="actions"><button id="undo">Undo</button><button id="hint">Hint</button><button id="retry">Restart</button><button id="next" class="primary" hidden>Next level</button></div></main>
+<dialog id="menu" class="sheet" aria-labelledby="menu-title"><div class="sheet-heading"><h2 id="menu-title">Menu</h2><button id="close-menu">Done</button></div><div class="sheet-body"><label>Levels<select id="level-select"></select></label><p id="progress" class="muted"></p>
 <label>Random difficulty<select id="random-difficulty"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>
-<div class="menu-pair"><button id="new-random">New random puzzle</button></div><p id="seed" class="puzzle-id" hidden></p><section class="instructions"><h3>A place for every crate</h3><p>Walk the gardener around the paths and push each seed crate onto a green planting spot. You can push one crate at a time. You cannot pull crates, push two together, or walk through walls.</p><p>Swipe in a path’s direction, tap a neighboring tile, or use the four large arrows. Swipes follow the current view. Keyboard arrows and WASD always follow grid north/east/south/west. Choose Rotate to drag the camera around and tilt it; pinch or scroll to zoom. Choose Play to move again. The ↺ button resets the camera.</p><p>Undo any step, even after finishing. Retry starts this garden again. Hint plays one step of a solution, including walking. If a crate gets stuck, undo or retry. There is no timer.</p></section><button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;
+<div class="menu-pair"><button id="new-random">New random puzzle</button></div><p id="seed" class="puzzle-id" hidden></p>${gameGuide([
+  { before: '🧑 ⬜', after: '⬜ 🧑', text: 'Tap a tile next to you, swipe, or use the arrows or WASD to move.' },
+  { before: '🧑 📦 🟩', after: '⬜ 🧑 📦', text: 'Walk into one crate to push it. Put every crate on a green tile.' },
+  { before: '📦 🧱', after: '↶ 📦', text: 'Stuck? Use Undo or Restart.' },
+  { before: '▦', after: '◈', text: 'Choose Rotate and drag. Pinch or scroll to zoom. Use ↺ to reset.' }
+])}<button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;
 const menu=$<HTMLDialogElement>('menu');
 let scene:CrateScene|undefined;
-try{scene=new CrateScene($('scene'),step);}catch{$('scene').textContent='The garden could not render. Please try a browser with Canvas support.';}
+try{scene=new CrateScene($('scene'),step);}catch{$('scene').textContent='3D is unavailable. Use a browser with 3D graphics support.';}
 function cameraArrows(){for(const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[data-dir]')))if(scene)button.textContent=scene.screenDirection(button.dataset.dir as Direction);}
 $('scene').addEventListener('camerachange',cameraArrows);
-function save(){try{localStorage.setItem(KEY,writeSave(index,game,completed,random));}catch{saving=false;}$('storage-warning').hidden=saving;$('save-state').textContent=saving?'Progress saved on this device.':'Saving unavailable. Keep this tab open.';}
-function step(dir:Direction){if(menu.open)return;if(move(game,dir)){notice='';if(game.status==='won'&&!random&&!completed.includes(game.level.id))completed.push(game.level.id);audio.play(game.status==='won'?'win':'reveal');draw();save();if(game.status==='won')$('next').focus();}else{notice=game.status==='won'?'This garden is complete. Choose the next one.':'That path is blocked. Try another direction.';draw();}}
+function save(){try{localStorage.setItem(KEY,writeSave(index,game,completed,random));}catch{saving=false;}$('storage-warning').hidden=saving;$('save-state').textContent=saving?'Progress saved.':'Save failed.';}
+function step(dir:Direction){if(menu.open)return;if(move(game,dir)){notice='';if(game.status==='won'&&!random&&!completed.includes(game.level.id))completed.push(game.level.id);audio.play(game.status==='won'?'win':'reveal');draw();save();if(game.status==='won')$('next').focus();}else{notice=game.status==='won'?'Level complete.':'Blocked. Try another direction.';draw();}}
 function draw() {
   const won = game.status === 'won';
   scene?.update(game);
@@ -43,21 +49,21 @@ function draw() {
   $('level-number').textContent = random ? difficultyName(random.difficulty) : `${index + 1} / ${levels.length}`;
   $('moves').textContent = String(game.moves);
   $('pushes').textContent = String(game.pushes);
-  $('status').textContent = won ? 'Every crate is planted. Lovely work.' : notice || 'Push every crate onto a green planting spot.';
+  $('status').textContent = won ? 'Level complete.' : notice || 'Push every crate onto a green tile.';
   $<HTMLButtonElement>('undo').disabled = !game.history.length;
   for (const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[data-dir]'))) button.disabled = won;
   $('hint').hidden = won;
   $('next').hidden = !won;
-  $('next').textContent = random ? 'New random puzzle' : index === levels.length - 1 ? 'Choose a garden' : 'Next garden';
+  $('next').textContent = random ? 'New random puzzle' : index === levels.length - 1 ? 'Levels' : 'Next level';
   const curatedOptions = levels.map((level, i) => {
     const selected = i === index ? 'selected' : '';
     const check = completed.includes(level.id) ? ' ✓' : '';
     return `<option value="${i}" ${selected}>${i + 1}. ${level.title}${check}</option>`;
   }).join('');
-  $('level-select').innerHTML = (random ? '<option value="random" selected>Current random garden</option>' : '') + curatedOptions;
+  $('level-select').innerHTML = (random ? '<option value="random" selected>Random level</option>' : '') + curatedOptions;
   $('seed').hidden = !random;
   $('seed').textContent = random ? `Seed ${random.seed}` : '';
-  $('progress').textContent = `${completed.length} of ${levels.length} gardens planted.`;
+  $('progress').textContent = `${completed.length} of ${levels.length} levels complete.`;
   $('sound').textContent = audio.enabled ? 'Sound: on' : 'Sound: off';
   $('sound').setAttribute('aria-pressed', String(audio.enabled));
 }
@@ -83,7 +89,7 @@ if (random) $<HTMLSelectElement>('random-difficulty').value = random.difficulty;
 for(const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[data-dir]')))button.onclick=()=>step(button.dataset.dir as Direction);
 $('undo').onclick=()=>{scene?.cancelInput();if(undo(game)){notice='';draw();save();}};
 $('retry').onclick=()=>load(game.level, index, random);
-$('hint').onclick=()=>{scene?.cancelInput();const solution=solve(game);if(solution?.length){step(solution[0]);if(game.status!=='won'){notice='Hint: one step along the solution.';draw();}}else{notice='No hint found within the search limit. Undo a push or retry this garden.';draw();}};
+$('hint').onclick=()=>{scene?.cancelInput();const solution=solve(game);if(solution?.length){step(solution[0]);if(game.status!=='won'){notice='Hint moved the gardener one step.';draw();}}else{notice='No hint available. Try Undo or Restart.';draw();}};
 $('next').onclick=()=>{
   if (random) newRandom(random.difficulty);
   else if (index < levels.length - 1) load(levels[index + 1], index + 1);

@@ -1,0 +1,63 @@
+.game-guide {
+  margin-block: 12px;
+  border: 1px solid #e5ded3;
+  border-radius: 12px;
+}
+.game-guide summary {
+  display: list-item;
+  padding: 13px;
+  min-height: 44px;
+  cursor: pointer;
+  font-weight: 650;
+}
+.guide-steps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 10px;
+  list-style: none;
+}
+.guide-steps li {
+  border-radius: 9px;
+  padding: 9px;
+  background: #f4eee5;
+}
+.guide-steps p {
+  margin: 6px 0 0;
+  color: #4c4238;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.guide-demo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: #47372a;
+  font: 18px/1.4 system-ui, sans-serif;
+}
+.guide-demo > span:not(.guide-arrow) {
+  min-width: 42px;
+  padding: 3px 7px;
+  border: 1px solid #e4d8c8;
+  border-radius: 7px;
+  background: #fffcf6;
+  text-align: center;
+}
+.guide-result {
+  animation: guide-result 2.8s ease-in-out infinite;
+}
+.guide-arrow {
+  animation: guide-arrow 2.8s ease-in-out infinite;
+}
+@keyframes guide-result {
+  0%, 22%, 100% { transform: scale(.94); }
+  44%, 76% { transform: scale(1); background: #e8eee0; }
+}
+@keyframes guide-arrow {
+  0%, 22%, 100% { transform: translateX(-3px); }
+  44%, 76% { transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guide-demo > span { animation: none; }
+}

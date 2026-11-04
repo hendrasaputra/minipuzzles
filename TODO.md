@@ -123,3 +123,9 @@ The remaining 15 planned entries describe ideas, not commitments or completed ga
 - [x] Audit Petals size and floor presets plus Traffic Garden difficulty bands.
 - [x] Add seeded Easy, Medium, and Hard puzzles to Crate Garden, Crystal Light, Water Garden, and Frosty Paths.
 - [x] Keep authored campaigns and compatible save keys, with random wins separate from campaign progress.
+
+## Easier game instructions
+
+- [x] Use plain descriptions and labels across the game shelf and games.
+- [x] Replace long in-game instructions with animated examples and short captions.
+- [x] Check all seven help panels at 320 px.

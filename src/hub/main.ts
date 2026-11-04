@@ -9,16 +9,21 @@ function icon(game:GameEntry) {
   return `<span class="icon-wrap" aria-hidden="true">${miniature}</span>`;
 }
 function card(game:GameEntry) {
-  const content=`${icon(game)}<h3 class="game-title" id="${game.id}-title">${game.title}</h3><span class="game-description" id="${game.id}-description">${game.description}</span><span class="game-status">${game.status==='playable'?'Play now →':'Coming later'}</span>`;
+  const content=`${icon(game)}<h3 class="game-title" id="${game.id}-title">${game.title}</h3><span class="game-description" id="${game.id}-description">${game.description}</span><span class="game-status">${game.status==='playable'?'Play →':'Coming soon'}</span>`;
   return game.status==='playable'&&game.href
     ? `<a class="game-card playable" href="${game.href}" style="--accent:${game.accent}" aria-label="Play ${game.title}" aria-describedby="${game.id}-description">${content}</a>`
     : `<article class="game-card planned" style="--accent:${game.accent}" aria-labelledby="${game.id}-title">${content}</article>`;
 }
-const playable=games.filter(game=>game.status==='playable');
+const playable = games.filter(game => game.status === 'playable');
+const planned = games.filter(game => game.status === 'planned');
 document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <header class="site-header"><a class="site-brand" href="./" aria-label="Puzzles home"><span class="brand-mark" aria-hidden="true">P</span>Puzzles</a><span class="availability">${playable.length} ${playable.length===1?'game':'games'} ready to play</span></header>
 <main class="library">
-  <section class="intro"><h1>Pick a puzzle.</h1><p>A little challenge. A moment to yourself.</p></section>
-  <section aria-labelledby="games-title"><div class="shelf-heading"><h2 id="games-title">The collection</h2><span>${games.length} little worlds</span></div><div class="game-grid">${games.map(card).join('')}</div></section>
+  <section class="intro"><h1>Choose a game</h1></section>
+  <section aria-label="Playable games"><div class="game-grid">${playable.map(card).join('')}</div></section>
+  <details class="planned-games">
+    <summary>Coming soon (${planned.length})</summary>
+    <div class="game-grid">${planned.map(card).join('')}</div>
+  </details>
 </main>
-<footer class="site-footer"><span>Pick a world. Take your time.</span><a href="https://github.com/hendrasaputra/minipuzzles">Source on GitHub ↗</a></footer>`;
+<footer class="site-footer"><a href="https://github.com/hendrasaputra/minipuzzles">Source on GitHub ↗</a></footer>`;

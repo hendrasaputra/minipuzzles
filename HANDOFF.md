@@ -114,3 +114,9 @@ The owner explicitly requested publishing Frosty Paths with its 3D rotation and 
 ## Random puzzle modes
 
 Crate Garden, Crystal Light, Water Garden, and Frosty Paths now offer seeded Easy, Medium, and Hard puzzles in Menu. Each keeps its eight authored levels. Retry restores the opening, reload replays the saved moves, and random wins stay separate from campaign completion. Existing save keys and authored level IDs are retained. Petals already offers four sizes and connected floors. Traffic Garden already has three solver-checked tiers. Both retain their existing generation rules.
+
+The random puzzle update shipped in 4f6a396 through Pages run 41780702050. The public menus show all three difficulty options in each of the four updated games.
+
+## Plain interface copy
+
+Use short descriptions and clear goals. The hub lists playable games first and puts planned games under Coming soon. In-game help uses four animated examples with text captions. Petals shows them in its help dialog. The other games show them under How to play in Menu. The shared guide respects reduced motion.

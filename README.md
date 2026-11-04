@@ -1,12 +1,14 @@
 # Puzzles
 
-A shelf of small browser puzzle games, with tactile isometric worlds and touch-friendly controls.
+Browser puzzle games you can play with touch or a keyboard.
 
 **[Play at puzzles.hensap.id](https://puzzles.hensap.id/)**
 
 Play **Petals** (Minesweeper), **Traffic Garden** (sliding cars), **Crate Garden** (crate pushing), **Crystal Light** (mirrors and animated lasers), **Water Garden** (flowing channels), and **Frosty Paths** (penguin sliding). All have rotatable 3D boards, touch and keyboard controls, sound, and local saves.
 
 Every game offers fresh random puzzles at several difficulties. Petals uses board sizes and floor counts. The other games offer Easy, Medium, and Hard. Open Menu to start a random puzzle or choose an authored level where available.
+
+Use **How to play** in each game menu for short animated examples.
 
 ## Run locally
 
