@@ -21,9 +21,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <main class="library">
   <section class="intro"><h1>Choose a game</h1></section>
   <section aria-label="Playable games"><div class="game-grid">${playable.map(card).join('')}</div></section>
-  <details class="planned-games">
+  ${planned.length ? `<details class="planned-games">
     <summary>Coming soon (${planned.length})</summary>
     <div class="game-grid">${planned.map(card).join('')}</div>
-  </details>
+  </details>` : ''}
 </main>
 <footer class="site-footer"><a href="https://github.com/hendrasaputra/minipuzzles">Source on GitHub ↗</a></footer>`;

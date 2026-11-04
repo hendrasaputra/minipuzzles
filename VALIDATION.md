@@ -273,3 +273,9 @@ Robot Garden passed the 375-test suite and production build. Browser checks at 3
 Robot Garden deployed through Pages run 41796026790. The public shelf lists eleven games, and the live See example panel shows the East then North route to the seed and dock.
 
 Bridge Islands passed all 381 tests and the production build. At 320 × 568, direct island taps placed one bridge and then two parallel bridges to finish the first crossing. Reload restored the win. Rotation and the example worked, and the local shelf opened the game. The shared bundle size warning remains. Physical phone performance is untested.
+
+Bridge Islands deployed through Pages run 41797797533. The public shelf lists twelve games. The live game opens with the first crossing instructions and shows the single and double bridge example.
+
+Flip Garden and Tiny Tangrams passed all 394 tests and the production build. At 320 × 568, a direct tap on B2 solved Flip Garden and undo reversed it. Tiny Tangrams rejected the overlapping second placement, then completed after a quarter turn. Both restored their wins after reload, opened their examples, and fit without horizontal overflow. The fourteen-game local shelf opens both pages. Physical phone performance remains untested.
+
+The full local collection passes 440 tests across 55 files and the production build. Browser checks opened all 21 games with visible 3D canvases on both the development and production preview shelves. At 390 × 844, every game fit horizontally, and all seven new first levels completed and restored their wins. The seven new games opened their visual guides and accepted camera rotation. Each new Hard puzzle restored after reload at 320 × 568 without horizontal overflow. The production review server runs at http://127.0.0.1:4173/. The shared bundle size warning remains. Physical phone performance is untested.

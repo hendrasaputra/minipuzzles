@@ -9,7 +9,7 @@ USE CODEX NATIVE SUBAGENTS FOR INDEPENDENT PARALLEL SUBTASKS WHEN THAT IMPROVES 
 
 ## Product and layout
 
-Puzzles is a collection of small browser puzzle games. Petals, Traffic Garden, Crate Garden, Crystal Light, Water Garden, Frosty Paths, Marble Workshop, Shadow Blocks, Picture Islands, Pocket Railroads, Robot Garden and Bridge Islands are implemented; planned catalog entries must remain clearly unavailable until implemented. Use TypeScript and Vite without adding a framework. The hub stays renderer-neutral; all playable games use Three.js for rotatable 3D boards. Future games must also support 3D rotation. See `docs/RENDERING.md` before considering a new renderer.
+Puzzles is a collection of 21 small browser puzzle games. The local shelf includes the full collection. Use TypeScript and Vite without adding a framework. The hub stays renderer-neutral. All playable games use Three.js for rotatable 3D boards. See `docs/RENDERING.md` before considering a new renderer.
 
 - `src/catalog.ts` owns stable IDs, titles, status and hub links.
 - `src/hub/` owns the selection page; avoid loading Three.js there unnecessarily.
@@ -25,6 +25,9 @@ Puzzles is a collection of small browser puzzle games. Petals, Traffic Garden, C
 - `src/games/pocket-railroads/` owns switch routing, trains, the 3D railway, and replay saves.
 - `src/games/robot-garden/` owns command puzzles, the 3D robot board, and replay saves.
 - `src/games/bridge-islands/` owns bridge counts, network rules, the 3D board, and replay saves.
+- `src/games/flip-garden/` owns tile flips, goal patterns, the 3D garden, and replay saves.
+- `src/games/tiny-tangrams/` owns shape placement, the 3D fitting board, and replay saves.
+- The seven final game folders own stack sorting, Sudoku, block rolling, stone paths, jug pouring, perspective alignment, and escape room clues. Each owns its own scene, rules, and saves.
 - `src/shared/` contains reusable audio, camera and input helpers. `mini-scene.ts` supplies the shared miniature view for Traffic/Crate Garden, Crystal Light and Water Garden: Play/Rotate, orbit/tilt, zoom, reset and 3D picking. Keep camera gestures separate from puzzle actions and direction cues aligned with the camera. Water, lasers, fire, ice and similar active materials should have fitting motion/particle effects. Reuse `MaterialMotion` for a single capped loop, hidden-tab pausing and reduced-motion support; decorative effects must not block picking or change puzzle rules.
 - `games/petals/index.html` is the standalone game page. Native page navigation provides clean game teardown.
 - `docs/art/` holds the shared icon direction and editable GPT prompts.

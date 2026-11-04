@@ -158,3 +158,15 @@ The remaining 15 planned entries describe ideas, not commitments or completed ga
 - [x] Build Bridge Islands with a rotatable 3D board and a worked bridge example.
 - [x] Verify first-level taps, saved completion, rotation, and the local shelf link.
 - [ ] Review Bridge Islands.
+- [x] Publish Bridge Islands and verify its live shelf link and example.
+- [x] Build Flip Garden and Tiny Tangrams with rotatable boards, worked examples, and seeded puzzles.
+- [x] Verify both first-level wins, saved completion, and local shelf links.
+- [ ] Review Flip Garden and Tiny Tangrams.
+
+## Full local collection
+
+- [x] Build Color Stacks, Garden Sudoku, Rolling Stone, Stepping Stones, Water Balance, Perspective Paths, and Pocket Escape.
+- [x] Open all 21 games from the local shelf.
+- [x] Verify the seven new first-level wins, visual examples, rotations, and save restore.
+- [x] Verify the seven new Hard modes at 320 px.
+- [ ] Review the full collection locally.

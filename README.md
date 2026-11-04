@@ -20,6 +20,8 @@ Use **How to play** in each game menu for short animated examples.
 
 **Bridge Islands** is the twelfth game. Connect the islands and match their bridge counts.
 
+The collection includes **21 playable games**. See the [local review guide](docs/LOCAL_REVIEW.md) for the new games and their first puzzles.
+
 ## Run locally
 
 Use Node.js 22.12+, 24, or 26+. In macOS/Linux Terminal or Windows PowerShell:
@@ -33,7 +35,7 @@ The homepage is the game library. Petals lives at `/games/petals/`; Traffic Gard
 
 ## Project guide
 
-- [Development](docs/DEVELOPMENT.md) · [Petals gameplay](docs/GAMEPLAY.md) · [Traffic Garden](docs/TRAFFIC_GARDEN.md) · [Crate Garden](docs/CRATE_GARDEN.md) · [Crystal Light](docs/CRYSTAL_LIGHT.md) · [Water Garden](docs/WATER_GARDEN.md) · [Frosty Paths](docs/FROSTY_PATHS.md) · [Marble Workshop](docs/MARBLE_WORKSHOP.md) · [Shadow Blocks](docs/SHADOW_BLOCKS.md) · [Picture Islands](docs/PICTURE_ISLANDS.md) · [Pocket Railroads](docs/POCKET_RAILROADS.md) · [Robot Garden](docs/ROBOT_GARDEN.md) · [Bridge Islands](docs/BRIDGE_ISLANDS.md)
+- [Development](docs/DEVELOPMENT.md) · [Petals gameplay](docs/GAMEPLAY.md) · [Traffic Garden](docs/TRAFFIC_GARDEN.md) · [Crate Garden](docs/CRATE_GARDEN.md) · [Crystal Light](docs/CRYSTAL_LIGHT.md) · [Water Garden](docs/WATER_GARDEN.md) · [Frosty Paths](docs/FROSTY_PATHS.md) · [Marble Workshop](docs/MARBLE_WORKSHOP.md) · [Shadow Blocks](docs/SHADOW_BLOCKS.md) · [Picture Islands](docs/PICTURE_ISLANDS.md) · [Pocket Railroads](docs/POCKET_RAILROADS.md) · [Robot Garden](docs/ROBOT_GARDEN.md) · [Bridge Islands](docs/BRIDGE_ISLANDS.md) · [Flip Garden](docs/FLIP_GARDEN.md) · [Tiny Tangrams](docs/TINY_TANGRAMS.md)
 - [Icon prompts and art workflow](docs/art/README.md)
 - [Progress](TODO.md) · [Developer handoff](HANDOFF.md) · [Agent instructions](AGENTS.md)
 - [Deployment and save migration](docs/DEPLOYMENT.md) · [Validation](VALIDATION.md)

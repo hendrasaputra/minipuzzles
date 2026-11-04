@@ -1,0 +1,42 @@
+.escape-stats { align-items: center; }
+.escape-stats button { min-height: 44px; text-decoration: underline; text-underline-offset: 3px; }
+.clue-buttons { display: flex; gap: 4px; }
+.clue-buttons button {
+  flex: 1;
+  min-height: 44px;
+  padding: 4px;
+  border: 1px solid #dbcab7;
+  border-radius: 9px;
+  background: #f0e4d6;
+  font-size: 12px;
+}
+.code-area, .door-code { display: flex; align-items: center; gap: 8px; }
+.code-area { justify-content: space-between; }
+.door-code input {
+  width: clamp(36px, 12vw, 46px);
+  height: 44px;
+  border: 1px solid #ac9581;
+  border-radius: 8px;
+  background: #fffaf2;
+  color: #43362b;
+  font: inherit;
+  font-size: 18px;
+  text-align: center;
+}
+.clue-tiles { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.clue-tiles span { padding: 8px; border-radius: 8px; background: #f0e4d6; font-size: 22px; }
+.actions .primary { background: #805c49; border-color: #805c49; }
+.play-area { min-height: 112px; }
+@media (max-width: 420px) and (max-height: 660px) {
+  .play-area .scene { top: 48px; }
+  .scene .mini-camera { top: -48px; }
+}
+@media (max-height: 500px) and (min-width: 601px) {
+  .game-shell {
+    grid-template-rows: auto auto 1fr auto auto 52px;
+    grid-template-areas: 'board heading' 'board stats' 'board status' 'board clues' 'board code' 'board actions';
+  }
+  .play-area { min-height: 0; }
+  .clue-buttons { grid-area: clues; }
+  .code-area { grid-area: code; }
+}

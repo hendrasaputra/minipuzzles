@@ -1,0 +1,40 @@
+.stone-goal { margin: 0; font-weight: 600; font-size: 14px; }
+.stone-stats { align-items: center; }
+.stone-stats button { min-height: 44px; text-decoration: underline; text-underline-offset: 3px; }
+.play-area { min-height: 115px; }
+.stone-directions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.stone-directions button {
+  min-height: 44px;
+  border: 1px solid #bdc9b3;
+  border-radius: 10px;
+  background: #e4ebdc;
+  font-size: 21px;
+}
+.actions .primary { background: #53765d; border-color: #53765d; }
+.stone-example { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+.stone-example b {
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  border-radius: 5px;
+  background: #e5dec8;
+  color: #384132;
+  font-size: 14px;
+}
+.stone-example .on { background: #9db594; }
+.stone-example .finish { background: #a6c5ce; }
+@media (max-width: 420px) { .guide-demo { flex-wrap: wrap; } }
+@media (max-width: 420px) and (max-height: 660px) {
+  .play-area .scene { top: 52px; }
+  .scene .mini-camera { top: -48px; }
+}
+@media (max-height: 500px) and (min-width: 601px) {
+  .game-shell {
+    grid-template-rows: auto auto auto 1fr auto 56px;
+    grid-template-areas: 'board heading' 'board goal' 'board stats' 'board status' 'board slide' 'board actions';
+  }
+  .play-area { min-height: 0; }
+  .stone-goal { grid-area: goal; }
+  .stone-directions { grid-area: slide; }
+}

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { games } from './catalog';
 
 describe('puzzle catalog', () => {
-  it('has unique stable IDs and twelve playable games', () => {
+  it('has unique stable IDs and twenty-one playable games', () => {
     expect(games).toHaveLength(21);
     expect(new Set(games.map(game => game.id)).size).toBe(games.length);
     expect(games.filter(game => game.status === 'playable')).toEqual([
@@ -18,6 +18,15 @@ describe('puzzle catalog', () => {
       expect.objectContaining({ id: 'pocket-railroads', title: 'Pocket Railroads', href: './games/pocket-railroads/' }),
       expect.objectContaining({ id: 'robot-garden', title: 'Robot Garden', href: './games/robot-garden/' }),
       expect.objectContaining({ id: 'bridge-islands', title: 'Bridge Islands', href: './games/bridge-islands/' }),
+      expect.objectContaining({ id: 'flip-garden', title: 'Flip Garden', href: './games/flip-garden/' }),
+      expect.objectContaining({ id: 'tiny-tangrams', title: 'Tiny Tangrams', href: './games/tiny-tangrams/' }),
+      expect.objectContaining({ id: 'color-stacks', title: 'Color Stacks', href: './games/color-stacks/' }),
+      expect.objectContaining({ id: 'garden-sudoku', title: 'Garden Sudoku', href: './games/garden-sudoku/' }),
+      expect.objectContaining({ id: 'rolling-stone', title: 'Rolling Stone', href: './games/rolling-stone/' }),
+      expect.objectContaining({ id: 'stepping-stones', title: 'Stepping Stones', href: './games/stepping-stones/' }),
+      expect.objectContaining({ id: 'water-balance', title: 'Water Balance', href: './games/water-balance/' }),
+      expect.objectContaining({ id: 'perspective-paths', title: 'Perspective Paths', href: './games/perspective-paths/' }),
+      expect.objectContaining({ id: 'pocket-escape', title: 'Pocket Escape', href: './games/pocket-escape/' }),
     ]);
   });
 

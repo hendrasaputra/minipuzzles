@@ -1,0 +1,56 @@
+.stack-stats { align-items: center; }
+.stack-stats button { min-height: 44px; text-decoration: underline; text-underline-offset: 3px; }
+.stack-comparison, .stack-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.stack-comparison > div {
+  padding: 4px;
+  text-align: center;
+  border-radius: 9px;
+  background: #efe5dc;
+  font-size: 12px;
+}
+.stack-map { display: flex; align-items: end; justify-content: center; gap: 2px; }
+.map-column { min-width: 0; padding: 2px; border-radius: 3px; }
+.map-column.source { background: #edd59e; }
+.map-column small { display: block; font-size: 10px; }
+.mini-stack {
+  display: inline-flex;
+  min-width: 10px;
+  min-height: 9px;
+  flex-direction: column-reverse;
+  justify-content: end;
+  gap: 1px;
+  vertical-align: bottom;
+}
+.mini-stack i {
+  display: grid;
+  place-items: center;
+  min-width: 10px;
+  min-height: 10px;
+  border-radius: 2px;
+  background: var(--paint);
+  color: #fff;
+  font: 8px/1 system-ui, sans-serif;
+}
+.game-guide .mini-stack { margin-inline: 2px; min-width: 18px; }
+.game-guide .mini-stack:empty { border-bottom: 2px solid #bba68d; }
+.game-guide .mini-stack i { min-width: 18px; min-height: 14px; font-size: 10px; }
+.stack-controls select { min-height: 48px; }
+.actions .primary { background: #865b66; border-color: #865b66; }
+.play-area { min-height: 118px; }
+@media (max-width: 420px) and (max-height: 660px) {
+  .play-area .scene { top: 53px; }
+  .scene .mini-camera { top: -49px; }
+}
+@media (max-height: 500px) and (min-width: 601px) {
+  .game-shell {
+    grid-template-rows: auto auto auto 1fr 52px 56px;
+    grid-template-areas: 'board heading' 'board stats' 'board comparison' 'board status' 'board slide' 'board actions';
+  }
+  .play-area { min-height: 0; }
+  .stack-comparison { grid-area: comparison; }
+  .stack-controls { grid-area: slide; }
+}
