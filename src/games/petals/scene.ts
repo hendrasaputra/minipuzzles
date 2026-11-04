@@ -5,8 +5,10 @@ import { BoardGesture, type GestureAction, type TileHit } from '../../shared/ges
 import { clampZoom, dragPan, fitCamera } from '../../shared/camera';
 import { MaterialMotion } from '../../shared/material-motion';
 import { PixelBurst } from '../../shared/pixel-burst';
+import { appendTouchCameraHint } from '../../shared/touch-camera-hint';
 
 const colors = ['#596fa2', '#558976', '#bc657a', '#8573ae', '#b07845', '#4e919c', '#7c7182', '#514454'];
+const defaultTilt = Math.atan2(18, 20);
 export type TileFeedback = TileHit & { kind: 'reveal' | 'flood' | 'flag' | 'unflag' | 'chord' };
 const feedback = {
   reveal: { color: '#ba7896', reach: 1, count: 6 },
@@ -29,6 +31,7 @@ export class BoardScene {
   private targets: THREE.Object3D[] = [];
   private ray = new THREE.Raycaster();
   private yaw = Math.PI / 4;
+  private tilt = defaultTilt;
   private zoom = 1;
   private pan = new THREE.Vector3();
   private center = new THREE.Vector3();
@@ -74,6 +77,7 @@ export class BoardScene {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setClearColor(0xfaf8f5, 0);
     host.append(this.renderer.domElement);
+    appendTouchCameraHint(host);
     this.scene.add(new THREE.HemisphereLight(0xfffaf2, 0xc9b3c8, 1.9));
     this.sun.position.set(-6, 12, 5); this.sun.castShadow = true;
     this.sun.shadow.mapSize.set(2048, 2048); this.sun.shadow.normalBias = .03;
@@ -229,7 +233,7 @@ export class BoardScene {
 
   private resize(){
     const w=this.host.clientWidth,h=this.host.clientHeight;if(!w||!h||this.bounds.isEmpty())return;
-    this.renderer.setSize(w,h);fitCamera(this.camera,this.bounds,this.center,this.yaw,this.zoom,this.pan,w/h);this.renderer.render(this.scene,this.camera);
+    this.renderer.setSize(w,h);fitCamera(this.camera,this.bounds,this.center,this.yaw,this.zoom,this.pan,w/h,this.tilt);this.renderer.render(this.scene,this.camera);
   }
   private pick(x:number,y:number):TileHit|undefined{
     const r=this.host.getBoundingClientRect();this.ray.setFromCamera(new THREE.Vector2((x-r.left)/r.width*2-1,-(y-r.top)/r.height*2+1),this.camera);
@@ -243,7 +247,13 @@ export class BoardScene {
       if(this.zoom>1.05)this.pan.add(dragPan(this.camera,action.dx,action.dy,this.host.clientWidth,this.host.clientHeight));
       else this.yaw-=action.dx*.008;
       this.resize();
-    }else if(action.type==='zoom')this.changeZoom(this.zoom*action.ratio);
+    }else if(action.type==='zoom'){
+      if(action.orbit){
+        this.yaw-=action.orbit.dx*.008;
+        this.tilt=THREE.MathUtils.clamp(this.tilt+action.orbit.dy*.005,.35,1.25);
+      }
+      this.changeZoom(this.zoom*action.ratio);
+    }
     else this.action(action.tile.floor,action.tile.index,action.type==='flag',action.type==='chord');
   }
   private down=(e:PointerEvent)=>{
@@ -252,9 +262,9 @@ export class BoardScene {
     this.apply(this.gesture.down(e.pointerId,e.clientX,e.clientY,e.button,this.pick(e.clientX,e.clientY)));
     if(e.button===0)this.hold=setTimeout(()=>{const action=this.gesture.hold();this.apply(action);if(action)navigator.vibrate?.(15);},480);
   };
-  private move=(e:PointerEvent)=>{this.apply(this.gesture.move(e.pointerId,e.clientX,e.clientY));};
+  private move=(e:PointerEvent)=>{this.apply(this.gesture.move(e.pointerId,e.clientX,e.clientY,e.pointerType==='touch'));};
   private up=(e:PointerEvent)=>{clearTimeout(this.hold);this.apply(this.gesture.up(e.pointerId));};
   private cancel=()=>{clearTimeout(this.hold);this.gesture.cancel();};
   cancelInput(){this.cancel();}
-  reset(){this.cancel();this.yaw=Math.PI/4;this.zoom=1;this.pan.set(0,0,0);this.resize();}
+  reset(){this.cancel();this.yaw=Math.PI/4;this.tilt=defaultTilt;this.zoom=1;this.pan.set(0,0,0);this.resize();}
 }

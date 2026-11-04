@@ -43,7 +43,7 @@ export class CrateScene {
   private multi=false;
   private press:{id:number;client:Point}|null=null;
   constructor(host:HTMLElement,private onDirection:(direction:Direction)=>void){
-    this.mini=new MiniScene(host,this.clearInput,true);
+    this.mini=new MiniScene(host,this.clearInput);
     this.mini.effects.add(this.burst.object);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     this.mini.canvas.setAttribute('role','img');

@@ -35,6 +35,7 @@ export class BridgeScene {
     this.mini.effects.add(this.burst.object);
     this.markers = document.createElement('div');
     this.markers.className = 'island-markers';
+    this.markers.dataset.boardInput = '';
     this.confetti = document.createElement('div');
     this.confetti.className = 'bridge-confetti';
     this.confetti.setAttribute('aria-hidden', 'true');

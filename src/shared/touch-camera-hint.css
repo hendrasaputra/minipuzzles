@@ -1,0 +1,20 @@
+.touch-camera-tip { display: none; }
+
+@media (any-pointer: coarse) {
+  .touch-camera-tip {
+    display: block;
+    position: absolute;
+    z-index: 2;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 5px 9px;
+    border-radius: 8px;
+    background: #faf8f3ef;
+    color: #5d5346;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+}

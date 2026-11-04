@@ -23,8 +23,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <header class="topbar"><a class="hub-back" href="../../" aria-label="Back to Puzzles">←</a><span class="brand">Crate Garden</span><button id="open-menu" class="menu-button" aria-haspopup="dialog">Menu</button></header>
 <main class="game-shell"><div class="puzzle-heading"><h1 id="title"></h1><span id="level-number"></span></div><p id="storage-warning" class="storage-warning" hidden>Save failed. Keep this tab open.</p>
 <div class="stats"><div><strong id="moves">0</strong><span>Steps</span></div><div><strong id="pushes">0</strong><span>Pushes</span></div></div>
-<section class="play-area" aria-label="Crate puzzle"><div id="scene" class="scene" tabindex="0" role="group" aria-label="3D board. Swipe or use the arrow keys to move. Push each crate onto a green tile."></div>
-<p class="touch-camera-tip"><span aria-hidden="true">● ● ↔</span> Drag with two fingers to rotate</p></section>
+<section class="play-area" aria-label="Crate puzzle"><div id="scene" class="scene" tabindex="0" role="group" aria-label="3D board. Swipe or use the arrow keys to move. Push each crate onto a green tile."></div></section>
 <p id="status" class="status" role="status" aria-live="polite"></p>
 <div class="walk-controls" aria-label="Walk"><button data-dir="n" aria-label="Walk north">↗</button><button data-dir="e" aria-label="Walk east">↘</button><button data-dir="s" aria-label="Walk south">↙</button><button data-dir="w" aria-label="Walk west">↖</button></div>
 <div class="actions"><button id="undo">Undo</button><button id="hint">Hint</button><button id="retry">Restart</button><button id="next" class="primary" hidden>Next level</button></div></main>

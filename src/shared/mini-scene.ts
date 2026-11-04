@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { BoardGesture, type GestureAction } from './gestures';
 import { clampZoom, fitCamera } from './camera';
+import { appendTouchCameraHint } from './touch-camera-hint';
 import './mini-scene.css';
 
 export interface Point { x:number;y:number }
@@ -44,7 +45,7 @@ export class MiniScene {
   private sun:THREE.DirectionalLight;
   get rotating(){return this.mode==='rotate';}
 
-  constructor(private host:HTMLElement,private onCancel:()=>void,private orbitWithPinch=false){
+  constructor(private host:HTMLElement,private onCancel:()=>void){
     this.renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});
     this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
     this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -60,8 +61,9 @@ export class MiniScene {
     this.rotateButton=this.button('Rotate',()=>this.setMode('rotate'));
     const reset=this.button('↺',()=>this.reset());reset.setAttribute('aria-label','Reset camera');
     this.host.append(this.controls);this.syncMode();
-    this.canvas.addEventListener('pointerdown',this.down,{capture:true});this.canvas.addEventListener('pointermove',this.move,{capture:true});
-    this.canvas.addEventListener('pointerup',this.up,{capture:true});this.canvas.addEventListener('pointercancel',this.cancel,{capture:true});
+    appendTouchCameraHint(host);
+    host.addEventListener('pointerdown',this.down,{capture:true});host.addEventListener('pointermove',this.move,{capture:true});
+    host.addEventListener('pointerup',this.up,{capture:true});host.addEventListener('pointercancel',this.cancel,{capture:true});
     this.canvas.addEventListener('wheel',this.wheel,{passive:false});this.canvas.addEventListener('contextmenu',event=>event.preventDefault());
     host.addEventListener('keydown',this.key,{capture:true});window.addEventListener('blur',()=>this.cancelInput());
     this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(host);
@@ -124,20 +126,39 @@ export class MiniScene {
     if(orbit||action?.type==='zoom')this.resize();
   }
   private down=(event:PointerEvent)=>{
-    if(event.button!==0)return;this.pointers.add(event.pointerId);this.gesture.down(event.pointerId,event.clientX,event.clientY,0);
-    if(this.pointers.size>1){this.multi=true;this.onCancel();}
-    if(this.rotating||this.multi){event.preventDefault();event.stopImmediatePropagation();this.canvas.setPointerCapture(event.pointerId);}
+    const onBoard = event.target === this.canvas || (event.pointerType === 'touch'
+      && (event.target as Element | null)?.closest('[data-board-input]'));
+    if(event.button!==0||!onBoard)return;
+    this.pointers.add(event.pointerId);
+    this.gesture.down(event.pointerId,event.clientX,event.clientY,0);
+    if(this.pointers.size>1&&!this.multi){
+      this.multi=true;
+      this.onCancel();
+      // Take both pointers so the original touch can't click a board overlay on release.
+      for(const pointer of this.pointers)if(pointer!==event.pointerId)this.canvas.setPointerCapture(pointer);
+    }
+    if(this.rotating||this.multi){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this.canvas.setPointerCapture(event.pointerId);
+    }
   };
   private move=(event:PointerEvent)=>{
     if(!this.pointers.has(event.pointerId))return;
-    const action=this.gesture.move(event.pointerId,event.clientX,event.clientY,this.orbitWithPinch&&event.pointerType==='touch');
+    const action=this.gesture.move(event.pointerId,event.clientX,event.clientY,event.pointerType==='touch');
     if(this.rotating||this.multi){event.preventDefault();event.stopImmediatePropagation();this.apply(action);}
   };
   private up=(event:PointerEvent)=>{
+    if(!this.pointers.has(event.pointerId))return;
     const consume=this.rotating||this.multi;this.pointers.delete(event.pointerId);this.gesture.up(event.pointerId);if(!this.pointers.size)this.multi=false;
     if(consume){event.preventDefault();event.stopImmediatePropagation();}
   };
-  private cancel=(event:PointerEvent)=>{const consume=this.rotating||this.multi;this.cancelInput();if(consume)event.stopImmediatePropagation();};
+  private cancel=(event:PointerEvent)=>{
+    if(!this.pointers.has(event.pointerId))return;
+    const consume=this.rotating||this.multi;
+    this.cancelInput();
+    if(consume)event.stopImmediatePropagation();
+  };
   private wheel=(event:WheelEvent)=>{event.preventDefault();this.cancelInput();this.zoom=clampZoom(this.zoom*Math.exp(-event.deltaY*.001));this.resize();};
   private key=(event:KeyboardEvent)=>{
     if(!this.rotating||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(event.key))return;

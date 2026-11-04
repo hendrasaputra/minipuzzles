@@ -32,21 +32,22 @@ describe('shared miniature camera',()=>{
     expect(cameraGround(camera,10,20,{...rect,width:0})).toBeNull();
   });
 });
-function fixture(orbitWithPinch=false){
+function fixture(){
   class Element{
     style={};dataset={};children:Element[]=[];handlers=new Map<string,(event:any)=>void>();clientWidth=480;clientHeight=400;
-    append(...children:Element[]){this.children.push(...children);}setAttribute(){}focus(){}setPointerCapture(){}
+    append(...children:Element[]){this.children.push(...children);}setAttribute(){}focus(){}
+    setPointerCapture=vi.fn();
     getBoundingClientRect(){return{left:0,top:0,width:480,height:400};}
     addEventListener(name:string,callback:(event:any)=>void){this.handlers.set(name,callback);}
     getContext(){return null;}
   }
   vi.stubGlobal('document',{createElement:()=>new Element()});vi.stubGlobal('window',{addEventListener(){}});vi.stubGlobal('devicePixelRatio',1);vi.stubGlobal('ResizeObserver',class{observe(){}});
-  const host=new Element(),cancel=vi.fn(),scene=new MiniScene(host as unknown as HTMLElement,cancel,orbitWithPinch);
+  const host=new Element(),cancel=vi.fn(),scene=new MiniScene(host as unknown as HTMLElement,cancel);
   scene.box(0,0,6,6,-.5,0,'#e1c69d');scene.box(2,2,3,3,0,1,'#d88378','crate');scene.render();
   const canvas=scene.canvas as unknown as Element;
-  const event=(id:number,x:number,y:number)=>({pointerId:id,pointerType:'touch',clientX:x,clientY:y,button:0,deltaY:0,preventDefault:vi.fn(),stopImmediatePropagation:vi.fn(),stopPropagation:vi.fn()});
-  const send=(name:string,e:ReturnType<typeof event>)=>{canvas.handlers.get(name)!(e);return e;};
-  return{scene,host,cancel,event,send};
+  const event=(id:number,x:number,y:number,target:unknown=canvas)=>({target,pointerId:id,pointerType:'touch',clientX:x,clientY:y,button:0,deltaY:0,preventDefault:vi.fn(),stopImmediatePropagation:vi.fn(),stopPropagation:vi.fn()});
+  const send=(name:string,e:ReturnType<typeof event>)=>{host.handlers.get(name)!(e);return e;};
+  return{scene,host,canvas,cancel,event,send};
 }
 describe('camera gesture separation',()=>{
   it('leaves single-finger play gestures unconsumed and does not rotate',()=>{
@@ -71,7 +72,7 @@ describe('camera gesture separation',()=>{
     scene.setMode('rotate');send('pointerdown',event(3,100,100));scene.cancelInput();const before=scene.project(0,0);send('pointermove',event(3,300,200));expect(scene.project(0,0)).toEqual(before);
   });
   it('orbits with two fingers in Play and resumes one-finger gameplay after both lift',()=>{
-    const {scene,cancel,event,send}=fixture(true);
+    const {scene,cancel,event,send}=fixture();
     const initialDirection=scene.camera.getWorldDirection(new THREE.Vector3());
     send('pointerdown',event(1,100,100));
     expect(send('pointerdown',event(2,200,100)).stopImmediatePropagation).toHaveBeenCalledOnce();
@@ -84,6 +85,16 @@ describe('camera gesture separation',()=>{
     expect(send('pointerup',event(1,130,125)).stopImmediatePropagation).toHaveBeenCalledOnce();
     send('pointerdown',event(3,100,100));
     expect(send('pointerup',event(3,135,120)).stopImmediatePropagation).not.toHaveBeenCalled();
+  });
+  it('hands a touch on a board overlay to the camera only when a second finger joins',()=>{
+    const {canvas,cancel,event,send}=fixture();
+    const marker={closest:(selector:string)=>selector==='[data-board-input]'?marker:null};
+    expect(send('pointerdown',event(1,100,100,marker)).stopImmediatePropagation).not.toHaveBeenCalled();
+    expect(send('pointerup',event(1,100,100,marker)).stopImmediatePropagation).not.toHaveBeenCalled();
+    send('pointerdown',event(2,100,100,marker));
+    send('pointerdown',event(3,200,100));
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(canvas.setPointerCapture.mock.calls).toEqual([[2],[3]]);
   });
   it('keeps decorative beams out of picking and releases owned shape resources',()=>{
     const {scene}=fixture();
