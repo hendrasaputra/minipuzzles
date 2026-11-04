@@ -43,7 +43,7 @@ Updated: 4 November 2026. Check items only after the relevant implementation and
 
 - [x] Implement independent sliding-car rules, undo, shortest-slide solver and seeded solvable puzzles.
 - [x] Add Easy, Medium and Hard, fresh random seeds, exact retry and solver hints.
-- [x] Build a tactile fixed-camera Three.js garden with drag, large buttons and keyboard controls.
+- [x] Build a tactile rotatable Three.js garden with drag, large buttons and keyboard controls.
 - [x] Validate local saves by replaying legal history; use a separate game key and shared mute preference.
 - [x] Add standalone Vite entry and a real playable shelf link.
 - [x] Run the initial 152 tests, production build and browser checks; see VALIDATION.md.
@@ -59,12 +59,12 @@ Updated: 4 November 2026. Check items only after the relevant implementation and
 - [x] Save move history, current garden and completed gardens under a separate validated key.
 - [x] Add standalone Vite entry and playable shelf link in the local build.
 - [x] Complete all eight gardens in browser, check saved completion/undo, responsive layouts, tests and build.
-- [ ] Publish the reviewed Crate Garden build in a future release.
+- [x] Publish Crate Garden with the shared rotation update (3e2eef4, verified live).
 - [ ] Test physical iOS/Android input and audio.
 
 ## Later games
 
-The remaining 18 planned entries describe ideas, not commitments or completed games. Crystal Light is a possible next candidate. Petals Volume mode remains unimplemented.
+The remaining 17 planned entries describe ideas, not commitments or completed games. Water Garden is a possible next candidate. Petals Volume mode remains unimplemented.
 
 ## Shared 3D rotation
 
@@ -73,5 +73,17 @@ The remaining 18 planned entries describe ideas, not commitments or completed ga
 - [x] Add shared Play/Rotate modes, orbit/tilt, pinch/wheel zoom, keyboard camera control and reset.
 - [x] Keep puzzle gestures separate and update direction arrows for the current camera.
 - [x] Verify rotated car dragging and gardener swipes, unchanged progress during orbit, Petals compatibility, tests and build.
-- [ ] Release the local Crate Garden / rotation update after review.
+- [x] Release Crate Garden and rotation for all three games (Pages run 41749026138).
 - [ ] Check rotation, pinch and frame cost on physical phones.
+
+## Crystal Light
+
+- [x] Add pure mirror reflection/beam tracing, walls, transparent target crystals and bounded loop detection.
+- [x] Create eight stable solver-verified lights with shortest solutions of 1–5 turns.
+- [x] Add brass mirrors, faceted lavender crystals, warm beams and the shared 3D camera.
+- [x] Support mirror taps, dropdown/Turn controls, keyboard, undo, hints and retry.
+- [x] Add validated local replay saves and completed-light tracking under a separate key.
+- [x] Verify all eight completions, reload/undo, rotation safety, responsive layouts, 222 tests and production build.
+- [x] Animate laser glow, traveling pulses and particles with hidden-tab/reduced-motion handling.
+- [ ] Publish Crystal Light after local review.
+- [ ] Test touch/pinch and GPU cost on physical phones.

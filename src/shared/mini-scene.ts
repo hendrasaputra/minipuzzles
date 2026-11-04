@@ -25,6 +25,7 @@ export class MiniScene {
   private geometry=new THREE.BoxGeometry(1,1,1);
   private materials=new Map<string,THREE.MeshLambertMaterial>();
   private labels:THREE.Mesh[]=[];
+  private shapes:THREE.Mesh[]=[];
   private bounds=new THREE.Box3();
   private center=new THREE.Vector3();
   private ray=new THREE.Raycaster();
@@ -71,12 +72,18 @@ export class MiniScene {
   cancelInput(){this.gesture.cancel();this.pointers.clear();this.multi=false;this.onCancel();}
   clear(){
     for(const label of this.labels){label.geometry.dispose();const material=label.material as THREE.MeshBasicMaterial;material.map?.dispose();material.dispose();}
-    this.labels=[];this.board.clear();
+    for(const shape of this.shapes){shape.geometry.dispose();const materials=Array.isArray(shape.material)?shape.material:[shape.material];materials.forEach(material=>material.dispose());}
+    this.shapes=[];this.labels=[];this.board.clear();
   }
   box(x0:number,y0:number,x1:number,y1:number,z0:number,z1:number,color:string,owner?:string){
     let material=this.materials.get(color);if(!material){material=new THREE.MeshLambertMaterial({color});this.materials.set(color,material);}
     const mesh=new THREE.Mesh(this.geometry,material);mesh.position.set((x0+x1)/2,(z0+z1)/2,(y0+y1)/2);mesh.scale.set(x1-x0,z1-z0,y1-y0);
     mesh.castShadow=true;mesh.receiveShadow=true;mesh.userData.owner=owner;this.board.add(mesh);
+  }
+  mesh(geometry:THREE.BufferGeometry,material:THREE.Material,x:number,y:number,z:number,owner?:string,yaw=0){
+    const mesh=new THREE.Mesh(geometry,material);mesh.position.set(x,z,y);mesh.rotation.y=yaw;mesh.userData.owner=owner;mesh.castShadow=true;mesh.receiveShadow=true;
+    if(owner===undefined)mesh.raycast=()=>{};
+    this.board.add(mesh);this.shapes.push(mesh);return mesh;
   }
   label(text:string,x:number,y:number,z:number){
     const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;const ctx=canvas.getContext('2d');if(!ctx)return;
@@ -93,6 +100,10 @@ export class MiniScene {
   }
   private resize(){const w=this.host.clientWidth,h=this.host.clientHeight;if(!w||!h||this.bounds.isEmpty())return;
     this.renderer.setSize(w,h);fitCamera(this.camera,this.bounds,this.center,this.yaw,this.zoom,new THREE.Vector3(),w/h,this.tilt);this.renderer.render(this.scene,this.camera);this.host.dispatchEvent?.(new Event('camerachange'));
+  }
+  repaint(){
+    const autoUpdate=this.renderer.shadowMap.autoUpdate;this.renderer.shadowMap.autoUpdate=false;
+    this.renderer.render(this.scene,this.camera);this.renderer.shadowMap.autoUpdate=autoUpdate;
   }
   project(x:number,y:number,z=0):Point{return cameraPoint(this.camera,new THREE.Vector3(x,z,y),this.canvas.getBoundingClientRect());}
   direction(dx:number,dy:number):string{const a=this.project(this.center.x,this.center.z),b=this.project(this.center.x+dx,this.center.z+dy);return screenArrow(b.x-a.x,b.y-a.y);}

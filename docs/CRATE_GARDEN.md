@@ -13,7 +13,7 @@ Eight curated gardens progress from one to three crates and from 6×6 to 7×7 bo
 
 Progress is local to the browser origin under `puzzles-crate-garden-v1`. Current position is restored by validating and replaying legal moves against the original level. Saves are bounded at 5,000 steps / 1MiB; beyond that, the previous valid save remains and a warning appears. Completed IDs and shared mute persist. No save export/import is included yet.
 
-The Three.js scene and input are separate from pure TypeScript rules, levels and solver. No new dependencies were added. Crate Garden is currently available in the local build and is not part of the published d584e90 release.
+The Three.js scene and input are separate from pure TypeScript rules, levels and solver. No new dependencies were added. Crate Garden is live with rotatable 3D in release 3e2eef4.
 
 ## Look around in 3D
 

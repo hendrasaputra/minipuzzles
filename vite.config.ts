@@ -10,6 +10,7 @@ export default defineConfig({
         petals: fileURLToPath(new URL('./games/petals/index.html', import.meta.url)),
         trafficGarden: fileURLToPath(new URL('./games/traffic-garden/index.html', import.meta.url)),
         crateGarden: fileURLToPath(new URL('./games/crate-garden/index.html', import.meta.url)),
+        crystalLight: fileURLToPath(new URL('./games/crystal-light/index.html', import.meta.url)),
       },
     },
   },

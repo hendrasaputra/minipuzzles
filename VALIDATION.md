@@ -156,3 +156,27 @@ Browser evidence:
 [Rotated Crate Garden screenshot](docs/crate-garden-rotation.jpg). Camera orientation/mode are transient and do not alter save schemas, seeds or level layouts. The shared Three.js engine increases Traffic/Crate downloads by roughly 122kB gzip versus the former Canvas implementation; it is cached across games and excluded from the hub. No dependency was added.
 
 This update is local and uncommitted; d584e90 remains the live release. Physical iOS/Android pinch behavior, GPU frame cost and unsupported-WebGL fallback were not hardware-tested.
+
+## Published three-game 3D rotation release
+
+Owner-authorized publication on 4 November 2026: commit **3e2eef4**, [successful Pages run 41749026138](https://github.com/hendrasaputra/minipuzzles/actions/runs/41749026138). Live HTTPS checks verified the three playable shelf links, Crate Garden and Traffic Garden Play/Rotate/reset controls, visible camera orbit without puzzle progress changes, and Petals loading with its existing progress. No console warnings/errors occurred on the tested navigation. [Live rotation screenshot](docs/rotation-live.jpg). This supersedes the earlier local-only rotation status.
+
+## Crystal Light local vertical slice
+
+**218 tests across 22 files pass**, and the production build emits five HTML pages without warnings. New tests cover all eight reflection cases, transparent targets, wall/edge stopping, loop bounds, validation, undo/win, solver minimality/non-mutation/budget, all eight level solutions, tap/drag/cancel/multitouch/mode isolation, bounded save replay and disposal/non-picking of decorative shared meshes. Earlier game suites remain passing. Crystal Light's own entry is about 15.8kB / 6.2kB gzip plus the existing shared Three.js/camera/audio chunks; no new dependency was added.
+
+Browser checks on the production preview verified:
+
+- A direct tap on the first brass mirror turns it exactly once and completes the first puzzle (1 turn, 1/1 crystals). Reload restores the win; Undo reopens it; board Enter turns it to win again.
+- The other seven levels complete via visible Hint/Next controls in 2,2,3,3,4,5,5 turns, lighting every required crystal. Final Choose a light opens the picker; all eight check marks and completion total survive reload.
+- The mirror dropdown + Turn changes the chosen mirror. Rotation/orbit/tilt leaves the turn count unchanged. Shared mute remains restored. Native selector/keyboard controls remain available when a mirror is visually edge-on.
+- 320×568, 390×844 and 844×390 fit without horizontal or vertical page overflow. Camera controls are at least 44px; Turn/actions are 52–56px. The landscape layout places the board beside controls.
+- The local shelf has four playable links and 17 planned entries. Hub → Crystal Light → hub and direct refresh restore the chosen completed light and selection. No console warnings/errors were observed.
+
+[Crystal Light mobile screenshot](docs/crystal-light-preview.jpg). Crystal Light and its shared shape helper are local and uncommitted, while the live site remains the verified three-game 3e2eef4 release. Physical iOS/Android touch/pinch, speaker output and GPU performance have not been hardware-tested. The first version uses eight fixed lights and has no save transfer UI.
+
+## Crystal Light flowing lasers (local)
+
+222 tests across23 files pass; production build passes. Four new checks cover route interpolation at mirror corners/endpoints, bounded wrapping at blockers, animation without engine mutation, single frame-loop ownership, visibility/page lifecycle and reduced motion. Effects use at most80 meshes, update up to30fps, allocate no frame geometry, and redraw with cached shadow maps.
+
+Browser review confirmed motion between two otherwise unchanged screenshots:1,727 pixels changed above threshold15, all confined to beam-region bounds (479,223)–(817,449) in the1280×720 view. Outer orbit stayed at4 turns/6 of6 crystals, and camera rotation remained functional with no console warnings/errors. No real-device GPU/battery or reduced-motion hardware setting was checked; unit tests cover the motion-preference path. Effects remain local with Crystal Light.

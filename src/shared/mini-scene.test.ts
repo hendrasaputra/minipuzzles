@@ -70,6 +70,16 @@ describe('camera gesture separation',()=>{
     expect(send('pointerup',event(1,100,100)).stopImmediatePropagation).toHaveBeenCalled();
     scene.setMode('rotate');send('pointerdown',event(3,100,100));scene.cancelInput();const before=scene.project(0,0);send('pointermove',event(3,300,200));expect(scene.project(0,0)).toEqual(before);
   });
+  it('keeps decorative beams out of picking and releases owned shape resources',()=>{
+    const {scene}=fixture();
+    const geometry=new THREE.BoxGeometry(.5,.05,.5),material=new THREE.MeshBasicMaterial({color:'#e5bc66'});
+    const disposeGeometry=vi.spyOn(geometry,'dispose'),disposeMaterial=vi.spyOn(material,'dispose');
+    scene.mesh(geometry,material,2.5,2.5,1.03);scene.render();
+    const point=scene.project(2.5,2.5,1.06);expect(scene.pick(point.x,point.y)).toBe('crate');
+    scene.mesh(new THREE.BoxGeometry(.5,.08,.5),new THREE.MeshBasicMaterial(),2.5,2.5,1.03,'mirror');scene.render();
+    expect(scene.pick(point.x,point.y)).toBe('mirror');scene.clear();
+    expect(disposeGeometry).toHaveBeenCalledOnce();expect(disposeMaterial).toHaveBeenCalledOnce();
+  });
   it('picks actual frontmost 3D geometry after rotation',()=>{
     const {scene,event,send}=fixture();scene.setMode('rotate');for(let i=0;i<6;i++){const point=scene.project(2.5,2.5,1);expect(scene.pick(point.x,point.y)).toBe('crate');send('pointerdown',event(1,100,100));send('pointermove',event(1,170,100));send('pointerup',event(1,170,100));}
   });

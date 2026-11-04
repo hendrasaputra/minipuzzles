@@ -4,7 +4,9 @@ A shelf of small browser puzzle games, with tactile isometric worlds and touch-f
 
 **[Play at puzzles.hensap.id](https://puzzles.hensap.id/)**
 
-Play **Petals**, a 3D Minesweeper with connected floors, or **Traffic Garden**, a sliding-car puzzle with three difficulty levels. Both have touch and keyboard controls, sound, and local saves. **Crate Garden**, an eight-level crate-pushing puzzle, is ready in the local development build. The local build gives all three games rotatable 3D boards.
+Play **Petals** (Minesweeper), **Traffic Garden** (sliding cars), and **Crate Garden** (crate pushing). All have rotatable 3D boards, touch and keyboard controls, sound, and local saves.
+
+**Crystal Light**, a mirror-and-beam puzzle with eight levels, is ready in the local development build.
 
 ## Run locally
 
@@ -15,11 +17,11 @@ npm ci
 npm run dev
 ```
 
-The homepage is the game library. Petals lives at `/games/petals/`; Traffic Garden at `/games/traffic-garden/`; Crate Garden at `/games/crate-garden/`.
+The homepage is the game library. Petals lives at `/games/petals/`; Traffic Garden at `/games/traffic-garden/`; Crate Garden at `/games/crate-garden/`; Crystal Light at `/games/crystal-light/`.
 
 ## Project guide
 
-- [Development](docs/DEVELOPMENT.md) · [Petals gameplay](docs/GAMEPLAY.md) · [Traffic Garden](docs/TRAFFIC_GARDEN.md) · [Crate Garden](docs/CRATE_GARDEN.md)
+- [Development](docs/DEVELOPMENT.md) · [Petals gameplay](docs/GAMEPLAY.md) · [Traffic Garden](docs/TRAFFIC_GARDEN.md) · [Crate Garden](docs/CRATE_GARDEN.md) · [Crystal Light](docs/CRYSTAL_LIGHT.md)
 - [Icon prompts and art workflow](docs/art/README.md)
 - [Progress](TODO.md) · [Developer handoff](HANDOFF.md) · [Agent instructions](AGENTS.md)
 - [Deployment and save migration](docs/DEPLOYMENT.md) · [Validation](VALIDATION.md)

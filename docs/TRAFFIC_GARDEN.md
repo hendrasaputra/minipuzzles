@@ -12,7 +12,7 @@ Easy openings require 2–4 moves and at most six cars. Medium requires 5–9 mo
 
 Progress saves automatically on the current browser origin under `puzzles-traffic-garden-v1`. Reload restores the puzzle, selected car and legal move history. Saves validate and replay all moves before use. Storage failures display a warning. History is bounded at 5,000 moves / 1MiB; exceeding that limit leaves the last valid stored save and warns that current play is not being saved. There is no save export/import for this game yet.
 
-The Three.js scene is independent of the pure TypeScript puzzle rules. It uses the same installed renderer as Petals; no dependency was added. The local build now includes 3D rotation; the published d584e90 release still has the earlier fixed view.
+The Three.js scene is independent of the pure TypeScript puzzle rules. It uses the same installed renderer as Petals; no dependency was added. Release 3e2eef4 includes the shared 3D rotation controls.
 
 ## Look around in 3D
 

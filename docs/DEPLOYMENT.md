@@ -7,7 +7,8 @@
 - Hub route: `/`
 - Petals route: `/games/petals/`
 - Traffic Garden route: `/games/traffic-garden/`
-- Crate Garden route: `/games/crate-garden/` (local development build; not yet deployed)
+- Crate Garden route: `/games/crate-garden/`
+- Crystal Light route: `/games/crystal-light/` (local development build; not yet deployed)
 
 ## DNS and Pages
 
@@ -39,4 +40,6 @@ Pushes to `main` run `npm ci`, tests, TypeScript checking, the Vite multi-page b
 
 `dist/index.html` is the lightweight hub; `dist/games/petals/index.html` is the standalone game. Relative asset URLs support the custom-domain root and project subpaths. Deploy the complete `dist/` tree, not just its top-level HTML.
 
-**4 November 2026 release:** d584e90 deployed successfully via Pages run 41743698825. Live browser checks confirmed all 21 generated icons loaded and Traffic Garden responds to input. Crate Garden is implemented locally for the next release.
+**4 November 2026 release:** d584e90 deployed successfully via Pages run 41743698825. Live browser checks confirmed all 21 generated icons loaded and Traffic Garden responds to input. Crate Garden and shared 3D rotation were subsequently published in 3e2eef4.
+
+**4 November 2026 rotation release:** 3e2eef4 deployed successfully via Pages run 41749026138. Live checks verified all three game pages and rotating Crate/Traffic views with preserved progress. Crystal Light is the next local build and is not yet deployed.
