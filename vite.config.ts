@@ -16,6 +16,7 @@ export default defineConfig({
         marbleWorkshop: fileURLToPath(new URL('./games/marble-workshop/index.html', import.meta.url)),
         shadowBlocks: fileURLToPath(new URL('./games/shadow-blocks/index.html', import.meta.url)),
         pictureIslands: fileURLToPath(new URL('./games/picture-islands/index.html', import.meta.url)),
+        pocketRailroads: fileURLToPath(new URL('./games/pocket-railroads/index.html', import.meta.url)),
       },
     },
   },

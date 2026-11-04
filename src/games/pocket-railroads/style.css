@@ -1,0 +1,37 @@
+.rail-stats { align-items: center; }
+.rail-stats button {
+  min-height: 44px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.route-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.route-cards > div {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 6px 4px;
+  border-radius: 9px;
+  background: #e7ebdf;
+  font-size: 12px;
+}
+.route-cards strong { display: flex; align-items: center; gap: 6px; }
+.route-cards i { width: 12px; height: 12px; border-radius: 3px; }
+.actions .primary { background: #476b63; border-color: #476b63; }
+.play-area { min-height: 118px; }
+@media (max-width: 360px) {
+  .brand { font-size: 17px; }
+  .actions { gap: 4px; }
+  .actions button { padding-inline: 4px; }
+}
+@media (max-height: 500px) and (min-width: 601px) {
+  .game-shell {
+    grid-template-rows: auto auto auto 1fr 52px 56px;
+    grid-template-areas: 'board heading' 'board stats' 'board routes' 'board status' 'board slide' 'board actions';
+  }
+  .play-area { min-height: 0; }
+  .route-cards { grid-area: routes; }
+}

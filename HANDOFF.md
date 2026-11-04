@@ -138,3 +138,7 @@ Shadow Blocks now guides the first level one tap at a time. Gold highlights show
 Shadow Blocks now shows Goal and Your shadow separately for both axes. See example opens an illustration of one placed block creating one square in each current shadow.
 
 Picture Islands now puts See example beside the board and highlights the first picture's full middle column and row. The highlight works on both boards.
+
+Shadow Blocks and Picture Islands are live as games eight and nine in 81dd22e. The next local game is Pocket Railroads.
+
+Pocket Railroads is game ten on the local shelf. Its rules live in src/games/pocket-railroads. Trains follow a fixed branching network with player-controlled switches. The two station cards show the target and current route. Replay saves restore switches and deliveries. Shadow Blocks and Picture Islands are live. Pocket Railroads is ready for local review.

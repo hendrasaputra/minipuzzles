@@ -53,3 +53,5 @@ Pushes to `main` run `npm ci`, tests, TypeScript checking, the Vite multi-page b
 **Frosty Paths release:** 5420daf deployed successfully via Pages run 41758892888. Live checks verified six shelf links, 3D orbit, first-puzzle completion and saved win after refresh, with no console warnings/errors. Rotation, smooth slides, ice glints, snow and reduced-motion handling are retained. All six implemented games are now deployed.
 
 Marble Workshop shipped in commit 34b1411 through Pages run 41782249698. The public shelf opens it as the seventh game. Mobile viewport checks covered tapping the marble, using Roll, and rotating after a win.
+
+Shadow Blocks and Picture Islands shipped in commit 81dd22e. The public shelf has nine playable games. Both games open from the shelf with their guided first levels and examples.

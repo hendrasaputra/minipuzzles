@@ -146,3 +146,7 @@ The remaining 15 planned entries describe ideas, not commitments or completed ga
 - [ ] Review Shadow Blocks and Picture Islands.
 - [x] Make Shadow Blocks easier to learn with a guided first level and labeled row and column shadows.
 - [x] Add a worked clue example and guided first picture to Picture Islands.
+- [x] Publish Shadow Blocks and Picture Islands with their updated guides.
+- [x] Build Pocket Railroads with eight levels, seeded difficulty, 3D trains, and a visual guide.
+- [x] Verify wrong-route recovery, delivery, reload, and the local shelf link.
+- [ ] Review Pocket Railroads.

@@ -261,3 +261,7 @@ Shadow Blocks and Picture Islands passed local browser checks. Shadow Blocks com
 At 320 × 568, the updated Shadow Blocks tutorial highlighted A1 and then B2. Three direct taps completed the first level. Both outlines updated with each edit. The camera controls cleared the board, and How to play opened the visual guide without horizontal overflow.
 
 The separate Shadow Blocks diagrams fit a 320 × 568 viewport. One direct tap on A1 added one square to Your shadow in each panel. Both Goal diagrams stayed fixed. See example opened the placed-block illustration.
+
+The 81dd22e release passed 364 tests and the production build. Live browser checks confirmed nine playable links, separate Goal and Your shadow panels in Shadow Blocks, and the illustrated 2 1 clue in Picture Islands.
+
+Pocket Railroads passed the 370-test suite and production build. On a 390 × 844 viewport, a wrong send returned the train, Station B delivery persisted across reload, and Station A completed the level. The local shelf link and visual guide work. The build retains the shared bundle size warning. Physical phone performance remains untested.
