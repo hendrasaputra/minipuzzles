@@ -4,7 +4,7 @@ import { randomSeed } from '../../shared/random-puzzle';
 import { startGame, retryGame, reveal, toggleFlag, chord, clueNeighbors, type Game } from './engine';
 import { BoardScene } from './scene';
 import { GameAudio, type SoundCue } from '../../shared/audio';
-import { BoardGesture, type GestureAction } from '../../shared/gestures';
+import { BoardGesture, type GestureAction, type TileHit } from '../../shared/gestures';
 import { campaign } from './campaign';
 import { BOARD_SIZES, randomConfig, findBoardSize, type BoardSizeId } from './presets';
 import { nextDeduction } from './solver';
@@ -12,8 +12,7 @@ import { readSession, readTransfer, matchesLevel, MAX_SAVE_BYTES, writeSession, 
 
 const KEY = 'petal-save-v2';
 const sounds=new GameAudio();
-const chapters = ['classic', 'layered', 'connected'] as const;
-type Chapter = typeof chapters[number];
+type Chapter = (typeof campaign)[number]['chapter'];
 const ids = campaign.map(level => level.id);
 let game = startGame(randomConfig('beginner',1,randomSeed()));
 let active = 0, exploded = false, elapsed = 0;
@@ -44,7 +43,7 @@ try {
 } catch { storageAvailable = false; }
 
 const $ = <T extends HTMLElement = HTMLElement>(id:string) => document.getElementById(id) as T;
-if(!levelId&&game.config.floors>1&&game.config.mode!=='connected'){
+if(!levelId&&chapter()==='layered'){
   notice='This save has separate floors. New puzzles connect them.';
 }
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
@@ -117,6 +116,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       { before: '◇', after: '⚑', text: 'Hold or right-click a tile to flag it. You can also choose Flag.' },
       { before: '⚑ 1 ◇', after: '⚑ 1 □', text: 'Place the right flags, then double-tap the number to open the other tiles.' },
       { before: '↑ 1', after: '▦', text: 'An arrow counts mines in a 3×3 square one floor up or down. Tap it to see the tiles it counts.' },
+      { before: '▦  12  ▦', after: '▦', text: 'In Volume, a number counts nearby mines across up to three floors. Tap it to see the tiles on each floor.' },
     ], true)}
     <p>Drag to turn the board. Pinch or scroll to zoom. When zoomed in, drag to move the view.</p>
     <button id="start-play" class="primary full">Back to game</button>
@@ -139,7 +139,10 @@ let displayedStatus=game.status;
 let scene: BoardScene | undefined;
 try { scene = new BoardScene($('scene'), (...args)=>{if(!menu.open&&!rules.open&&!flat.open)act(...args);}); }
 catch { $('scene').innerHTML = '<p class="webgl-error">3D graphics are unavailable.<br>Open Menu → 2D board to play.</p>'; flat.showModal(); }
-function chapter(): Chapter { return game.config.mode === 'connected' ? 'connected' : game.config.floors > 1 ? 'layered' : 'classic'; }
+function chapter(): Chapter {
+  const {mode,floors}=game.config;
+  return mode ?? (floors>1?'layered':'classic');
+}
 function unlocked(index:number) { return index === 0 || completed.includes(campaign[index-1].id); }
 function save() {
   try { localStorage.setItem(KEY,writeSession(currentSession())); }
@@ -161,10 +164,16 @@ function act(floor:number,index:number,flag:boolean,doubleTap=false) {
   if (menu.open || rules.open || floor !== active) return;
   const cell = game.cells[floor][index]; notice = '';
   if (doubleTap && cell.revealed && !cell.mine) {performChord(floor,index);return;}
+  let revealed: TileHit | undefined;
   if (cell.revealed && !flag) inspect(floor,index);
   else if (flag || action === 'flag') moveSound(toggleFlag(game,floor,index),'flag');
-  else moveSound(reveal(game,floor,index),'reveal');
-  markCompletion(); draw(); save();
+  else {
+    const changed = reveal(game, floor, index);
+    moveSound(changed, 'reveal');
+    const opened = game.cells[floor][index];
+    if (changed && !opened.mine && opened.adjacent === 0) revealed = { floor, index };
+  }
+  markCompletion(); draw(revealed); save();
 }
 function performChord(floor:number,index:number) {
   notice='';
@@ -176,9 +185,9 @@ function performChord(floor:number,index:number) {
   }
   markCompletion(); draw(); save();
 }
-function draw() {
+function draw(revealed?: TileHit) {
   const statusChanged=displayedStatus!==game.status;displayedStatus=game.status;
-  scene?.update(game,active,exploded,inspected);
+  scene?.update(game,active,exploded,inspected,revealed);
   const cells=game.cells.flat(), cleared=cells.filter(c=>c.revealed&&!c.mine).length;
   const c=chapter(), level=campaign.find(l=>l.id===levelId), terminal=game.status==='won'||game.status==='lost';
   $('sound-toggle').textContent=sounds.enabled?'Sound: on':'Sound: off';
@@ -187,13 +196,14 @@ function draw() {
   $('progress').textContent=`${cleared} / ${cells.length-game.config.mines*game.config.floors}`;
   $('chapter').textContent=`${c==='connected'?'Connected floors':c[0].toUpperCase()+c.slice(1)}${level?' · Learn':' · Random'}`;
   $('subtitle').textContent=level?level.title:`${game.config.width} × ${game.config.height} board`;
-  $('lesson').textContent=level?level.lesson:c==='layered'?'This puzzle has separate floors.':c==='connected'?'↑ and ↓ count mines one floor up or down. You may need to guess.':'The first tile is safe. You may need to guess later.';
+  $('lesson').textContent=level?level.lesson:c==='volume'?'Each number counts nearby mines on this floor and the floors directly above and below.':c==='layered'?'This puzzle has separate floors.':c==='connected'?'↑ and ↓ count mines one floor up or down. You may need to guess.':'The first tile is safe. You may need to guess later.';
   $<HTMLSelectElement>('play-type').value=levelId?'campaign':'free';
   $('level-label').hidden=!levelId; $('mode-label').hidden=!!levelId; $('size-label').hidden=!!levelId;
-  $('count-label').hidden=!!levelId||c!=='connected';
+  $('count-label').hidden=!!levelId||(c!=='connected'&&c!=='volume');
   $<HTMLSelectElement>('board-size').value=findBoardSize(game.config);
+  $('floor-count').innerHTML=(c==='volume'?[3,4]:[2,3]).map(n=>`<option value="${n}">${n} floors</option>`).join('');
   $<HTMLSelectElement>('floor-count').value=String(game.config.floors);
-  $('free-mode').innerHTML=`<option value="classic">One floor</option>${c==='layered'&&!level?'<option value="layered" disabled>Separate floors (saved)</option>':''}<option value="connected">Connected floors</option>`;
+  $('free-mode').innerHTML=`<option value="classic">One floor</option>${c==='layered'&&!level?'<option value="layered" disabled>Separate floors (saved)</option>':''}<option value="connected">Connected floors</option><option value="volume">Volume</option>`;
   $<HTMLSelectElement>('free-mode').value=c;
   $('level-select').innerHTML=campaign.map((l,i)=>`<option value="${l.id}" ${l.id===levelId?'selected':''} ${unlocked(i)?'':'disabled'}>${completed.includes(l.id)?'✓ ':''}${i+1}. ${l.title}${unlocked(i)?'':' · locked'}</option>`).join('');
   $('campaign-progress').textContent=level?`${completed.length} of ${campaign.length} lessons cleared · ${game.config.mines} mines per floor`:game.config.floors>1?`${game.config.mines} mines per floor · ${game.config.mines*game.config.floors} total`:`${game.config.mines} mines`;
@@ -235,14 +245,23 @@ function drawInspector() {
   const flags=targets.filter(p=>game.cells[p.floor][p.index].flagged).length;
   const targetFloor=targets[0]?.floor??floor;
   const canChord=flags===cell.adjacent&&targets.some(p=>!game.cells[p.floor][p.index].revealed&&!game.cells[p.floor][p.index].flagged)&&game.status!=='lost'&&game.status!=='won';
-  const visiting=type!=='local'&&active!==targetFloor;
+  const visiting=(type==='above'||type==='below')&&active!==targetFloor;
+  const targetFloors=[...new Set(targets.map(p=>p.floor))].sort((a,b)=>a-b);
+  const nextFloor=nextClueFloor(targets);
+  if(type==='volume'){
+    const range=`${targetFloors[0]+1}–${targetFloors[targetFloors.length-1]+1}`;
+    $('clue-title').textContent=`${cell.adjacent} nearby · floors ${range}`;
+    $('clue-description').textContent=`Volume clue ${cell.adjacent}. Checks ${targets.length} tiles across floors ${range}. ${flags} flags.`;
+  }else{
   $('clue-title').textContent=`${type==='above'?'↑ ':type==='below'?'↓ ':''}${cell.adjacent} ${type==='local'?'nearby':`on floor ${targetFloor+1}`}`;
-  $('clue-targets').textContent=`${flags} of ${cell.adjacent} flags${type==='local'?'':` · from floor ${floor+1}`}`;
   $('clue-description').textContent=`Floor ${floor+1}, row ${Math.floor(index/game.config.width)+1}, column ${index%game.config.width+1}: ${type} ${cell.adjacent}. Checks ${targets.length} tiles on floor ${targetFloor+1}. ${flags} flags. ${type==='local'?'The number’s tile is skipped.':'The tile straight up or down is included.'}`;
-  $('target-floor').hidden=!visiting; $('target-floor').textContent=`View floor ${targetFloor+1}`;
+  }
+  $('clue-targets').textContent=`${flags} of ${cell.adjacent} flags${type==='local'?'':` · from floor ${floor+1}`}`;
+  for(const id of ['target-floor','flat-target'])$(id).textContent=nextFloor===undefined?'View target floor':`View floor ${nextFloor+1}`;
+  $('target-floor').hidden=nextFloor===undefined;
   $('chord').hidden=visiting;
   for(const id of ['chord','flat-chord'])$<HTMLButtonElement>(id).disabled=!canChord;
-  $<HTMLButtonElement>('flat-target').disabled=type==='local';
+  $<HTMLButtonElement>('flat-target').disabled=nextFloor===undefined;
 }
 function drawAccessible() {
   const board=$('accessible-board'), w=game.config.width;
@@ -279,11 +298,12 @@ function resetUI() {
 }
 function loadLevel(id:string) {const index=campaign.findIndex(l=>l.id===id);if(index<0||!unlocked(index))return;levelId=id;game=startGame(campaign[index].config);resetUI();}
 function freePlay(c:Chapter,floors=c==='classic'?1:2,size=findBoardSize(game.config)) {
-  levelId=null;game=startGame(randomConfig(size,c==='classic'?1:Math.max(2,floors),randomSeed()));resetUI();
+  const depth=c==='volume'?Math.max(3,floors):c==='classic'?1:Math.min(3,Math.max(2,floors));
+  levelId=null;game=startGame(randomConfig(size,depth,randomSeed(),c==='volume'));resetUI();
 }
 function setFloor(floor:number) {if(floor<game.config.floors){cancelFlatInput();active=floor;draw();save();}}
 $('retry').onclick=()=>{menu.close();try {game=retryGame(game);resetUI();}catch{notice='This old puzzle cannot restart. Choose New puzzle.';draw();}};
-function nextPuzzle() {if(levelId){const next=campaign.findIndex(l=>l.id===levelId)+1;if(next<campaign.length)loadLevel(campaign[next].id);else freePlay('connected');}else freePlay(chapter(),game.config.floors);}
+function nextPuzzle() {if(levelId){const next=campaign.findIndex(l=>l.id===levelId)+1;if(next<campaign.length)loadLevel(campaign[next].id);else freePlay(chapter());}else freePlay(chapter(),game.config.floors);}
 $('new').onclick=()=>{menu.close();freePlay(chapter(),game.config.floors);};
 $('continue').onclick=$('flat-continue').onclick=nextPuzzle;
 $('retry-now').onclick=$('flat-retry').onclick=()=>$('retry').click();
@@ -294,10 +314,18 @@ $<HTMLSelectElement>('play-type').onchange=e=>{
   if((e.target as HTMLSelectElement).value==='free')freePlay(chapter(),game.config.floors);
   else {const first=campaign.findIndex(l=>l.chapter===chapter());loadLevel(campaign[unlocked(first)?first:0].id);}
 };
-$<HTMLSelectElement>('floor-count').onchange=e=>freePlay('connected',Number((e.target as HTMLSelectElement).value));
+$<HTMLSelectElement>('floor-count').onchange=e=>freePlay(chapter(),Number((e.target as HTMLSelectElement).value));
 $('focus').onclick=()=>{exploded=false;draw();save();};$('explode').onclick=()=>{exploded=true;draw();save();};$('reset-view').onclick=()=>scene?.reset();
 for(const a of ['reveal','flag'] as const){const choose=()=>{action=a;draw();save();};$(`${a}-mode`).onclick=choose;$(`flat-${a}`).onclick=choose;}
-function targetFloor() {if(inspected){const targets=clueNeighbors(game,inspected.floor,inspected.index);if(targets.length)setFloor(targets[0].floor);}}
+function nextClueFloor(targets: ReturnType<typeof clueNeighbors>) {
+  const floors=[...new Set(targets.map(p=>p.floor))].filter(f=>f!==active).sort((a,b)=>a-b);
+  return floors.find(f=>f>active)??floors[0];
+}
+function targetFloor() {
+  if(!inspected)return;
+  const next=nextClueFloor(clueNeighbors(game,inspected.floor,inspected.index));
+  if(next!==undefined)setFloor(next);
+}
 $('target-floor').onclick=$('flat-target').onclick=targetFloor;
 $('chord').onclick=$('flat-chord').onclick=()=>{if(inspected)performChord(inspected.floor,inspected.index);};
 $('clear-inspect').onclick=()=>{inspected=undefined;draw();};

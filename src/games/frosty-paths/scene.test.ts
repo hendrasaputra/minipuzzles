@@ -11,6 +11,7 @@ vi.mock('../../shared/material-motion',()=>({MaterialMotion:class{
   refresh=vi.fn(()=>this.update(0));constructor(public update:(time:number)=>void){motions.push(this);}
 }}));
 vi.mock('../../shared/mini-scene',()=>({MiniScene:class{
+  effects=new THREE.Group();
   rotating=false;handlers=new Map<string,(event:any)=>void>();pick=vi.fn(()=>undefined as string|undefined);ground=vi.fn(()=>null as {x:number;y:number}|null);
   xAxis={x:32,y:16};yAxis={x:-32,y:16};meshes:THREE.Mesh[]=[];boxes:string[]=[];
   canvas={setAttribute(){},addEventListener:(name:string,handler:(event:any)=>void)=>this.handlers.set(name,handler),setPointerCapture(){}};

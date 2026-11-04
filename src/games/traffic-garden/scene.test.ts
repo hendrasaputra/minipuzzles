@@ -1,18 +1,39 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import * as THREE from 'three';
 import { nearestSlide, projectedAxisDelta, SlideGesture } from './projection';
 
-const miniState=vi.hoisted(()=>({instances:[] as any[]}));
+const miniState=vi.hoisted(()=>({instances:[] as any[], tick: (_time: number) => {}}));
+vi.mock('../../shared/material-motion',()=>({MaterialMotion:class{
+  constructor(update:(time:number)=>void){miniState.tick=update;}
+  refresh(){}
+  stop(){}
+}}));
 vi.mock('../../shared/mini-scene',()=>({MiniScene:class{
   rotating=false;
+  effects=new THREE.Group();
   owner:string|undefined='A';
   horizontal={x:34,y:17};vertical={x:-34,y:17};
   handlers=new Map<string,(event:any)=>void>();
   labels:string[]=[];
   boxes:any[]=[];
+  parts:{owner?:string;mesh:THREE.Object3D}[]=[];
   canvas={setAttribute(){},setPointerCapture(){},addEventListener:(name:string,handler:(event:any)=>void)=>this.handlers.set(name,handler)};
   constructor(_host:HTMLElement,public cameraCancel:()=>void){miniState.instances.push(this);}
-  clear(){this.labels=[];this.boxes=[];}
-  box(...args:any[]){this.boxes.push(args);}
+  clear(){this.labels=[];this.boxes=[];this.parts=[];}
+  box(...args:any[]){
+    this.boxes.push(args);
+    const [x0,y0,x1,y1,z0,z1,,owner]=args;
+    const mesh=new THREE.Object3D();
+    mesh.position.set((x0+x1)/2,(z0+z1)/2,(y0+y1)/2);
+    this.parts.push({owner,mesh});
+    return mesh;
+  }
+  mesh(_geometry:unknown,_material:unknown,x:number,y:number,z:number,owner?:string){
+    const mesh=new THREE.Object3D();
+    mesh.position.set(x,z,y);
+    this.parts.push({owner,mesh});
+    return mesh;
+  }
   label(text:string){this.labels.push(text);}
   render(){}
   cancelInput(){this.cameraCancel();}
@@ -79,6 +100,21 @@ describe('rotatable 3D Traffic Garden input',()=>{
     scene.update(createGame({...game.puzzle,cars:game.puzzle.cars.map((car,i)=>({...car,id:i===0?'coral':`car-${i}`}))}),'car-1');
     expect(mini.labels).toEqual(expect.arrayContaining(['★','1','2']));expect(mini.labels).not.toContain('CA');
     expect(mini.boxes.filter((box:any[])=>box[7]==='car-1').length).toBeGreaterThan(6);
+  });
+  it('eases to the committed car position and clears contact when the board redraws',()=>{
+    const {scene,mini,game}=renderedScene();
+    expect(moveCar(game,'A',1)).toBe(true);
+    scene.update(game,'A',{id:'A',delta:1});
+    const part=mini.parts.find((part:{owner?:string;mesh:THREE.Object3D})=>part.owner==='A' && part.mesh.position.y>.05).mesh;
+    const endpoint=part.position.x;
+    miniState.tick(1);
+    expect(part.position.x).toBeCloseTo(endpoint-1);
+    for(let i=1;i<=5;i++) miniState.tick(1+i*.06);
+    expect(part.position.x).toBeCloseTo(endpoint);
+    expect(mini.effects.children[0].visible).toBe(true);
+    scene.update(game,'A');
+    expect(mini.effects.children[0].visible).toBe(false);
+    expect(game.history).toHaveLength(1);
   });
   it('drags correctly after camera rotation even when selection rerenders the same game',()=>{
     const {mini,move,send,game}=renderedScene(true);

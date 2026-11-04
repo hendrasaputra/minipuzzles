@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { Cell, Direction } from './engine';
 import type { MiniScene } from '../../shared/mini-scene';
+import { bounceHeight } from '../../shared/pixel-burst';
 
 export const MARBLE_RADIUS = .13;
 export const ROLL_HEIGHT = .29;
@@ -101,12 +102,21 @@ export class RollEffect {
       return true;
     }
 
-    const before = Math.min(1, this.elapsed / this.duration);
+    const settle = this.reached ? .42 : .18;
+    const travel = this.duration;
+    const progressAt = (elapsed: number) => {
+      const t = Math.min(1, elapsed / travel);
+      if (t === 1) return 1;
+      // Brake over the final part of the track while keeping travel continuous.
+      const braking = Math.max(0, t - .88);
+      return (t - braking * braking / .24) / .94;
+    };
+    const before = progressAt(this.elapsed);
     if (this.previousTime !== undefined) {
       this.elapsed += Math.min(.09, Math.max(0, seconds - this.previousTime));
     }
     this.previousTime = seconds;
-    const progress = Math.min(1, this.elapsed / this.duration);
+    const progress = progressAt(this.elapsed);
     this.path.getPoint(progress, this.sample);
     this.axis.set(this.sample.z - this.marble.position.z, 0, this.marble.position.x - this.sample.x);
     if (this.axis.lengthSq() > 1e-9) {
@@ -115,23 +125,26 @@ export class RollEffect {
     }
     this.marble.position.copy(this.sample);
 
-    const finish = this.elapsed - this.duration;
+    const finish = this.elapsed - travel;
+    if (this.reached && finish >= 0) {
+      this.marble.position.y += bounceHeight(.78, finish);
+    }
     this.dust.forEach((mesh, index) => {
       if (finish >= 0) {
-        mesh.visible = this.reached && finish < .42;
+        mesh.visible = finish < settle && (this.reached || index < 4);
         if (!mesh.visible) return;
         const angle = index * Math.PI * 2 / this.dust.length;
-        const radius = .16 + finish * 1.25;
+        const radius = .13 + (1 - Math.exp(-4 * finish)) * .3;
         mesh.position.set(this.end.x + Math.cos(angle) * radius,
-          .26 + Math.sin(finish / .42 * Math.PI) * (.35 + index % 3 * .07),
+          .18 + bounceHeight(1.1 + index % 3 * .22, finish),
           this.end.z + Math.sin(angle) * radius);
-        mesh.scale.setScalar(1 - finish / .44);
+        mesh.scale.setScalar(1 - finish / settle);
         return;
       }
 
       const delay = .12 + index * .018;
-      const behind = (this.elapsed - delay) / this.duration;
-      mesh.visible = index < 8 && behind > 0;
+      const behind = progressAt(this.elapsed - delay);
+      mesh.visible = index < 8 && this.elapsed > delay;
       if (!mesh.visible) return;
       this.path.getPoint(behind, mesh.position);
       mesh.position.x += Math.sin(index * 2.2) * .10;
@@ -139,7 +152,7 @@ export class RollEffect {
       mesh.position.y = .17 + delay * .28;
       mesh.scale.setScalar(.48 + index % 3 * .16);
     });
-    return finish >= (this.reached ? .42 : 0);
+    return finish >= settle;
   }
 }
 

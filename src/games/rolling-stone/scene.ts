@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { MiniScene } from '../../shared/mini-scene';
 import { MaterialMotion } from '../../shared/material-motion';
+import { PixelBurst } from '../../shared/pixel-burst';
 import { directions, footprint, nextBlock, vectors, type Block, type Direction, type Game } from './engine';
 
 function center(block: Block): THREE.Vector3 {
@@ -13,14 +14,20 @@ function orientation(block: Block): THREE.Quaternion {
     block.stance === 'y' ? Math.PI / 2 : 0, 0, block.stance === 'x' ? Math.PI / 2 : 0));
 }
 
+const rollDuration = .23;
+const settleDuration = .16;
+
 export class StoneScene {
   private readonly mini: MiniScene;
   private readonly motion: MaterialMotion;
+  private readonly burst = new PixelBurst('landing');
   private game?: Game;
   private stone?: THREE.Mesh;
   private press?: { pointer: number; x: number; y: number };
   private rolling?: {
-    start?: number;
+    elapsed: number;
+    previous?: number;
+    landed: boolean;
     center: THREE.Vector3;
     rotation: THREE.Quaternion;
     pivot: THREE.Vector3;
@@ -29,6 +36,7 @@ export class StoneScene {
 
   constructor(host: HTMLElement, private readonly onMove: (direction: Direction) => void) {
     this.mini = new MiniScene(host, this.cancelInput);
+    this.mini.effects.add(this.burst.object);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const { canvas } = this.mini;
     canvas.setAttribute('aria-label', '3D rolling stone board. Tap a landing tile in Play mode, or use the direction buttons. Stand the block on the gold goal.');
@@ -46,6 +54,7 @@ export class StoneScene {
   draw(game: Game) {
     this.motion.stop();
     this.rolling = undefined;
+    this.burst.clear();
     this.game = game;
     this.mini.clear();
     const { tiles, goal, start } = game.level;
@@ -68,10 +77,14 @@ export class StoneScene {
   }
 
   roll(from: Block, direction: Direction) {
+    this.burst.clear();
+    this.stone?.scale.setScalar(1);
     const [dx, dy] = vectors[direction];
     const point = center(from);
     const half = (dx && from.stance === 'x') || (dy && from.stance === 'y') ? 1 : .5;
     this.rolling = {
+      elapsed: 0,
+      landed: false,
       center: point,
       rotation: orientation(from),
       pivot: new THREE.Vector3(point.x + dx * half, 0, point.z + dy * half),
@@ -82,24 +95,60 @@ export class StoneScene {
 
   private pose() {
     if (!this.stone || !this.game) return;
+    this.stone.scale.setScalar(1);
     this.stone.position.copy(center(this.game.block));
     this.stone.quaternion.copy(orientation(this.game.block));
   }
 
   private animate = (seconds: number) => {
     const roll = this.rolling;
-    if (!roll || !this.stone) return;
-    roll.start ??= seconds;
-    const t = seconds === 0 ? 1 : Math.min(1, (seconds - roll.start) / .23);
-    if (t >= 1) {
+    const block = this.game?.block;
+    if (!roll || !this.stone || !block) return;
+    if (seconds === 0) {
       this.pose();
+      this.burst.clear();
       this.rolling = undefined;
       this.motion.stop();
       return;
     }
-    const angle = new THREE.Quaternion().setFromAxisAngle(roll.axis, t * Math.PI / 2);
-    this.stone.position.copy(roll.center).sub(roll.pivot).applyQuaternion(angle).add(roll.pivot);
-    this.stone.quaternion.copy(angle).multiply(roll.rotation);
+    if (roll.previous !== undefined) {
+      roll.elapsed += Math.min(.09, Math.max(0, seconds - roll.previous));
+    }
+    roll.previous = seconds;
+    if (roll.elapsed < rollDuration) {
+      const t = roll.elapsed / rollDuration;
+      const eased = t * t * (3 - 2 * t);
+      const angle = new THREE.Quaternion().setFromAxisAngle(roll.axis, eased * Math.PI / 2);
+      this.stone.position.copy(roll.center).sub(roll.pivot).applyQuaternion(angle).add(roll.pivot);
+      this.stone.quaternion.copy(angle).multiply(roll.rotation);
+      return;
+    }
+
+    this.pose();
+    const upright = block.stance === 'up';
+    if (!roll.landed) {
+      const { x, z } = this.stone.position;
+      const dx = -roll.axis.z;
+      const dy = roll.axis.x;
+      const longEdge = (dx !== 0 && block.stance === 'x') || (dy !== 0 && block.stance === 'y');
+      const reach = longEdge ? .9 : .4;
+      this.burst.start(x + dx * reach, .04, z + dy * reach,
+        upright ? 'spark' : 'dust', this.game?.history.length, upright ? 6 : 12);
+      roll.landed = true;
+    }
+    const age = roll.elapsed - rollDuration;
+    const t = Math.min(1, age / settleDuration);
+    const compression = 1 - (upright ? .055 : .085) * Math.sin(Math.PI * t) ** 2;
+    // Scale along the stone's local axis that points up in its landing pose.
+    const vertical = block.stance === 'x' ? 'x' : block.stance === 'y' ? 'z' : 'y';
+    this.stone.scale[vertical] = compression;
+    this.stone.position.y *= compression;
+    const active = this.burst.update(age);
+    if (!active && t === 1) {
+      this.pose();
+      this.rolling = undefined;
+      this.motion.stop();
+    }
   };
 
   private down = (event: PointerEvent) => {

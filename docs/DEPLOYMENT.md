@@ -61,3 +61,7 @@ Pocket Railroads shipped in commit 1901a78 through Pages run 41794817158. The pu
 Robot Garden shipped in commit e735483 through Pages run 41796026790. The public shelf opens it as the eleventh game, and its worked route example loads.
 
 Bridge Islands shipped in commit 2313c34 through Pages run 41797797533. The public shelf opens it as the twelfth game, and the worked bridge example loads.
+
+The full 21-game collection shipped in commit 3149d6f through Pages run 41819062553. The live shelf lists all 21 games, and each public route loads its 3D board.
+
+Bridge Islands shoreline spray and win confetti shipped in commit 17f1656 through Pages run 41839736682. The public route serves the release bundle and confetti asset.

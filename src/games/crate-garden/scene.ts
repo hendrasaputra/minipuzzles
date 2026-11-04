@@ -1,7 +1,15 @@
+import type { Mesh } from 'three';
 import type { Direction, Game } from './engine';
+import { MaterialMotion } from '../../shared/material-motion';
+import { PixelBurst } from '../../shared/pixel-burst';
 import { MiniScene } from '../../shared/mini-scene';
 
 type Point = { x: number; y: number };
+type Part = { mesh: Mesh; x: number; z: number };
+export type StepCue = 'move' | { blocked: Direction };
+const vectors: Record<Direction, Point> = {
+  n: { x: 0, y: -1 }, e: { x: 1, y: 0 }, s: { x: 0, y: 1 }, w: { x: -1, y: 0 },
+};
 
 /** Resolve a screen swipe against the current camera's two projected ground axes. */
 export function swipeDirection(delta:Point,xAxis:Point={x:32,y:16},yAxis:Point={x:-32,y:16}):Direction|null {
@@ -17,11 +25,27 @@ export function swipeDirection(delta:Point,xAxis:Point={x:32,y:16},yAxis:Point={
 export class CrateScene {
   private mini:MiniScene;
   private game?:Game;
+  private readonly motion: MaterialMotion;
+  private readonly burst = new PixelBurst('landing');
+  private parts: Part[] = [];
+  private crateParts: Part[] = [];
+  private moving?: {
+    dx: number;
+    dy: number;
+    crate?: Point;
+    planted: boolean;
+    blocked: boolean;
+    elapsed: number;
+    previous?: number;
+    contact: boolean;
+  };
   private pointers=new Set<number>();
   private multi=false;
   private press:{id:number;client:Point}|null=null;
   constructor(host:HTMLElement,private onDirection:(direction:Direction)=>void){
     this.mini=new MiniScene(host,this.clearInput);
+    this.mini.effects.add(this.burst.object);
+    this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     this.mini.canvas.setAttribute('role','img');
     this.mini.canvas.setAttribute('aria-label','3D crate garden. In Play mode, swipe along paths or tap beside the gardener. Choose Rotate to look around without moving.');
     this.mini.canvas.addEventListener('pointerdown',this.down);
@@ -30,7 +54,24 @@ export class CrateScene {
     window.addEventListener('blur',this.cancelInput);
   }
   screenDirection(dir:Direction){const [x,y]=dir==='n'?[0,-1]:dir==='e'?[1,0]:dir==='s'?[0,1]:[-1,0];return this.mini.direction(x,y);}
-  update(game:Game){this.cancelInput();this.game=game;this.draw();}
+  update(game:Game, cue?: StepCue) {
+    this.cancelInput();
+    this.motion.stop();
+    this.burst.clear();
+    this.moving = undefined;
+    const previous = cue === 'move' ? game.history[game.history.length - 1] : undefined;
+    const direction = previous?.direction ?? (typeof cue === 'object' ? cue.blocked : undefined);
+    if (direction) {
+      const crate = previous && game.crates.find((cell, i) =>
+        cell.x !== previous.crates[i].x || cell.y !== previous.crates[i].y);
+      const planted = !!crate && game.level.goals.some(goal => goal.x === crate.x && goal.y === crate.y);
+      const { x: dx, y: dy } = vectors[direction];
+      this.moving = { dx, dy, crate, planted, blocked: !previous, elapsed: 0, contact: false };
+    }
+    this.game=game;
+    this.draw();
+    if (this.moving) this.motion.refresh();
+  }
   private clearInput=()=>{this.press=null;this.pointers.clear();this.multi=false;};
   cancelInput=()=>{this.clearInput();this.mini.cancelInput();};
   private down=(event:PointerEvent)=>{
@@ -57,12 +98,46 @@ export class CrateScene {
     if(Math.abs(dx)+Math.abs(dy)===1)this.onDirection(dx===1?'e':dx===-1?'w':dy===1?'s':'n');
   };
   private box(x:number,y:number,w:number,h:number,bottom:number,top:number,color:string,owner?:string){
-    this.mini.box(x,y,x+w,y+h,bottom,top,color,owner);
+    return this.mini.box(x,y,x+w,y+h,bottom,top,color,owner);
   }
+  private animate = (seconds: number) => {
+    const move = this.moving;
+    if (!move) return;
+    if (move.previous !== undefined) move.elapsed += Math.min(.075, Math.max(0, seconds - move.previous));
+    move.previous = seconds;
+    const duration = move.blocked ? .17 : move.crate ? .25 : .16;
+    const progress = seconds === 0 ? 1 : Math.min(1, move.elapsed / duration);
+    const position = (parts: Part[], distance: number) => {
+      for (const { mesh, x, z } of parts) {
+        mesh.position.x = x + move.dx * distance;
+        mesh.position.z = z + move.dy * distance;
+      }
+    };
+    const walk = move.blocked ? .1 * Math.sin(progress * Math.PI) : -((1 - progress) ** 2);
+    // A push accelerates the crate after the gardener leans into it.
+    position(this.parts, walk);
+    position(this.crateParts, -(1 - progress * progress * (3 - 2 * progress)));
+    if (progress < 1) return;
+    if (seconds !== 0 && move.crate) {
+      if (!move.contact) {
+        move.contact = true;
+        move.elapsed = duration;
+        this.burst.start(move.crate.x + .5, .03, move.crate.y + .5,
+          move.planted ? 'leaf' : 'dust', this.game?.pushes, move.planted ? 8 : 5);
+      }
+      if (this.burst.update(move.elapsed - duration)) return;
+    }
+    this.burst.clear();
+    this.moving = undefined;
+    this.motion.stop();
+  };
+
   private draw(){
     const game=this.game;if(!game)return;
     const {width,height,walls,goals}=game.level,has=(cells:Point[],x:number,y:number)=>cells.some(c=>c.x===x&&c.y===y);
     this.mini.clear();
+    this.parts = [];
+    this.crateParts = [];
     this.box(-.16,-.16,width+.32,height+.32,-.45,-.09,'#b89570');
     for(let y=0;y<height;y++)for(let x=0;x<width;x++){
       const goal=has(goals,x,y),filled=has(game.crates,x,y),owner=`tile:${x},${y}`;
@@ -79,27 +154,35 @@ export class CrateScene {
     }
     for(const crate of game.crates){
       const {x,y}=crate,owner=`tile:${x},${y}`,onGoal=has(goals,x,y),wood=onGoal?'#9bae73':'#c79c62',trim=onGoal?'#cad69e':'#e3bd7b';
-      this.box(x+.1,y+.1,.8,.8,.02,.7,wood,owner);
-      this.box(x+.09,y+.09,.82,.82,.69,.78,trim,owner);
-      this.box(x+.2,y+.2,.6,.6,.78,.8,wood,owner);
+      const part = (px: number, py: number, w: number, h: number, low: number, high: number, color: string) => {
+        const mesh = this.box(px, py, w, h, low, high, color, owner);
+        if (mesh && this.moving?.crate === crate) this.crateParts.push({ mesh, x: mesh.position.x, z: mesh.position.z });
+      };
+      part(x+.1,y+.1,.8,.8,.02,.7,wood);
+      part(x+.09,y+.09,.82,.82,.69,.78,trim);
+      part(x+.2,y+.2,.6,.6,.78,.8,wood);
       // Raised slats give the lid a tactile seed-crate construction.
-      this.box(x+.43,y+.17,.14,.66,.8,.85,trim,owner);
-      this.box(x+.17,y+.43,.66,.14,.8,.85,trim,owner);
+      part(x+.43,y+.17,.14,.66,.8,.85,trim);
+      part(x+.17,y+.43,.66,.14,.8,.85,trim);
       for(const u of [.16,.72]){
-        this.box(x+u,y+.895,.1,.035,.08,.65,trim,owner);
-        this.box(x+.895,y+u,.035,.1,.08,.65,trim,owner);
+        part(x+u,y+.895,.1,.035,.08,.65,trim);
+        part(x+.895,y+u,.035,.1,.08,.65,trim);
       }
-      this.box(x+.22,y+.895,.56,.035,.27,.39,trim,owner);
-      this.box(x+.895,y+.22,.035,.56,.33,.45,trim,owner);
-      if(onGoal)this.box(x+.36,y+.36,.28,.28,.85,.96,'#e9dd9e',owner);
+      part(x+.22,y+.895,.56,.035,.27,.39,trim);
+      part(x+.895,y+.22,.035,.56,.33,.45,trim);
+      if(onGoal)part(x+.36,y+.36,.28,.28,.85,.96,'#e9dd9e');
     }
     const {x,y}=game.player,owner=`tile:${game.player.x},${game.player.y}`;
-    this.box(x+.25,y+.3,.19,.4,0,.15,'#705b54',owner);this.box(x+.55,y+.3,.19,.4,0,.15,'#705b54',owner);
-    this.box(x+.25,y+.28,.5,.44,.14,.6,'#ba8995',owner);
-    this.box(x+.19,y+.24,.62,.52,.18,.3,'#9caec0',owner);
-    this.box(x+.32,y+.32,.36,.36,.6,.91,'#efca9e',owner);
-    this.box(x+.16,y+.16,.68,.68,.9,.98,'#d8bd79',owner);
-    this.box(x+.29,y+.29,.42,.42,.98,1.15,'#e8d196',owner);
+    const part = (px: number, py: number, w: number, h: number, low: number, high: number, color: string) => {
+      const mesh = this.box(px, py, w, h, low, high, color, owner);
+      if (mesh && this.moving) this.parts.push({ mesh, x: mesh.position.x, z: mesh.position.z });
+    };
+    part(x+.25,y+.3,.19,.4,0,.15,'#705b54');part(x+.55,y+.3,.19,.4,0,.15,'#705b54');
+    part(x+.25,y+.28,.5,.44,.14,.6,'#ba8995');
+    part(x+.19,y+.24,.62,.52,.18,.3,'#9caec0');
+    part(x+.32,y+.32,.36,.36,.6,.91,'#efca9e');
+    part(x+.16,y+.16,.68,.68,.9,.98,'#d8bd79');
+    part(x+.29,y+.29,.42,.42,.98,1.15,'#e8d196');
     this.mini.render();
   }
 }

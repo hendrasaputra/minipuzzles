@@ -9,6 +9,47 @@ function numbered(game: Game): number {
     && neighbors(game.config, index).some(i => !game.cells[0][i].revealed && !game.cells[0][i].mine));
 }
 
+describe('Volume', () => {
+  const volume: Config = { width: 5, height: 5, floors: 3, mines: 2, mode: 'volume', seed: 'petals-volume-1' };
+
+  it('clips the surrounding cube at board edges and excludes the clue itself', () => {
+    const game = createGame(volume);
+    const interior = clueNeighbors(game, 1, 12);
+    expect(interior).toHaveLength(26);
+    expect(interior.map(p => p.floor).sort()).toEqual([...Array(9).fill(0), ...Array(8).fill(1), ...Array(9).fill(2)]);
+    expect(interior).not.toContainEqual({ floor: 1, index: 12 });
+    expect(clueNeighbors(game, 0, 0)).toHaveLength(7);
+    expect(clueNeighbors(game, 2, 12)).toHaveLength(17);
+  });
+
+  it('floods into neighboring slices and chords using their flags', () => {
+    const opening = createGame(volume);
+    expect(reveal(opening, 0, 12)).toBe(true);
+    expect(opening.cells[1][12].revealed).toBe(true);
+
+    const game = startGame(volume);
+    const source = game.cells.flatMap((cells, floor) => cells.map((_, index) => ({ floor, index }))).find(({ floor, index }) => {
+      const clue = game.cells[floor][index];
+      const targets = clueNeighbors(game, floor, index);
+      return clue.revealed && targets.some(p => p.floor !== floor && game.cells[p.floor][p.index].mine)
+        && targets.some(p => p.floor !== floor && !game.cells[p.floor][p.index].mine && !game.cells[p.floor][p.index].revealed);
+    })!;
+    const targets = clueNeighbors(game, source.floor, source.index);
+    expect(chord(game, source.floor, source.index)).toBe(false);
+    for (const p of targets) if (game.cells[p.floor][p.index].mine) toggleFlag(game, p.floor, p.index);
+    expect(chord(game, source.floor, source.index)).toBe(true);
+    expect(targets.every(p => game.cells[p.floor][p.index].mine || game.cells[p.floor][p.index].revealed)).toBe(true);
+  });
+
+  it('preserves two-digit clues in validated four-floor saves', () => {
+    const game = startGame({ ...volume, width: 3, height: 3, floors: 4, mines: 8 });
+    expect(game.cells[1][4]).toMatchObject({ revealed: true, adjacent: 24 });
+    expect(restoreGame(copy(game))).toEqual(game);
+    game.cells[1][4].adjacent = 25;
+    expect(restoreGame(copy(game))).toBeNull();
+  });
+});
+
 describe('deterministic independent puzzle floors', () => {
   it('defers mines and guarantees a zero first reveal when there is room', () => {
     const game = createGame(config);

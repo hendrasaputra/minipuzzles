@@ -3,7 +3,7 @@ import { startGame, type Config } from './engine';
 export interface Level {
   id: string;
   title: string;
-  chapter: 'classic' | 'layered' | 'connected';
+  chapter: NonNullable<Config['mode']>;
   description: string;
   lesson: string;
   config: Config;
@@ -52,6 +52,24 @@ export const campaign: Level[] = [
     description: 'Follow the logic through all three floors.',
     lesson: 'Numbers count mines on the same floor. An arrow counts one floor up or down. Tap a clue to see the tiles it counts.',
     config: { width: 5, height: 5, floors: 3, mines: 3, mode: 'connected', vertical: 'both', seed: 'petal-campaign-20', firstReveal: [6, 7, 8], generatorVersion: 1 },
+  },
+  {
+    id: 'volume-first', title: 'First volume', chapter: 'volume',
+    description: 'One clue can count mines across three floors.',
+    lesson: 'Every number counts touching tiles here, one floor up, and one floor down. Tap a number, then switch floors to see its outline.',
+    config: { width: 5, height: 5, floors: 3, mines: 2, mode: 'volume', seed: 'petals-volume-1', firstReveal: [12, 12, 12], generatorVersion: 1 },
+  },
+  {
+    id: 'volume-slices', title: 'Through the stack', chapter: 'volume',
+    description: 'Look above and below before placing a flag.',
+    lesson: 'Flags on every highlighted floor count toward the same number. Match the total, then double-tap the number to open the other tiles.',
+    config: { width: 6, height: 6, floors: 3, mines: 4, mode: 'volume', seed: 'petals-volume-0', firstReveal: [21, 21, 21], generatorVersion: 1 },
+  },
+  {
+    id: 'volume-deep', title: 'Four floors deep', chapter: 'volume',
+    description: 'Clear a four-floor minefield.',
+    lesson: 'A number counts at most one floor in either direction. Use the floor buttons to check each slice.',
+    config: { width: 7, height: 7, floors: 4, mines: 6, mode: 'volume', seed: 'petals-volume-0', firstReveal: [24, 24, 24, 24], generatorVersion: 1 },
   },
 ];
 

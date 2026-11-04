@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { PixelBurst } from '../../shared/pixel-burst';
 import { MiniScene } from '../../shared/mini-scene';
 import { MaterialMotion } from '../../shared/material-motion';
 import type { Room } from './engine';
@@ -13,10 +14,12 @@ export class EscapeScene {
   private press?: { owner: string; x: number; y: number; pointer: number };
   private door?: THREE.Mesh;
   private handle?: THREE.Mesh;
-  private opening?: number;
+  private readonly burst = new PixelBurst();
+  private opening?: { elapsed: number; previous?: number; unlocked: boolean };
 
   constructor(host: HTMLElement, inspect: (index: number) => void) {
     this.mini = new MiniScene(host, () => { this.press = undefined; });
+    this.mini.effects.add(this.burst.object);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const { canvas } = this.mini;
     canvas.setAttribute('aria-label', '3D room. Tap numbered furniture to read a clue.');
@@ -46,6 +49,7 @@ export class EscapeScene {
   draw(room: Room, inspected: number[], won: boolean) {
     this.motion.stop();
     this.opening = undefined;
+    this.burst.clear();
     this.mini.clear();
     this.mini.box(-.1, -.1, 5.1, 4.1, -.28, -.06, '#9e7b62');
     for (let y = 0; y < 4; y++) for (let x = 0; x < 5; x++) {
@@ -88,24 +92,46 @@ export class EscapeScene {
     this.mini.render();
   }
 
-  private positionDoor(angle: number) {
+  private positionDoor(angle: number, latch = 0) {
     if (!this.door || !this.handle) return;
     this.door.rotation.y = angle;
     const x = .74;
     const z = .07;
     this.handle.position.x = 2.09 + x * Math.cos(angle) + z * Math.sin(angle);
     this.handle.position.z = .31 - x * Math.sin(angle) + z * Math.cos(angle);
+    this.handle.position.y = .71 + latch;
   }
 
   open() {
-    this.opening = performance.now() / 1000;
+    this.opening = { elapsed: 0, unlocked: true };
+    this.burst.start(2.83, .71, .38, 'spark', 7, 6);
+    this.motion.refresh();
+  }
+
+  reject() {
+    this.opening = { elapsed: 0, unlocked: false };
     this.motion.refresh();
   }
 
   private animate = (seconds: number) => {
-    if (this.opening === undefined || !this.door) return;
-    const progress = seconds === 0 ? 1 : Math.min(1, Math.max(0, (seconds - this.opening) / .55));
-    this.positionDoor(-1.7 * (1 - (1 - progress) ** 3));
-    if (progress === 1) this.motion.stop();
+    const motion = this.opening;
+    if (!motion) return;
+    if (seconds === 0) motion.elapsed = 1;
+    else if (motion.previous !== undefined) {
+      motion.elapsed += Math.min(.075, Math.max(0, seconds - motion.previous));
+    }
+    motion.previous = seconds;
+    if (motion.unlocked) {
+      const latch = Math.min(1, motion.elapsed / .1);
+      const swing = Math.min(1, Math.max(0, (motion.elapsed - .1) / .45));
+      this.positionDoor(-1.7 * (1 - (1 - swing) ** 3), -.055 * latch * (1 - swing));
+      if (this.burst.update(motion.elapsed) || swing < 1) return;
+    } else {
+      const t = Math.min(1, motion.elapsed / .22);
+      this.positionDoor(0, .038 * Math.sin(t * Math.PI * 3) * (1 - t));
+      if (t < 1) return;
+    }
+    this.opening = undefined;
+    this.motion.stop();
   };
 }

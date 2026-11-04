@@ -116,7 +116,7 @@ function drawFlat(guide: readonly number[]) {
   if (hadFocus) $('flat-board').querySelector<HTMLButtonElement>(`[data-cell="${focusCell}"]`)?.focus({ preventScroll: true });
 }
 
-function draw() {
+function draw(filled?: number) {
   const won = complete(game);
   const levelIndex = levels.findIndex(level => level.id === game.puzzle.id);
   $('title').textContent = won ? game.puzzle.title : random ? 'Random picture' : `Picture ${levelIndex + 1}`;
@@ -148,8 +148,11 @@ function draw() {
   $('progress').textContent = `${finished.length} of ${levels.length} pictures complete.`;
   $('sound').textContent = audio.enabled ? 'Sound: on' : 'Sound: off';
   $('sound').setAttribute('aria-pressed', String(audio.enabled));
-  if (flat) drawFlat(guide);
-  else scene?.draw(game, guide);
+  if (flat) {
+    scene?.clearFeedback();
+    $('flat-board').dataset.complete = String(won);
+    drawFlat(guide);
+  } else scene?.draw(game, guide, filled, won);
 }
 
 function apply(cell: number, mark: Mark) {
@@ -159,12 +162,9 @@ function apply(cell: number, mark: Mark) {
   focusCell = cell;
   const won = complete(game);
   if (won && !random && !finished.includes(game.puzzle.id)) finished.push(game.puzzle.id);
-  draw();
+  draw(mark === 1 ? cell : undefined);
   save();
   audio.play(won ? 'win' : mark === 1 ? 'reveal' : 'flag');
-  if (won && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.querySelector('.play-area')?.animate([{ opacity: .72 }, { opacity: 1 }], { duration: 280 });
-  }
 }
 
 function load(puzzle: Puzzle, setup?: RandomSetup) {

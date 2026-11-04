@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { MiniScene } from '../../shared/mini-scene';
 import { MaterialMotion } from '../../shared/material-motion';
+import { PixelBurst } from '../../shared/pixel-burst';
 import { affectedCells, type Game } from './engine';
 
 const columns = 'ABCDE';
@@ -22,19 +23,16 @@ function flowerGeometry() {
 export class FlipScene {
   private readonly mini: MiniScene;
   private readonly motion: MaterialMotion;
-  private flowers: THREE.Mesh[] = [];
-  private firstFrame: number | undefined;
+  private readonly burst = new PixelBurst();
+  private flowers: { parts: THREE.Mesh[]; growing: boolean; delay: number }[] = [];
+  private elapsed = 0;
+  private previous?: number;
   private press?: { id: number; tile: string; x: number; y: number };
 
   constructor(host: HTMLElement, private readonly onTile: (tile: number) => void) {
     this.mini = new MiniScene(host, this.cancelInput);
-    this.motion = new MaterialMotion(seconds => {
-      this.firstFrame ??= seconds;
-      const elapsed = seconds - this.firstFrame;
-      const scale = seconds === 0 ? 1 : .72 + .28 * Math.min(1, elapsed / .24);
-      for (const flower of this.flowers) flower.scale.setScalar(scale);
-      if (scale === 1) this.motion.stop();
-    }, () => this.mini.repaint());
+    this.mini.effects.add(this.burst.object);
+    this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const { canvas } = this.mini;
     canvas.setAttribute('aria-label', 'Your garden. Columns A through E and numbered rows match the goal map. Tap a tile to flip its cross. Choose Rotate to look around.');
     canvas.addEventListener('pointerdown', event => {
@@ -60,9 +58,30 @@ export class FlipScene {
 
   cancelInput = () => { this.press = undefined; };
 
+  private animate = (seconds: number) => {
+    if (this.previous !== undefined) this.elapsed += Math.max(0, Math.min(.05, seconds - this.previous));
+    this.previous = seconds;
+    let changing = false;
+    for (const { parts, growing, delay } of this.flowers) {
+      const t = seconds === 0 ? 1 : Math.max(0, Math.min(1, (this.elapsed - delay) / .26));
+      const scale = growing
+        ? 1 - .34 * (1 - t) ** 2 * Math.cos(t * Math.PI * 2)
+        : (1 - t) ** 2;
+      for (const part of parts) {
+        part.scale.setScalar(Math.max(.001, scale));
+        part.visible = growing || t < 1;
+      }
+      changing ||= t < 1;
+    }
+    if (seconds === 0) this.burst.clear();
+    if (!this.burst.update(this.elapsed) && !changing) this.motion.stop();
+  };
+
   draw(game: Game, selected: number, pressed?: number) {
     this.motion.stop();
-    this.firstFrame = undefined;
+    this.elapsed = 0;
+    this.previous = undefined;
+    this.burst.clear();
     this.flowers = [];
     this.mini.clear();
     const { size } = game.level;
@@ -80,11 +99,20 @@ export class FlipScene {
       const bloom = Boolean(game.current & (1 << cell));
       if (cell === selected) this.mini.box(x + .025, y + .025, x + .975, y + .975, -.02, .12, '#bd8b42', owner);
       this.mini.box(x + .07, y + .07, x + .93, y + .93, .015, .145, bloom ? '#edccd5' : '#dce2c7', owner);
-      if (!bloom) continue;
-      const flower = this.mini.mesh(flowerGeometry(), new THREE.MeshLambertMaterial({ color: '#a04466' }), x + .5, y + .5, .157, owner);
-      this.mini.mesh(new THREE.CylinderGeometry(.087, .087, .034, 16), new THREE.MeshLambertMaterial({ color: '#f5d693' }),
-        x + .5, y + .5, .174, owner);
-      if (changed.includes(cell)) this.flowers.push(flower);
+      const flipping = changed.includes(cell);
+      if (!bloom && !flipping) continue;
+      const flowerOwner = bloom ? owner : undefined;
+      const flower = this.mini.mesh(flowerGeometry(), new THREE.MeshLambertMaterial({ color: '#a04466' }), x + .5, y + .5, .157, flowerOwner);
+      const center = this.mini.mesh(new THREE.CylinderGeometry(.087, .087, .034, 16), new THREE.MeshLambertMaterial({ color: '#f5d693' }),
+        x + .5, y + .5, .174, flowerOwner);
+      if (flipping) {
+        flower.castShadow = center.castShadow = false;
+        this.flowers.push({ parts: [flower, center], growing: bloom, delay: cell === pressed ? 0 : .035 });
+      }
+    }
+    const bud = changed.find(cell => game.current & (1 << cell));
+    if (bud !== undefined) {
+      this.burst.start(bud % size + .5, .18, Math.floor(bud / size) + .5, 'leaf', bud, 5);
     }
     this.mini.render();
     if (this.flowers.length) this.motion.refresh();

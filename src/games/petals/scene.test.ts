@@ -18,9 +18,11 @@ vi.mock('three', async importOriginal => {
 afterEach(() => vi.unstubAllGlobals());
 function fixture() {
   vi.stubGlobal('devicePixelRatio', 1);
-  vi.stubGlobal('window', { addEventListener() {} });
+  vi.stubGlobal('window', { addEventListener() {}, matchMedia() { return { matches: false, addEventListener() {} }; } });
+  vi.stubGlobal('cancelAnimationFrame', vi.fn());
+  vi.stubGlobal('requestAnimationFrame', vi.fn(() => 1));
   vi.stubGlobal('ResizeObserver', class { observe() {} });
-  vi.stubGlobal('document', { createElement() { return { width: 128, height: 128, getContext() { return { fillText() {} }; } }; } });
+  vi.stubGlobal('document', { addEventListener() {}, createElement() { return { width: 128, height: 128, getContext() { return { fillText() {} }; } }; } });
   const host = { clientWidth: 390, clientHeight: 400, append() {}, addEventListener() {}, getBoundingClientRect() { return { left: 0, top: 0, width: 390, height: 400 }; } } as unknown as HTMLElement;
   const scene = new BoardScene(host, () => {});
   const internals = scene as unknown as { board: THREE.Group; camera: THREE.OrthographicCamera; targets: THREE.InstancedMesh[]; pick(x:number,y:number): {floor:number;index:number;revealed:boolean}|undefined };
@@ -52,5 +54,22 @@ describe('instanced large boards', () => {
     expect(internals.targets.reduce((count, mesh) => count + mesh.count, 0)).toBe(480);
     scene.update(game, 2, false);
     expect(internals.targets.every(mesh => mesh.userData.hits.every((hit: {floor:number}) => hit.floor === 2))).toBe(true);
+  });
+});
+
+describe('mine impact', () => {
+  it('anchors a new loss to its floor and clears the effect when changing floors', () => {
+    const { scene, game } = fixture();
+    const burst = (scene as unknown as { burst: { object: THREE.Group } }).burst.object;
+    scene.update(game, 1, true);
+    game.status = 'lost';
+    game.exploded = { floor: 1, index: 224 };
+    scene.update(game, 1, true);
+    expect(burst.visible).toBe(true);
+    expect(burst.position.y).toBeCloseTo(2.535);
+    scene.update(game, 0, true);
+    expect(burst.visible).toBe(false);
+    scene.update(game, 1, true);
+    expect(burst.visible).toBe(false);
   });
 });

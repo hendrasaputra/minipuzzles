@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { MiniScene } from '../../shared/mini-scene';
 import { MaterialMotion } from '../../shared/material-motion';
+import { PixelBurst } from '../../shared/pixel-burst';
 import { complete, trace, type Game, type Node, type Point } from './engine';
 
 export const stations = [
@@ -31,6 +32,9 @@ export class RailScene {
   private readonly motion: MaterialMotion;
   private train: { mesh: THREE.Mesh; x: number; z: number }[] = [];
   private steam: THREE.Mesh[] = [];
+  private readonly burst = new PixelBurst();
+  private contactTime = 0;
+  private contactPrevious?: number;
   private press?: { target: string; pointer: number; x: number; y: number };
   private ride?: {
     path: THREE.CurvePath<THREE.Vector3>;
@@ -38,10 +42,12 @@ export class RailScene {
     elapsed: number;
     previous?: number;
     done: () => void;
+    correct: boolean;
   };
 
   constructor(host: HTMLElement, activate: (owner: string) => void) {
     this.mini = new MiniScene(host, this.cancelInput);
+    this.mini.effects.add(this.burst.object);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const { canvas } = this.mini;
     canvas.setAttribute('aria-label', '3D railway. Tap a numbered switch to change the route or tap the train to send it.');
@@ -89,6 +95,7 @@ export class RailScene {
     this.cancelInput();
     this.motion.stop();
     this.ride = undefined;
+    this.burst.clear();
     this.train = [];
     this.steam = [];
     this.mini.clear();
@@ -169,26 +176,41 @@ export class RailScene {
     }
   }
 
-  send(points: Point[], done: () => void) {
+  send(points: Point[], correct: boolean, done: () => void) {
     this.cancelInput();
     const path = curve(points);
-    this.ride = { path, duration: Math.max(.45, path.getLength() / 3.4), elapsed: 0, done };
+    this.ride = { path, duration: Math.max(.45, path.getLength() / 3.4), elapsed: 0, done, correct };
+    this.burst.start(points[0].x - .2, .09, points[0].y, 'dust', 1, 5);
     this.motion.refresh();
   }
 
   private animate = (seconds: number) => {
     const ride = this.ride;
-    if (!ride) return;
+    if (!ride) {
+      if (this.contactPrevious !== undefined) {
+        this.contactTime += Math.min(.1, Math.max(0, seconds - this.contactPrevious));
+      }
+      this.contactPrevious = seconds;
+      if (seconds === 0 || !this.burst.update(this.contactTime)) {
+        this.burst.clear();
+        this.motion.stop();
+      }
+      return;
+    }
     if (seconds === 0) ride.elapsed = ride.duration;
     else if (ride.previous !== undefined) ride.elapsed += Math.min(.1, Math.max(0, seconds - ride.previous));
     ride.previous = seconds;
     const progress = Math.min(1, ride.elapsed / ride.duration);
-    this.place(ride.path.getPoint(progress), ride.path.getTangent(progress));
+    const eased = progress * progress * (3 - 2 * progress);
+    this.place(ride.path.getPoint(eased), ride.path.getTangent(eased));
+    if (seconds === 0) this.burst.clear();
+    else this.burst.update(ride.elapsed);
     this.steam.forEach((puff, index) => {
       const delay = .055 + index * .068;
       puff.visible = progress < 1 && ride.elapsed > delay;
       if (!puff.visible) return;
-      const point = ride.path.getPoint((ride.elapsed - delay) / ride.duration);
+      const t = (ride.elapsed - delay) / ride.duration;
+      const point = ride.path.getPoint(t * t * (3 - 2 * t));
       puff.position.set(point.x, .56 + delay, point.z + Math.sin(index * 2.1) * .05);
       puff.scale.setScalar(.63 + index * .13);
       (puff.material as THREE.MeshLambertMaterial).opacity = .72 - index * .09;
@@ -197,5 +219,12 @@ export class RailScene {
     this.ride = undefined;
     this.motion.stop();
     ride.done();
+    if (seconds !== 0 && ride.correct) {
+      const end = ride.path.getPoint(1);
+      this.burst.start(end.x, .18, end.z, 'spark', 2, 6);
+      this.contactTime = 0;
+      this.contactPrevious = seconds;
+      this.motion.refresh();
+    }
   };
 }

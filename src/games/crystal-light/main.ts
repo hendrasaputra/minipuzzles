@@ -56,10 +56,10 @@ function turn(id: string) {
   if (game.status === 'won') $('next').focus();
 }
 
-function draw() {
+function draw(updateScene = true) {
   const won = game.status === 'won';
   const beam = trace(game);
-  scene?.update(game, selected);
+  if (updateScene) scene?.update(game, selected);
   $('title').textContent = game.level.title;
   $('level-number').textContent = random ? random.difficulty[0].toUpperCase() + random.difficulty.slice(1) : `${index + 1} / ${levels.length}`;
   $('moves').textContent = String(game.moves);
@@ -129,7 +129,7 @@ $('hint').onclick = () => {
     turn(solution[0]);
     if (game.status !== 'won') {
       notice = 'Hint turned a mirror.';
-      draw();
+      draw(false);
     }
   } else {
     notice = 'No hint found. Try Undo or Retry.';

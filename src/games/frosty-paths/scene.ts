@@ -3,6 +3,7 @@ import type { Direction,Game } from './engine';
 import { MiniScene } from '../../shared/mini-scene';
 import { MaterialMotion } from '../../shared/material-motion';
 import { IceEffect,slidePoint,type Point } from './ice-effect';
+import { PixelBurst } from '../../shared/pixel-burst';
 
 export function swipeDirection(delta:Point,xAxis:Point,yAxis:Point):Direction|null{
   if(Math.hypot(delta.x,delta.y)<12)return null;
@@ -18,13 +19,21 @@ export class FrostScene {
   private ice?:IceEffect;
   private game?:Game;
   private logical?:Point;
-  private slide?:{from:Point;to:Point;started:number};
+  private slide?:{from:Point;to:Point;elapsed:number;last:number;pickups:Point[]};
+  private burst = new PixelBurst();
+  private moves = 0;
+  private effectTime = 0;
+  private lastTime?: number;
+  private burstAt = -Infinity;
+  private landing?: Point;
+  private pendingPickups: Point[] = [];
   private penguin:{mesh:THREE.Mesh;position:THREE.Vector3}[]=[];
   private pointers=new Set<number>();
   private multi=false;
   private press:{id:number;point:Point}|null=null;
   constructor(host:HTMLElement,private onMove:(direction:Direction)=>void){
     this.mini=new MiniScene(host,this.clearInput);
+    this.mini.effects.add(this.burst.object);
     this.motion=new MaterialMotion(this.animate,()=>this.mini.repaint());
     this.mini.canvas.setAttribute('aria-label','3D ice puzzle. In Play, swipe along the ice or tap beside the penguin to slide. Choose Rotate to look around.');
     this.mini.canvas.addEventListener('pointerdown',this.down);this.mini.canvas.addEventListener('pointerup',this.up);this.mini.canvas.addEventListener('pointercancel',this.cancelInput);
@@ -33,7 +42,23 @@ export class FrostScene {
   screenDirection(dir:Direction){const [x,y]=dir==='n'?[0,-1]:dir==='e'?[1,0]:dir==='s'?[0,1]:[-1,0];return this.mini.direction(x,y);}
   update(game:Game){
     this.cancelInput();const from=this.logical,to={...game.player};
-    this.slide=game===this.game&&from&&(from.x!==to.x||from.y!==to.y)?{from,to,started:performance.now()/1000}:undefined;
+    const forward = this.game === game && game.moves > this.moves;
+    const previous = forward ? game.history.at(-1)?.collected ?? [] : [];
+    const pickups = forward
+      ? game.collected.filter(fish => !previous.some(point => point.x === fish.x && point.y === fish.y))
+      : [];
+    if (from) pickups.sort((a, b) =>
+      Math.hypot(a.x - from.x, a.y - from.y) - Math.hypot(b.x - from.x, b.y - from.y));
+    this.slide = this.game === game && from && game.moves >= this.moves && (from.x !== to.x || from.y !== to.y)
+      ? { from, to, elapsed: 0, last: performance.now() / 1000, pickups }
+      : undefined;
+    this.moves = game.moves;
+    this.burst.clear();
+    this.effectTime = 0;
+    this.lastTime = undefined;
+    this.burstAt = -Infinity;
+    this.landing = undefined;
+    this.pendingPickups = [];
     this.game=game;this.logical=to;this.draw();
   }
   private clearInput=()=>{this.press=null;this.pointers.clear();this.multi=false;};
@@ -58,10 +83,52 @@ export class FrostScene {
     if(Math.abs(dx)+Math.abs(dy)===1)this.onMove(dx===1?'e':dx===-1?'w':dy===1?'s':'n');
   };
   private animate=(seconds:number)=>{
-    this.ice?.update(seconds);const slide=this.slide;if(!slide)return;
-    const progress=seconds===0?1:(seconds-slide.started)/.25,point=slidePoint(slide.from,slide.to,progress);
-    for(const part of this.penguin)part.mesh.position.copy(part.position).add(new THREE.Vector3(point.x-slide.to.x,0,point.y-slide.to.y));
-    if(progress>=1)this.slide=undefined;
+    this.ice?.update(seconds);
+    if (seconds === 0) {
+      this.burst.clear();
+      this.landing = undefined;
+      this.pendingPickups = [];
+    } else {
+      if (this.lastTime !== undefined) this.effectTime += Math.min(.08, Math.max(0, seconds - this.lastTime));
+      this.lastTime = seconds;
+    }
+    const slide = this.slide;
+    if (slide) {
+      if (seconds > 0) {
+        slide.elapsed += Math.min(.08, Math.max(0, seconds - slide.last));
+        slide.last = seconds;
+      }
+      const progress = seconds === 0 ? 1 : slide.elapsed / .32;
+      const point = slidePoint(slide.from, slide.to, progress);
+      for (const part of this.penguin) {
+        part.mesh.position.set(part.position.x + (point.x - slide.to.x), part.position.y,
+          part.position.z + (point.y - slide.to.y));
+      }
+      if (seconds > 0) {
+        const distance = Math.hypot(point.x - slide.from.x, point.y - slide.from.y);
+        while (slide.pickups.length) {
+          const fish = slide.pickups[0];
+          if (progress < 1 && distance < Math.hypot(fish.x - slide.from.x, fish.y - slide.from.y)) break;
+          this.pendingPickups.push(slide.pickups.shift()!);
+        }
+      }
+      if (progress >= 1) {
+        if (seconds > 0) this.landing = slide.to;
+        this.slide = undefined;
+      }
+    }
+    if (seconds > 0 && this.pendingPickups.length && this.effectTime - this.burstAt >= .14) {
+      const {x,y} = this.pendingPickups.shift()!;
+      this.burst.start(x + .5, .13, y + .5, 'spark', x + y * 17, 8);
+      this.burstAt = this.effectTime;
+    }
+    if (this.landing && !this.pendingPickups.length && seconds > 0 && this.effectTime - this.burstAt >= .18) {
+      const {x,y} = this.landing;
+      this.burst.start(x + .5, .02, y + .5, 'ice', x + y * 17, 6);
+      this.burstAt = this.effectTime;
+      this.landing = undefined;
+    }
+    this.burst.update(this.effectTime - this.burstAt);
   };
   private draw(){
     const game=this.game;if(!game)return;

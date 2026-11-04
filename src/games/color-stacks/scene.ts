@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { MiniScene } from '../../shared/mini-scene';
 import { MaterialMotion } from '../../shared/material-motion';
+import { PixelBurst } from '../../shared/pixel-burst';
 import { sorted, type Game, type Move } from './engine';
 
 export const palette = [
@@ -17,16 +18,23 @@ export function stackName(index: number): string {
 
 const pitch = 1.17;
 const blockHeight = .53;
+const travelTime = .26;
+const settleTime = .13;
 
 export class StackScene {
   private readonly mini: MiniScene;
   private readonly motion: MaterialMotion;
   private press?: { id: number; x: number; y: number; owner: string };
-  private moving?: { mesh: THREE.Mesh; from: THREE.Vector3; to: THREE.Vector3; start?: number };
+  private readonly dust = new PixelBurst();
+  private moving?: {
+    mesh: THREE.Mesh; from: THREE.Vector3; to: THREE.Vector3;
+    elapsed: number; previous?: number; landed: boolean; sorted: boolean;
+  };
 
   constructor(host: HTMLElement, onStack: (index: number) => void) {
     this.mini = new MiniScene(host, this.cancelInput);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
+    this.mini.effects.add(this.dust.object);
     const canvas = this.mini.canvas;
     canvas.setAttribute('aria-label', '3D colored stacks. Tap a source stack, then a destination.');
     canvas.addEventListener('pointerdown', event => {
@@ -57,11 +65,32 @@ export class StackScene {
   private animate = (time: number) => {
     const moving = this.moving;
     if (!moving) return;
-    moving.start ??= time;
-    const progress = time === 0 ? 1 : Math.min(1, (time - moving.start) / .26);
-    moving.mesh.position.lerpVectors(moving.from, moving.to, progress);
-    moving.mesh.position.y += .44 * Math.sin(progress * Math.PI);
-    if (progress === 1) {
+    if (time === 0) {
+      moving.mesh.position.copy(moving.to);
+      moving.mesh.scale.y = 1;
+      this.dust.clear();
+      this.moving = undefined;
+      this.motion.stop();
+      return;
+    }
+    if (moving.previous !== undefined) moving.elapsed += Math.min(.075, Math.max(0, time - moving.previous));
+    moving.previous = time;
+    const progress = Math.min(1, moving.elapsed / travelTime);
+    const eased = progress * progress * (3 - 2 * progress);
+    moving.mesh.position.lerpVectors(moving.from, moving.to, eased);
+    moving.mesh.position.y += .32 * Math.sin(eased * Math.PI);
+    if (progress < 1) return;
+
+    const landedTime = moving.elapsed - travelTime;
+    const bottom = moving.to.y - (blockHeight - .023) / 2;
+    if (!moving.landed) {
+      moving.landed = true;
+      this.dust.start(moving.to.x, bottom, moving.to.z, 'dust', 5, moving.sorted ? 8 : 5);
+    }
+    const settle = Math.min(1, landedTime / settleTime);
+    moving.mesh.scale.y = 1 - .08 * Math.sin(Math.PI * settle) * (1 - settle);
+    moving.mesh.position.y = bottom + (blockHeight - .023) * moving.mesh.scale.y / 2;
+    if (!this.dust.update(landedTime)) {
       this.moving = undefined;
       this.motion.stop();
     }
@@ -71,6 +100,7 @@ export class StackScene {
     this.cancelInput();
     this.motion.stop();
     this.moving = undefined;
+    this.dust.clear();
     this.mini.clear();
     const columns = Math.min(4, game.stacks.length);
     const rows = Math.ceil(game.stacks.length / columns);
@@ -97,7 +127,10 @@ export class StackScene {
           mesh.castShadow = false;
           const [fromX, fromY] = point(move.from);
           const fromHeight = .08 + blockHeight * game.stacks[move.from].length + (blockHeight - .023) / 2;
-          this.moving = { mesh, from: new THREE.Vector3(fromX, fromHeight, fromY), to: mesh.position.clone() };
+          this.moving = {
+            mesh, from: new THREE.Vector3(fromX, fromHeight, fromY), to: mesh.position.clone(),
+            elapsed: 0, landed: false, sorted: sorted(stack, game.level.capacity),
+          };
         } else {
           this.mini.box(x - .395, y - .395, x + .395, y + .395, low, low + blockHeight - .023, paint, owner);
         }

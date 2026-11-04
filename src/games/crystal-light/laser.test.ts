@@ -1,5 +1,5 @@
 import { describe,it,expect } from 'vitest';
-import { beamPoint } from './laser';
+import { beamArrival, beamPoint } from './laser';
 const route=[{from:{x:0,y:2},to:{x:2,y:2}},{from:{x:2,y:2},to:{x:2,y:0}}];
 describe('laser particle route',()=>{
   it('flows around mirror corners and wraps to the source',()=>{
@@ -7,6 +7,12 @@ describe('laser particle route',()=>{
     expect(beamPoint(route,2)).toEqual({x:2.5,y:2.5,dx:0,dy:-1});
     expect(beamPoint(route,3)).toEqual({x:2.5,y:1.5,dx:0,dy:-1});
     expect(beamPoint(route,4)).toEqual(beamPoint(route,0));expect(beamPoint(route,-1)).toEqual(beamPoint(route,3));
+  });
+  it('moves the one-shot pulse through the mirror and ends it at the last point', () => {
+    expect(beamPoint(route,3,false)).toEqual({x:2.5,y:1.5,dx:0,dy:-1});
+    expect(beamPoint(route,4,false)).toBeNull();
+    expect(beamArrival(route,{x:2,y:0})).toBe(4);
+    expect(beamArrival(route,{x:2,y:-1})).toBe(Infinity);
   });
   it('never interpolates beyond a blocker or across a reflected corner',()=>{
     const wall=[{from:{x:1,y:1},to:{x:1.5,y:1}}];

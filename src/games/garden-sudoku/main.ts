@@ -122,7 +122,7 @@ function drawFlat(clashes: Set<number>) {
   if (focused) board.querySelector<HTMLButtonElement>(`[data-cell="${selected}"]`)?.focus({ preventScroll: true });
 }
 
-function draw() {
+function draw(planted?: number) {
   const won = complete(game);
   const clashes = conflicts(game.cells);
   const index = levels.findIndex(level => level.id === game.level.id);
@@ -148,8 +148,8 @@ function draw() {
   $('progress').textContent = `${finished.length} of ${levels.length} gardens complete.`;
   $('sound').textContent = audio.enabled ? 'Sound: on' : 'Sound: off';
   $('sound').setAttribute('aria-pressed', String(audio.enabled));
-  if (flat) drawFlat(clashes);
-  else scene?.draw(game, selected);
+  if (flat) { scene?.clearFeedback(); drawFlat(clashes); }
+  else scene?.draw(game, selected, planted);
 }
 
 function place(cell: number, value: Value) {
@@ -159,7 +159,7 @@ function place(cell: number, value: Value) {
   notice = '';
   const won = complete(game);
   if (won && !random && !finished.includes(game.level.id)) finished.push(game.level.id);
-  draw();
+  draw(value ? cell : undefined);
   save();
   audio.play(won ? 'win' : value ? 'reveal' : 'flag');
 }

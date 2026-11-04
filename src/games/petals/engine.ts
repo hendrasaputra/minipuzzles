@@ -1,12 +1,12 @@
 /** Puzzle rules only: no DOM, rendering, clocks, or storage. */
-export type ClueType = 'local' | 'above' | 'below';
+export type ClueType = 'local' | 'above' | 'below' | 'volume';
 export interface Config {
   width: number;
   height: number;
   mines: number;
   floors: number;
   seed: string;
-  mode?: 'classic' | 'layered' | 'connected';
+  mode?: 'classic' | 'layered' | 'connected' | 'volume';
   firstReveal?: number[];
   generatorVersion?: 1;
   vertical?: 'above' | 'below' | 'both';
@@ -30,12 +30,13 @@ export interface Game {
 function validConfig(config: Config): boolean {
   return !!config && Number.isInteger(config.width) && config.width >= 2 && config.width <= 30
     && Number.isInteger(config.height) && config.height >= 2 && config.height <= 24
-    && Number.isInteger(config.floors) && config.floors >= 1 && config.floors <= 3
+    && Number.isInteger(config.floors) && config.floors >= 1 && config.floors <= (config.mode === 'volume' ? 4 : 3)
     && Number.isInteger(config.mines) && config.mines >= 0 && config.mines < config.width * config.height
     && typeof config.seed === 'string' && config.seed.length > 0 && config.seed.length <= 128
-    && (config.mode === undefined || ['classic', 'layered', 'connected'].includes(config.mode))
+    && (config.mode === undefined || ['classic', 'layered', 'connected', 'volume'].includes(config.mode))
     && (config.mode !== 'classic' || config.floors === 1)
     && (config.mode !== 'connected' || config.floors >= 2)
+    && (config.mode !== 'volume' || config.floors >= 3)
     && (config.generatorVersion === undefined || config.generatorVersion === 1)
     && (config.vertical === undefined || ['above', 'below', 'both'].includes(config.vertical))
     && (config.firstReveal === undefined || Array.isArray(config.firstReveal)
@@ -43,7 +44,9 @@ function validConfig(config: Config): boolean {
       && config.firstReveal.every(i => Number.isInteger(i) && i >= 0 && i < config.width * config.height));
 }
 
-function fixed(game: Game): boolean { return !!game.config.firstReveal || game.config.mode === 'connected'; }
+function fixed(game: Game): boolean {
+  return !!game.config.firstReveal || game.config.mode === 'connected' || game.config.mode === 'volume';
+}
 function opening(config: Config, floor: number): number {
   return config.firstReveal?.[floor] ?? Math.floor(config.height / 2) * config.width + Math.floor(config.width / 2);
 }
@@ -103,9 +106,18 @@ export function neighbors(config: Config, index: number): number[] {
   return result;
 }
 
-/** Up/down clues include the aligned tile and clipped 3×3 footprint, never the source floor. */
 export function clueNeighbors(game: Game, floor: number, index: number): Position[] {
   const type = game.cells[floor]?.[index]?.clueType ?? 'local';
+  if (type === 'volume') {
+    const local = neighbors(game.config, index);
+    const result = local.map(index => ({ floor, index }));
+    for (const target of [floor - 1, floor + 1]) {
+      if (target >= 0 && target < game.config.floors) {
+        result.push(...[index, ...local].map(index => ({ floor: target, index })));
+      }
+    }
+    return result;
+  }
   if (type === 'local') return neighbors(game.config, index).map(index => ({ floor, index }));
   const target = floor + (type === 'above' ? 1 : -1);
   if (target < 0 || target >= game.config.floors) return [];
@@ -135,6 +147,7 @@ function plant(game: Game, floor: number, index: number): void {
     [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
   }
   for (const i of candidates.slice(0, game.config.mines)) cells[i].mine = true;
+  if (game.config.mode === 'volume') cells.forEach(cell => { cell.clueType = 'volume'; });
   if (game.config.mode === 'connected') cells.forEach((cell, i) => {
     let type: ClueType = 'local';
     if (!cell.mine && i % 4 === 0 && game.config.vertical !== 'below' && floor < game.config.floors - 1) type = 'above';
@@ -232,10 +245,10 @@ export function restoreGame(value: unknown): Game | null {
         const cell = floor[i];
         if (!cell || typeof cell.mine !== 'boolean' || typeof cell.revealed !== 'boolean'
           || typeof cell.flagged !== 'boolean' || !Number.isInteger(cell.adjacent) || cell.adjacent < 0
-          || cell.adjacent > 9 || (cell.revealed && cell.flagged)
-          || (cell.clueType !== undefined && !['local', 'above', 'below'].includes(cell.clueType))) return null;
+          || cell.adjacent > (game.config.mode === 'volume' ? 26 : 9) || (cell.revealed && cell.flagged)
+          || (cell.clueType !== undefined && !['local', 'above', 'below', 'volume'].includes(cell.clueType))) return null;
         if (fixed(game) && (cell.mine !== game.cells[f][i].mine || cell.clueType !== game.cells[f][i].clueType)) return null;
-        if (game.config.mode !== 'connected' && cell.clueType && cell.clueType !== 'local') return null;
+        if (!fixed(game) && cell.clueType && cell.clueType !== 'local') return null;
         game.cells[f][i] = { mine: cell.mine, revealed: cell.revealed, flagged: cell.flagged, adjacent: cell.adjacent,
           ...(cell.clueType !== undefined ? { clueType: cell.clueType } : {}) };
       }

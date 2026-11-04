@@ -114,6 +114,18 @@ describe('Marble Workshop scene', () => {
     expect(JSON.stringify(game)).toBe(before);
   });
 
+  it('stops at a gap and clears its short contact cue', () => {
+    const { scene, motion, view, marble } = fixture();
+    const done = vi.fn();
+    scene.roll([level.source, { x: .5, y: 1 }], false, done);
+    for (let tick = 0; tick <= 7; tick++) motion.update(1 + tick * .06);
+    expect(marble.position.toArray()).toEqual([1, ROLL_HEIGHT, 1.5]);
+    expect(view.meshes.some(mesh => mesh.geometry.type === 'OctahedronGeometry' && mesh.visible)).toBe(true);
+    for (let tick = 8; tick <= 12; tick++) motion.update(1 + tick * .06);
+    expect(done).toHaveBeenCalledOnce();
+    expect(view.meshes.some(mesh => mesh.geometry.type === 'OctahedronGeometry' && mesh.visible)).toBe(false);
+  });
+
   it('settles immediately with reduced motion and rejects edits while rolling', () => {
     const { scene, motion, view, rotate, send, marble } = fixture();
     const done = vi.fn();

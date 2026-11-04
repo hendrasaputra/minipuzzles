@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { MiniScene } from '../../shared/mini-scene';
+import { MaterialMotion } from '../../shared/material-motion';
+import { bounceHeight, PixelBurst } from '../../shared/pixel-burst';
 import { canPlace, colors, complete, footprint, vertices, type Game, type Placement, type Point, type Triangle } from './engine';
 
 function boundary(tiles: readonly Triangle[]): [Point, Point][] {
@@ -18,10 +20,17 @@ function boundary(tiles: readonly Triangle[]): [Point, Point][] {
 
 export class TangramScene {
   private readonly mini: MiniScene;
+  private readonly motion: MaterialMotion;
+  private readonly burst = new PixelBurst();
+  private drop?: { mesh: THREE.Mesh; x: number; y: number; piece: number };
+  private elapsed = 0;
+  private previous?: number;
   private press?: { id: number; x: number; y: number; cell: string };
 
   constructor(host: HTMLElement, private readonly onPlace: (x: number, y: number) => void) {
     this.mini = new MiniScene(host, this.cancelInput);
+    this.mini.effects.add(this.burst.object);
+    this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const canvas = this.mini.canvas;
     canvas.setAttribute('aria-label', '3D fitting board. Tap a square to place the selected piece. Choose Rotate to look around.');
     canvas.addEventListener('pointerdown', this.down);
@@ -75,10 +84,36 @@ export class TangramScene {
       color, opacity, transparent: opacity < 1, depthWrite: opacity === 1,
     }), 0, 0, 0);
     if (opacity < 1) mesh.castShadow = false;
+    return mesh;
   }
 
-  draw(game: Game, selected: number, draft: Placement) {
+  private animate = (seconds: number) => {
+    if (seconds === 0) {
+      if (this.drop) this.drop.mesh.position.y = 0;
+      this.burst.clear();
+      this.motion.stop();
+      return;
+    }
+    const wasAirborne = this.elapsed < .17;
+    if (this.previous !== undefined) this.elapsed += Math.max(0, Math.min(.05, seconds - this.previous));
+    this.previous = seconds;
+    if (this.drop) {
+      const { mesh, x, y, piece } = this.drop;
+      const t = Math.min(1, this.elapsed / .17);
+      mesh.position.y = t < 1 ? .23 * (1 - t * t) : bounceHeight(.57, this.elapsed - .17);
+      if (t === 1 && wasAirborne) this.burst.start(x, .05, y, 'spark', piece, 4);
+      if (this.elapsed >= .31) this.drop = undefined;
+    }
+    if (!this.burst.update(Math.max(0, this.elapsed - .17)) && !this.drop) this.motion.stop();
+  };
+
+  draw(game: Game, selected: number, draft: Placement, placedPiece?: number) {
     this.cancelInput();
+    this.motion.stop();
+    this.burst.clear();
+    this.drop = undefined;
+    this.previous = undefined;
+    this.elapsed = 0;
     this.mini.clear();
     const { width, height, target, pieces } = game.level;
     this.mini.box(-.18, -.18, width + .18, height + .18, -.30, -.04, '#8e9380');
@@ -95,7 +130,15 @@ export class TangramScene {
       mesh.castShadow = false;
     }
     game.placements.forEach((placement, i) => {
-      if (placement) this.shape(footprint(pieces[i], placement), .023, .15, colors[i]);
+      if (!placement) return;
+      const tiles = footprint(pieces[i], placement);
+      const mesh = this.shape(tiles, .023, .15, colors[i]);
+      if (i === placedPiece) {
+        const points = vertices(tiles[0]);
+        const x = points.reduce((sum, point) => sum + point[0], 0) / 3;
+        const y = points.reduce((sum, point) => sum + point[1], 0) / 3;
+        this.drop = { mesh, x, y, piece: i };
+      }
     });
     if (!complete(game)) {
       const placed = game.placements[selected];
@@ -115,5 +158,6 @@ export class TangramScene {
       this.mini.label(String(y + 1), -.28, y + .5, .025);
     }
     this.mini.render();
+    if (this.drop) this.motion.refresh();
   }
 }

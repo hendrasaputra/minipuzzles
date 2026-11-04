@@ -4,11 +4,12 @@ import { campaign, createLevel } from './campaign';
 import { solve } from './solver';
 
 describe('curated no-guess campaign', () => {
-  it('contains unique fixed-opening levels covering all three playable chapters', () => {
+  it('contains unique fixed-opening levels covering all four playable chapters', () => {
     expect(new Set(campaign.map(level => level.id)).size).toBe(campaign.length);
     expect(campaign.filter(level => level.chapter === 'classic')).toHaveLength(2);
     expect(campaign.filter(level => level.chapter === 'layered')).toHaveLength(2);
     expect(campaign.filter(level => level.chapter === 'connected').map(level => level.config.vertical)).toEqual(['above', 'below', 'both']);
+    expect(campaign.filter(level => level.chapter === 'volume').map(level => level.config.floors)).toEqual([3, 3, 4]);
     for (const level of campaign) {
       expect(level.config.generatorVersion).toBe(1);
       expect(level.config.firstReveal).toHaveLength(level.config.floors);
@@ -28,6 +29,9 @@ describe('curated no-guess campaign', () => {
       expect(result.reason).toBe('solved');
       expect(result.game.status).toBe('won');
       expect(result.steps.length).toBeGreaterThan(0);
+      if (level.chapter === 'volume') {
+        expect(result.steps.some(step => step.sources.some(source => source.floor !== step.floor))).toBe(true);
+      }
       expect(result.game.cells.flat().every(cell => cell.mine || cell.revealed)).toBe(true);
       expect(game.status).toBe('playing');
     });

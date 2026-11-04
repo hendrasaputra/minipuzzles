@@ -104,12 +104,12 @@ function drawDirections() {
   }
 }
 
-function draw(pulse = false) {
+function draw(pulse = false, removed?: number) {
   const { game, random, completed } = saved;
   const { level, path } = game;
   const won = complete(game);
   const index = levels.findIndex(candidate => candidate.id === level.id);
-  scene?.draw(game, pulse);
+  scene?.draw(game, pulse, removed);
   $('title').textContent = level.title;
   $('level-number').textContent = random ? tiers[random.difficulty] : `${index + 1} / ${levels.length}`;
   $('moves').textContent = `${path.length} / ${level.route.length}`;
@@ -134,6 +134,7 @@ function extend(cell: number, dragging = false) {
   const { game } = saved;
   if (menu.open || example.open || complete(game) || game.path.at(-1) === cell) return;
   const before = game.path.length;
+  const previous = game.path.at(-1);
   if (!step(game, cell)) {
     if (dragging) return;
     notice = game.path.includes(cell) ? 'That stone is already on your path.'
@@ -146,7 +147,7 @@ function extend(cell: number, dragging = false) {
   const won = complete(game);
   if (won && !saved.random && !saved.completed.includes(game.level.id)) saved.completed.push(game.level.id);
   audio.play(won ? 'win' : 'flag');
-  draw(game.path.length > before);
+  draw(game.path.length > before, game.path.length < before ? previous : undefined);
   save();
   if (won) $('next').focus();
 }
@@ -174,17 +175,19 @@ function walk(direction: Direction) {
 
 for (const direction of directions) $(`step-${direction}`).onclick = () => walk(direction);
 $('undo').onclick = () => {
+  const removed = saved.game.path.at(-1);
   if (!undo(saved.game)) return;
   notice = '';
-  draw();
+  draw(false, removed);
   save();
 };
 $('hint').onclick = () => {
   const move = hint(saved.game);
+  const removed = saved.game.path.at(-1);
   if (move && 'cell' in move) extend(move.cell);
   else if (move && undo(saved.game)) {
     notice = 'Hint stepped back. Try a different route.';
-    draw();
+    draw(false, removed);
     save();
   }
 };

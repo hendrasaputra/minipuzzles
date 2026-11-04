@@ -3,7 +3,7 @@ import type { MiniScene } from '../../shared/mini-scene';
 
 export interface Point{x:number;y:number}
 export function slidePoint(from:Point,to:Point,progress:number):Point{
-  const t=Math.max(0,Math.min(1,progress)),ease=1-(1-t)**3;
+  const t=Math.max(0,Math.min(1,progress)),ease=t*t*(3-2*t);
   return{x:from.x+(to.x-from.x)*ease,y:from.y+(to.y-from.y)*ease};
 }
 

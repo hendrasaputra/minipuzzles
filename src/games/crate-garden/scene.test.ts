@@ -1,24 +1,38 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createGame } from './engine';
+import * as THREE from 'three';
+
+import { createGame,move } from './engine';
 import { CrateScene, swipeDirection } from './scene';
 
+const mockMotion=vi.hoisted(()=>({ tick: (_time:number)=>{} }));
+vi.mock('../../shared/material-motion',()=>({MaterialMotion:class{
+  constructor(update:(time:number)=>void){mockMotion.tick=update;}
+  refresh(){}
+  stop(){}
+}}));
 const {views}=vi.hoisted(()=>({views:[] as Array<{
   rotating:boolean; cancel:()=>void;
   handlers:Map<string,(event:Record<string,unknown>)=>void>;
   pick:ReturnType<typeof vi.fn>; ground:ReturnType<typeof vi.fn>;
   xAxis:{x:number;y:number};yAxis:{x:number;y:number};
-  boxes:Array<{owner?:string}>;
+  boxes:Array<{owner?:string;color:string;mesh:THREE.Object3D}>; effects:THREE.Group;
 }>}));
 vi.mock('../../shared/mini-scene',()=>({MiniScene:class{
   rotating=false;
+  effects=new THREE.Group();
   handlers=new Map<string,(event:Record<string,unknown>)=>void>();
   pick=vi.fn(()=>undefined as string|undefined);
   ground=vi.fn(()=>null as {x:number;y:number}|null);
-  xAxis={x:32,y:16};yAxis={x:-32,y:16};boxes:Array<{owner?:string}>=[];
+  xAxis={x:32,y:16};yAxis={x:-32,y:16};boxes:Array<{owner?:string;color:string;mesh:THREE.Object3D}>=[];
   canvas={setAttribute(){},addEventListener:(name:string,handler:(event:Record<string,unknown>)=>void)=>this.handlers.set(name,handler),setPointerCapture(){}};
   constructor(_host:HTMLElement,public cancel:()=>void){views.push(this);}
   project(x:number,y:number){return{x:240+x*this.xAxis.x+y*this.yAxis.x,y:90+x*this.xAxis.y+y*this.yAxis.y};}
-  box(_x0:number,_y0:number,_x1:number,_y1:number,_z0:number,_z1:number,_color:string,owner?:string){this.boxes.push({owner});}
+  box(x0:number,y0:number,x1:number,y1:number,z0:number,z1:number,color:string,owner?:string){
+    const mesh=new THREE.Object3D();
+    mesh.position.set((x0+x1)/2,(z0+z1)/2,(y0+y1)/2);
+    this.boxes.push({owner,color,mesh});
+    return mesh;
+  }
   clear(){this.boxes=[];}render(){}
   cancelInput(){this.cancel();}
 }}));
@@ -79,6 +93,22 @@ describe('3D crate play input',()=>{
     send('pointercancel',1);send('pointerup',1,end);expect(direction).not.toHaveBeenCalled();
     send('pointerdown',2);send('pointerdown',3);send('pointerup',2,end);send('pointerup',3,end);expect(direction).not.toHaveBeenCalled();
     send('pointerdown',4);scene.update(game);send('pointerup',4,end);expect(direction).not.toHaveBeenCalled();
+  });
+  it('settles a pushed crate on its committed bed and clears planting feedback on redraw',()=>{
+    const {scene,view}=fixture();
+    const game=createGame({id:'push',title:'Push',width:5,height:5,walls:[],goals:[{x:3,y:2}],crates:[{x:2,y:2}],player:{x:1,y:2}});
+    scene.update(game);
+    expect(move(game,'e')).toBe(true);
+    scene.update(game,'move');
+    const crate=view.boxes.find(box=>box.color==='#9bae73')!.mesh;
+    mockMotion.tick(1);
+    expect(crate.position.x).toBeCloseTo(2.5);
+    for(let i=1;i<=5;i++) mockMotion.tick(1+i*.06);
+    expect(crate.position.x).toBeCloseTo(3.5);
+    expect(view.effects.children[0].visible).toBe(true);
+    scene.update(game);
+    expect(view.effects.children[0].visible).toBe(false);
+    expect(game.crates).toEqual([{x:3,y:2}]);
   });
   it('ignores puzzle movement after completion while leaving the camera available',()=>{
     const {direction,send,scene,game}=fixture();game.status='won';scene.update(game);

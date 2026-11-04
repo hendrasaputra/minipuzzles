@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { MiniScene } from '../../shared/mini-scene';
 import { flow,pipePorts,type Game } from './engine';
-import { WaterEffect } from './water-effect';
+import { arrivalTime, WaterEffect, waterDistances } from './water-effect';
 import { MaterialMotion } from '../../shared/material-motion';
 
 type Point={x:number;y:number};
@@ -11,6 +11,11 @@ export class WaterScene {
   private mini:MiniScene;
   private game?:Game;
   private water?:WaterEffect;
+  private watered = new Set<string>();
+  private moves = 0;
+  private pulse?: { elapsed: number; last?: number };
+  private arrivals: { ring: THREE.Mesh; material: THREE.MeshBasicMaterial;
+    at: number; petals: { mesh: THREE.Mesh; x: number }[] }[] = [];
   private motion:MaterialMotion;
   private selected:string|null=null;
   private pointers=new Set<number>();
@@ -18,7 +23,7 @@ export class WaterScene {
   private press:{id:number;client:Point;pipe?:string;dragged:boolean}|null=null;
   constructor(host:HTMLElement,private onSelect:(id:string)=>void,private onRotate:(id:string)=>void){
     this.mini=new MiniScene(host,this.clearInput);
-    this.motion=new MaterialMotion(t=>this.water?.update(t),()=>this.mini.repaint());
+    this.motion=new MaterialMotion(this.animate,()=>this.mini.repaint());
     this.mini.canvas.setAttribute('aria-label','3D water garden. In Play, tap a channel tile to turn it. Choose Rotate to look around without turning tiles.');
     this.mini.canvas.addEventListener('pointerdown',this.down);
     this.mini.canvas.addEventListener('pointermove',this.move);
@@ -26,7 +31,11 @@ export class WaterScene {
     this.mini.canvas.addEventListener('pointercancel',this.cancelInput);
     window.addEventListener('blur',this.cancelInput);
   }
-  update(game:Game,selectedId:string|null){this.cancelInput();this.game=game;this.selected=selectedId;this.draw();}
+  update(game:Game,selectedId:string|null){
+    this.cancelInput();
+    const forward = this.game === game && game.moves > this.moves;
+    this.game=game;this.moves=game.moves;this.selected=selectedId;this.draw(forward);
+  }
   private clearInput=()=>{this.press=null;this.pointers.clear();this.multi=false;};
   cancelInput=()=>{this.mini.cancelInput();};
   private pipeAt(point:Point){const id=this.mini.pick(point.x,point.y);return this.game?.pipes.some(pipe=>pipe.id===id)?id:undefined;}
@@ -45,9 +54,34 @@ export class WaterScene {
     if(this.pipeAt({x:event.clientX,y:event.clientY})!==press.pipe)return;
     this.onSelect(press.pipe);this.onRotate(press.pipe);
   };
-  private draw(){
+  private animate = (seconds: number) => {
+    const pulse = this.pulse;
+    if (pulse && seconds > 0) {
+      if (pulse.last !== undefined) pulse.elapsed += Math.min(.08, Math.max(0, seconds - pulse.last));
+      pulse.last = seconds;
+    }
+    const elapsed = seconds === 0 ? Infinity : pulse?.elapsed ?? Infinity;
+    this.water?.update(seconds, elapsed);
+    for (const { ring, material, at, petals } of this.arrivals) {
+      const t = elapsed - at;
+      const active = t >= 0 && t < .42;
+      ring.visible = active;
+      ring.scale.setScalar(active ? .28 + t * 2.8 : 1);
+      material.opacity = active ? .65 * (1 - t / .42) : 0;
+      const sway = active ? Math.sin(t * 24) * Math.exp(-t * 8) * .09 : 0;
+      for (const { mesh, x } of petals) mesh.position.x = x + sway;
+    }
+    if (elapsed >= .9) this.pulse = undefined;
+  };
+
+  private draw(forward: boolean){
     const game=this.game;if(!game)return;
     const {width,height,source,flowers,rocks}=game.level,water=flow(game),has=(cells:Point[],x:number,y:number)=>cells.some(cell=>cell.x===x&&cell.y===y);
+    const previous = this.watered;
+    this.watered = new Set(water.watered.map(({x,y}) => `${x},${y}`));
+    const distances = forward ? waterDistances(water.segments, source) : undefined;
+    this.pulse = forward ? { elapsed: 0 } : undefined;
+    this.arrivals = [];
     this.mini.clear();
     this.mini.box(-.16,-.16,width+.16,height+.16,-.38,-.08,'#ba9d79');
     for(let y=0;y<height;y++)for(let x=0;x<width;x++)this.mini.box(x+.025,y+.025,x+.975,y+.975,-.08,0,(x+y)%2?'#e7e8d9':'#f4efdf');
@@ -80,11 +114,21 @@ export class WaterScene {
       this.mini.box(x+.46,y+.46,x+.54,y+.54,.4,top,'#839f70',owner);
       this.mini.box(x+.26,y+.44,x+.48,y+.55,.52,.59,watered?'#9db984':'#a9ad8b',owner);
       this.mini.box(x+.52,y+.44,x+.74,y+.55,.61,.67,watered?'#9db984':'#a9ad8b',owner);
+      const bloom: THREE.Mesh[] = [];
       for(let i=0;i<5;i++){
         const angle=i*Math.PI*2/5,geometry=new THREE.SphereGeometry(.14,6,4);geometry.scale(1,.6,1);
-        this.mini.mesh(geometry,new THREE.MeshLambertMaterial({color:watered?'#e7a8bd':'#c8b1bb',flatShading:true}),x+.5+Math.cos(angle)*.16,y+.5+Math.sin(angle)*.16,top,owner);
+        bloom.push(this.mini.mesh(geometry,new THREE.MeshLambertMaterial({color:watered?'#e7a8bd':'#c8b1bb',flatShading:true}),x+.5+Math.cos(angle)*.16,y+.5+Math.sin(angle)*.16,top,owner));
       }
-      this.mini.mesh(new THREE.SphereGeometry(.11,6,4),new THREE.MeshLambertMaterial({color:watered?'#f1d58c':'#d3c49b',flatShading:true}),x+.5,y+.5,top+.055,owner);
+      bloom.push(this.mini.mesh(new THREE.SphereGeometry(.11,6,4),new THREE.MeshLambertMaterial({color:watered?'#f1d58c':'#d3c49b',flatShading:true}),x+.5,y+.5,top+.055,owner));
+      const cell = `${x},${y}`;
+      const distance = distances?.get(cell);
+      if (watered && !previous.has(cell) && distance !== undefined && this.arrivals.length < 3) {
+        const material = new THREE.MeshBasicMaterial({ color: '#a8f5f0', transparent: true, depthWrite: false });
+        const ring = this.mini.mesh(new THREE.TorusGeometry(.23, .014, 4, 16), material, x + .5, y + .5, .41);
+        ring.rotation.x = Math.PI / 2;
+        ring.castShadow = ring.receiveShadow = ring.visible = false;
+        this.arrivals.push({ ring, material, at: arrivalTime(distance), petals: bloom.map(mesh => ({ mesh, x: mesh.position.x })) });
+      }
     }
     const {x,y,dir}=source,owner='spring';
     this.mini.box(x+.13,y+.13,x+.87,y+.87,0,.16,'#b4b49d',owner);

@@ -1,7 +1,7 @@
 import { describe,it,expect } from 'vitest';
 import * as THREE from 'three';
 import type { MiniScene } from '../../shared/mini-scene';
-import { WaterEffect,waterPoint } from './water-effect';
+import { WaterEffect,waterPoint,waterDistances } from './water-effect';
 const branches=[{from:{x:1,y:1},to:{x:2,y:1}},{from:{x:1,y:1},to:{x:1,y:2}}];
 function fixture(segments=branches){
   const shapes:THREE.Mesh[]=[];
@@ -18,6 +18,12 @@ describe('Water Garden flow particles',()=>{
       expect(south.y).toBeGreaterThanOrEqual(1.5);expect(south.y).toBeLessThan(2.5);expect(south.x).toBe(1.5);
     }
     expect(waterPoint(branches[0],1)).toEqual(waterPoint(branches[0],0));
+  });
+  it('propagates along reached branches without revisiting a cycle or lighting a disconnected edge', () => {
+    const spring = {x:0,y:1};
+    const linked = [{from:spring,to:branches[0].from}, ...branches,
+      {from:branches[0].to,to:branches[0].from}, {from:{x:4,y:4},to:{x:3,y:4}}];
+    expect([...waterDistances(linked,spring)]).toEqual([['0,1',0],['1,1',1],['2,1',2],['1,2',2]]);
   });
   it('has only spring ripples and bubbles when there are no connected channels',()=>{
     const {effect,shapes}=fixture([]);expect(shapes).toHaveLength(9);

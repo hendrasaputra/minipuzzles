@@ -11,9 +11,9 @@ export function nearestSlide(value: number, allowed: readonly number[]): number 
 
 /** CSS-pixel slop is independent of camera zoom and device resolution. */
 export class SlideGesture {
-  private press: { id: string; axis: Point; start: Point; allowed: number[]; dragged: boolean; value: number } | null = null;
+  private press: { id: string; axis: Point; start: Point; allowed: number[]; dragged: boolean; value: number; desired: number } | null = null;
   begin(id: string, axis: Point, start: Point, allowed: number[]): void {
-    this.press = { id, axis, start, allowed: [0, ...allowed], dragged: false, value: 0 };
+    this.press = { id, axis, start, allowed: [0, ...allowed], dragged: false, value: 0, desired: 0 };
   }
   move(point: Point): void {
     const p = this.press;
@@ -22,10 +22,16 @@ export class SlideGesture {
     if (Math.hypot(delta.x, delta.y) > 8) p.dragged = true;
     if (!p.dragged) return;
     const desired = projectedAxisDelta(p.axis, delta);
+    p.desired = desired;
     p.value = Math.max(Math.min(...p.allowed), Math.min(Math.max(...p.allowed), desired));
   }
   get preview(): { id: string; delta: number } | null {
     return this.press ? { id: this.press.id, delta: this.press.value } : null;
+  }
+  get blocked(): number {
+    const press = this.press;
+    return press?.dragged && press.value === 0 && Math.abs(press.desired) > .18
+      ? Math.sign(press.desired) : 0;
   }
   finish(): { id: string; delta: number } | null {
     const p = this.press; this.press = null;

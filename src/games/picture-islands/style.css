@@ -46,6 +46,7 @@
 }
 .flat-board button[data-mark="1"] { background: #93649d; border-color: #73597e; }
 .flat-board button[data-mark="-1"] { background: #e5dce3; }
+.flat-board[data-complete="true"] button[data-mark="1"] { background: #765383; }
 
 .picture-tools #show-example {
   min-height: 44px;

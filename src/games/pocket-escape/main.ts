@@ -186,7 +186,10 @@ $('unlock').onclick = () => {
   if (saved.won) return;
   if (saved.inspected.length !== saved.room.clues.length) notice = 'Read every clue before trying the lock.';
   else if (!saved.code.every(Boolean)) notice = 'Enter one digit for each clue.';
-  else if (!unlock(saved.room, saved.inspected, saved.code)) notice = 'The code does not match. Check the clues in number order.';
+  else if (!unlock(saved.room, saved.inspected, saved.code)) {
+    notice = 'The code does not match. Check the clues in number order.';
+    scene?.reject();
+  }
   else {
     saved.won = true;
     if (!saved.random && !saved.completed.includes(saved.room.id)) saved.completed.push(saved.room.id);

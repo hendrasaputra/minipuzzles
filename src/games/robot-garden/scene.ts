@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { MaterialMotion } from '../../shared/material-motion';
 import { MiniScene } from '../../shared/mini-scene';
+import { PixelBurst } from '../../shared/pixel-burst';
 import type { Direction, Level, Position } from './engine';
 
 const vectors: Record<Direction, [number, number]> = {
@@ -13,6 +14,9 @@ export class RobotScene {
   private robot: { mesh: THREE.Mesh; x: number; y: number }[] = [];
   private seeds: THREE.Mesh[] = [];
   private size = 4;
+  private readonly burst = new PixelBurst();
+  private facing = 0;
+  private recovery?: { position: Position; direction?: Direction; elapsed: number; previous: number };
   private trip?: {
     path: Position[];
     elapsed: number;
@@ -20,10 +24,16 @@ export class RobotScene {
     step: number;
     onStep: (position: Position, step: number) => void;
     done: () => void;
+    blocked?: Direction;
+    won: boolean;
+    effectAt: number;
+    turnFrom: number;
+    turnTo: number;
   };
 
   constructor(host: HTMLElement) {
     this.mini = new MiniScene(host, () => {});
+    this.mini.effects.add(this.burst.object);
     this.mini.canvas.setAttribute('aria-label', 'Robot garden board. Gold diamonds are seeds and the blue D tile is the dock. Use the arrow buttons to plan a route.');
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
   }
@@ -39,6 +49,9 @@ export class RobotScene {
   draw(level: Level, position: Position) {
     this.motion.stop();
     this.trip = undefined;
+    this.recovery = undefined;
+    this.burst.clear();
+    this.facing = 0;
     this.mini.clear();
     this.robot = [];
     this.size = level.size;
@@ -81,24 +94,45 @@ export class RobotScene {
     this.mini.render();
   }
 
-  private place(position: Position, next = position, progress = 0) {
+  private place(position: Position, next = position, progress = 0, recoil = 0, blocked?: Direction) {
     const from = this.point(position.cell);
     const to = this.point(next.cell);
+    const [dx, dy] = blocked ? vectors[blocked] : [0, 0];
+    const c = Math.cos(this.facing);
+    const s = Math.sin(this.facing);
     for (const { mesh, x, y } of this.robot) {
-      mesh.position.x = from.x + (to.x - from.x) * progress + x;
-      mesh.position.z = from.y + (to.y - from.y) * progress + y;
+      mesh.position.x = from.x + (to.x - from.x) * progress + x * c + y * s + dx * recoil;
+      mesh.position.z = from.y + (to.y - from.y) * progress - x * s + y * c + dy * recoil;
+      mesh.rotation.y = this.facing;
     }
     this.seeds.forEach((seed, i) => { seed.visible = (position.picked & (1 << i)) === 0; });
   }
 
-  play(path: Position[], onStep: (position: Position, step: number) => void, done: () => void) {
-    this.trip = { path, elapsed: 0, step: -1, onStep, done };
+  play(path: Position[], onStep: (position: Position, step: number) => void, done: () => void,
+    won: boolean, blocked?: Direction) {
+    this.burst.clear();
+    this.recovery = undefined;
+    this.trip = { path, elapsed: 0, step: -1, onStep, done, won, blocked,
+      effectAt: 0, turnFrom: this.facing, turnTo: this.facing };
     this.motion.refresh();
   }
 
   private animate = (seconds: number) => {
     const trip = this.trip;
-    if (!trip) return;
+    if (!trip) {
+      const recovery = this.recovery;
+      if (!recovery) return;
+      recovery.elapsed += Math.min(.1, Math.max(0, seconds - recovery.previous));
+      recovery.previous = seconds;
+      const t = seconds === 0 ? 1 : Math.min(1, recovery.elapsed / .22);
+      this.place(recovery.position, recovery.position, 0, t === 1 ? 0 : Math.sin(t * Math.PI) * .12, recovery.direction);
+      if (seconds === 0 || !this.burst.update(recovery.elapsed)) {
+        this.burst.clear();
+        this.recovery = undefined;
+        this.motion.stop();
+      }
+      return;
+    }
     const last = trip.path.length - 1;
     if (seconds === 0) trip.elapsed = last * .28;
     else if (trip.previous !== undefined) trip.elapsed += Math.min(.1, Math.max(0, seconds - trip.previous));
@@ -106,15 +140,52 @@ export class RobotScene {
     const progress = seconds === 0 ? last : Math.min(last, trip.elapsed / .28);
     const index = Math.floor(progress);
     const position = trip.path[index];
-    this.place(position, trip.path[Math.min(last, index + 1)], progress - index);
+    const next = trip.path[Math.min(last, index + 1)];
     if (trip.step !== index) {
+      const previous = trip.path[Math.max(0, index - 1)];
+      if (seconds !== 0 && previous.picked !== position.picked) {
+        const { x, y } = this.point(position.cell);
+        this.burst.start(x, .08, y, 'leaf', position.cell, 6);
+        trip.effectAt = trip.elapsed;
+      }
+      if (index < last) {
+        const from = this.point(position.cell);
+        const to = this.point(next.cell);
+        const desired = Math.atan2(to.x - from.x, to.y - from.y);
+        const difference = desired - this.facing;
+        trip.turnFrom = this.facing;
+        trip.turnTo = this.facing + Math.atan2(Math.sin(difference), Math.cos(difference));
+      }
       trip.step = index;
       trip.onStep(position, index);
     }
-    if (index === last) {
-      this.trip = undefined;
-      this.motion.stop();
-      trip.done();
+    if (index < last) {
+      const fraction = progress - index;
+      this.facing = THREE.MathUtils.lerp(trip.turnFrom, trip.turnTo, Math.min(1, fraction / .2));
+      const t = Math.max(0, (fraction - .2) / .8);
+      this.place(position, next, t * t * (3 - 2 * t));
+      this.burst.update(trip.elapsed - trip.effectAt);
+      return;
     }
+
+    this.facing = trip.turnTo;
+    if (seconds !== 0 && trip.blocked) {
+      const [dx, dy] = vectors[trip.blocked];
+      this.facing = Math.atan2(dx, dy);
+    }
+    this.place(position);
+    this.trip = undefined;
+    if (seconds !== 0 && (trip.won || trip.blocked)) {
+      const { x, y } = this.point(position.cell);
+      const [dx, dy] = trip.blocked ? vectors[trip.blocked] : [0, 0];
+      this.burst.start(x + dx * .38, .08, y + dy * .38, trip.won ? 'spark' : 'dust', position.cell, 6);
+      this.recovery = { position, direction: trip.blocked, elapsed: 0, previous: seconds };
+    } else if (seconds !== 0 && this.burst.update(trip.elapsed - trip.effectAt)) {
+      this.recovery = { position, elapsed: trip.elapsed - trip.effectAt, previous: seconds };
+    } else {
+      this.burst.clear();
+      this.motion.stop();
+    }
+    trip.done();
   };
 }

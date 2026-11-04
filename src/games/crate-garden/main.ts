@@ -1,7 +1,7 @@
 import './style.css';
 import { createGame, move, undo, solve, type Direction, type Level } from './engine';
 import { levels } from './levels';
-import { CrateScene } from './scene';
+import { CrateScene, type StepCue } from './scene';
 import { readSave, writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
 import { gameGuide } from '../../shared/game-guide';
@@ -41,10 +41,23 @@ try{scene=new CrateScene($('scene'),step);}catch{$('scene').textContent='3D is u
 function cameraArrows(){for(const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[data-dir]')))if(scene)button.textContent=scene.screenDirection(button.dataset.dir as Direction);}
 $('scene').addEventListener('camerachange',cameraArrows);
 function save(){try{localStorage.setItem(KEY,writeSave(index,game,completed,random));}catch{saving=false;}$('storage-warning').hidden=saving;$('save-state').textContent=saving?'Progress saved.':'Save failed.';}
-function step(dir:Direction){if(menu.open)return;if(move(game,dir)){notice='';if(game.status==='won'&&!random&&!completed.includes(game.level.id))completed.push(game.level.id);audio.play(game.status==='won'?'win':'reveal');draw();save();if(game.status==='won')$('next').focus();}else{notice=game.status==='won'?'Level complete.':'Blocked. Try another direction.';draw();}}
-function draw() {
+function step(dir: Direction, message = '') {
+  if (menu.open) return;
+  if (move(game, dir)) {
+    notice = message;
+    if (game.status === 'won' && !random && !completed.includes(game.level.id)) completed.push(game.level.id);
+    audio.play(game.status === 'won' ? 'win' : 'reveal');
+    draw('move');
+    save();
+    if (game.status === 'won') $('next').focus();
+  } else {
+    notice = game.status === 'won' ? 'Level complete.' : 'Blocked. Try another direction.';
+    draw(game.status === 'won' ? undefined : { blocked: dir });
+  }
+}
+function draw(cue?: StepCue) {
   const won = game.status === 'won';
-  scene?.update(game);
+  scene?.update(game, cue);
   $('title').textContent = game.level.title;
   $('level-number').textContent = random ? difficultyName(random.difficulty) : `${index + 1} / ${levels.length}`;
   $('moves').textContent = String(game.moves);
@@ -89,7 +102,7 @@ if (random) $<HTMLSelectElement>('random-difficulty').value = random.difficulty;
 for(const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[data-dir]')))button.onclick=()=>step(button.dataset.dir as Direction);
 $('undo').onclick=()=>{scene?.cancelInput();if(undo(game)){notice='';draw();save();}};
 $('retry').onclick=()=>load(game.level, index, random);
-$('hint').onclick=()=>{scene?.cancelInput();const solution=solve(game);if(solution?.length){step(solution[0]);if(game.status!=='won'){notice='Hint moved the gardener one step.';draw();}}else{notice='No hint available. Try Undo or Restart.';draw();}};
+$('hint').onclick=()=>{scene?.cancelInput();const solution=solve(game);if(solution?.length){step(solution[0], 'Hint moved the gardener one step.');}else{notice='No hint available. Try Undo or Restart.';draw();}};
 $('next').onclick=()=>{
   if (random) newRandom(random.difficulty);
   else if (index < levels.length - 1) load(levels[index + 1], index + 1);

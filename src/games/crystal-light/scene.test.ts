@@ -9,6 +9,7 @@ const {views}=vi.hoisted(()=>({views:[] as Array<{
 }>}));
 vi.mock('./engine',()=>({trace:(game:Game)=>({segments:[{from:{x:0,y:2},to:{x:2,y:2}}],lit:game.mirrors[0].slash?[{x:2,y:0}]:[],loop:false})}));
 vi.mock('../../shared/mini-scene',()=>({MiniScene:class{
+  effects=new THREE.Group();
   rotating=false;handlers=new Map<string,(event:Record<string,unknown>)=>void>();pick=vi.fn(()=>undefined as string|undefined);
   boxes:Array<{owner?:string}>=[];meshes:Array<{owner?:string;yaw:number;geometry:THREE.BufferGeometry;object:THREE.Mesh}>=[];
   canvas={setAttribute(){},addEventListener:(name:string,handler:(event:Record<string,unknown>)=>void)=>this.handlers.set(name,handler),setPointerCapture(){}};

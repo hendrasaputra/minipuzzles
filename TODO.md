@@ -64,7 +64,7 @@ Updated: 4 November 2026. Check items only after the relevant implementation and
 
 ## Later games
 
-The remaining 15 planned entries describe ideas, not commitments or completed games. Marble Workshop is a possible next candidate. Petals Volume mode remains unimplemented.
+The collection now has 21 playable games.
 
 ## Shared 3D rotation
 
@@ -170,3 +170,17 @@ The remaining 15 planned entries describe ideas, not commitments or completed ga
 - [x] Verify the seven new first-level wins, visual examples, rotations, and save restore.
 - [x] Verify the seven new Hard modes at 320 px.
 - [ ] Review the full collection locally.
+- [x] Publish all 21 games and verify every live route.
+
+## Pixel effects rollout
+
+- [x] Export and review the three PixelFX pilots.
+- [x] Compare the pilots against the released build.
+- [x] Add action feedback and physical motion across all 21 games.
+- [x] Run the full suite, build, and browser regression checks.
+- [x] Review touch, rotation, and animation performance on a physical phone.
+- [ ] Prototype tap to play and two-finger orbit in games that use one-finger swipes.
+- [x] Make Bridge Islands labels readable and show the goal on the board.
+- [x] Add animated blue ocean waves and water-height bridge splashes.
+- [x] Add shoreline spray to every Bridge Islands island and a one-shot win celebration.
+- [x] Add Petals Volume with three solver-verified lessons and random puzzles.

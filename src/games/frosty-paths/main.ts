@@ -37,9 +37,9 @@ function cameraArrows(){for(const button of Array.from(document.querySelectorAll
 $('scene').addEventListener('camerachange',cameraArrows);
 function save(){try{localStorage.setItem(KEY,writeSave(game,completed,random));}catch{saving=false;}$('storage-warning').hidden=saving;$('save-state').textContent=saving?'Progress saved.':'Save failed.';}
 function step(dir:Direction){if(menu.open)return;if(move(game,dir)){notice='';if(game.status==='won'&&!random&&!completed.includes(game.level.id))completed.push(game.level.id);audio.play(game.status==='won'?'win':'reveal');draw();save();if(game.status==='won')$('next').focus();}else{notice=game.status==='won'?'Level complete.':'Blocked. Try another direction.';draw();}}
-function draw(){
+function draw(updateScene = true){
   const won=game.status==='won';
-  scene?.update(game);
+  if(updateScene)scene?.update(game);
   $('title').textContent=game.level.title;
   $('level-number').textContent=random?'Random':`${index+1} / ${levels.length}`;
   $('moves').textContent=String(game.moves);
@@ -79,7 +79,7 @@ for(const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[da
 $('undo').onclick=()=>{scene?.cancelInput();if(undo(game)){notice='';draw();save();}};
 $('retry').onclick=()=>restart(createGame(game.level));
 $('new-random').onclick=newRandom;
-$('hint').onclick=()=>{scene?.cancelInput();const solution=solve(game);if(solution?.length){step(solution[0]);if(game.status!=='won'){notice='Hint slid the penguin once.';draw();}}else{notice='No hint available. Try Undo or Restart.';draw();}};
+$('hint').onclick=()=>{scene?.cancelInput();const solution=solve(game);if(solution?.length){step(solution[0]);if(game.status!=='won'){notice='Hint slid the penguin once.';draw(false);}}else{notice='No hint available. Try Undo or Restart.';draw();}};
 $('next').onclick=()=>{if(random)newRandom();else if(index<levels.length-1)load(index+1);else menu.showModal();};
 $('open-menu').onclick=()=>{scene?.cancelInput();menu.showModal();};$('close-menu').onclick=()=>menu.close();menu.addEventListener('close',()=>$('open-menu').focus());
 $('level-select').onchange=e=>load(Number((e.target as HTMLSelectElement).value));

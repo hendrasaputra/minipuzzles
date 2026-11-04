@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { MaterialMotion } from '../../shared/material-motion';
+import { PixelBurst } from '../../shared/pixel-burst';
 import { MiniScene } from '../../shared/mini-scene';
 import { offsets, type Direction, type Game } from './engine';
 
@@ -7,10 +8,15 @@ export class StoneScene {
   private readonly mini: MiniScene;
   private readonly motion: MaterialMotion;
   private press?: { id: number; x: number; y: number; tile: string; last: string; dragging: boolean };
-  private pulse?: { mesh: THREE.Mesh; start?: number };
+  private readonly burst = new PixelBurst();
+  private pulse?: { mesh: THREE.Mesh };
+  private retract?: { mesh: THREE.Mesh; x: number; z: number; dx: number; dz: number };
+  private elapsed = 0;
+  private previous?: number;
 
   constructor(host: HTMLElement, private readonly onStone: (cell: number, dragging: boolean) => void) {
     this.mini = new MiniScene(host, this.cancelInput);
+    this.mini.effects.add(this.burst.object);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const { canvas } = this.mini;
     canvas.setAttribute('aria-label', 'Stepping stones. Follow the stones from Start to Finish. Tap a stone or drag across the path.');
@@ -60,20 +66,27 @@ export class StoneScene {
   };
 
   private animate = (seconds: number) => {
-    const pulse = this.pulse;
-    if (!pulse) return;
-    pulse.start ??= seconds;
-    const progress = seconds === 0 ? 1 : Math.min(1, (seconds - pulse.start) / .25);
-    pulse.mesh.scale.setScalar(.7 + progress * .3);
-    if (progress === 1) {
-      this.pulse = undefined;
-      this.motion.stop();
+    if (seconds === 0) this.elapsed = .6;
+    else if (this.previous !== undefined) this.elapsed += Math.min(.075, Math.max(0, seconds - this.previous));
+    this.previous = seconds;
+    const t = Math.min(1, this.elapsed / .24);
+    if (this.pulse) this.pulse.mesh.position.y = .17 - .038 * Math.sin(t * Math.PI * 2) * (1 - t);
+    if (this.retract) {
+      const { mesh, x, z, dx, dz } = this.retract;
+      mesh.scale.set(dx ? 1 - t : 1, 1, dz ? 1 - t : 1);
+      mesh.position.set(x + dx * (1 - t) / 2, .1075, z + dz * (1 - t) / 2);
+      mesh.visible = t < 1;
     }
+    if (!this.burst.update(this.elapsed) && t === 1) this.motion.stop();
   };
 
-  draw(game: Game, animate = false) {
+  draw(game: Game, animate = false, removed?: number) {
     this.motion.stop();
+    this.burst.clear();
     this.pulse = undefined;
+    this.retract = undefined;
+    this.elapsed = 0;
+    this.previous = undefined;
     this.mini.clear();
     const { size, route } = game.level;
     const head = game.path.at(-1)!;
@@ -87,7 +100,11 @@ export class StoneScene {
       const visited = game.path.includes(cell);
       this.mini.box(x + .08, y + .08, x + .92, y + .92, 0, .14, '#9aa99a', String(cell));
       const color = cell === head ? '#c69851' : visited ? '#819c73' : cell === finish ? '#789ba7' : '#eee4cb';
-      this.mini.box(x + .11, y + .11, x + .89, y + .89, .14, .2, color, String(cell));
+      if (animate && cell === head) {
+        const mesh = this.mini.mesh(new THREE.BoxGeometry(.78, .06, .78),
+          new THREE.MeshLambertMaterial({ color }), x + .5, y + .5, .17, String(cell));
+        this.pulse = { mesh };
+      } else this.mini.box(x + .11, y + .11, x + .89, y + .89, .14, .2, color, String(cell));
       if (cell === start || cell === finish) this.mini.label(cell === start ? 'S' : 'F', x + .5, y + .5, .214);
     }
     for (let i = 1; i < game.path.length; i++) {
@@ -100,14 +117,17 @@ export class StoneScene {
       this.mini.box(Math.min(x, dx) - .055, Math.min(y, dy) - .055,
         Math.max(x, dx) + .055, Math.max(y, dy) + .055, .09, .125, '#b17f4d');
     }
-    if (animate) {
-      const mesh = this.mini.mesh(new THREE.TorusGeometry(.27, .024, 5, 20),
-        new THREE.MeshBasicMaterial({ color: '#f9e9b8' }), head % size + .5, Math.floor(head / size) + .5, .225);
-      mesh.rotation.x = Math.PI / 2;
-      mesh.castShadow = false;
-      this.pulse = { mesh };
+    const x = head % size + .5;
+    const z = Math.floor(head / size) + .5;
+    if (animate) this.burst.start(x, .205, z, 'water', head, 5);
+    if (removed !== undefined) {
+      const dx = removed % size + .5 - x;
+      const dz = Math.floor(removed / size) + .5 - z;
+      const mesh = this.mini.mesh(new THREE.BoxGeometry(Math.abs(dx) || .11, .035, Math.abs(dz) || .11),
+        new THREE.MeshLambertMaterial({ color: '#b17f4d' }), x + dx / 2, z + dz / 2, .1075);
+      this.retract = { mesh, x, z, dx, dz };
     }
     this.mini.render();
-    if (this.pulse) this.motion.refresh();
+    if (this.pulse || this.retract) this.motion.refresh();
   }
 }

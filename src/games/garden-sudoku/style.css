@@ -48,7 +48,12 @@
   font-size: clamp(15px, 4vw, 24px);
 }
 .sudoku-grid button[data-given="true"] { background: #dddcc7; color: #303c28; font-weight: 800; }
-.sudoku-grid button[data-conflict="true"] { background: #ffd0ca; color: #713238; }
+.sudoku-grid button[data-conflict="true"] {
+  background: #ffd0ca;
+  color: #713238;
+  outline: 2px dashed #8f4548;
+  outline-offset: -4px;
+}
 .sudoku-grid button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px #9b6827; }
 .sudoku-grid button:nth-child(4n + 2) { margin-right: 4px; }
 .sudoku-grid button:nth-child(n + 5):nth-child(-n + 8) { margin-bottom: 4px; }

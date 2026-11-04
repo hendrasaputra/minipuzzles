@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { MaterialMotion } from '../../shared/material-motion';
+import { PixelBurst } from '../../shared/pixel-burst';
 import { MiniScene } from '../../shared/mini-scene';
 import type { Game } from './engine';
 
@@ -10,10 +11,12 @@ export class ShadowScene {
   private readonly mini: MiniScene;
   private readonly motion: MaterialMotion;
   private press?: { id: number; x: number; y: number; cell: string };
-  private drop?: { mesh: THREE.Mesh; height: number; start?: number };
+  private drop?: { mesh: THREE.Mesh; height: number; elapsed: number; previous?: number; contact: boolean };
+  private readonly burst = new PixelBurst('landing');
 
   constructor(host: HTMLElement, private readonly onTap: (cell: number) => void) {
     this.mini = new MiniScene(host, this.cancelInput);
+    this.mini.effects.add(this.burst.object);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const canvas = this.mini.canvas;
     canvas.setAttribute('aria-label', '3D stacks. Tap a square to add a block. Choose Rotate to look around.');
@@ -52,18 +55,36 @@ export class ShadowScene {
   private animate = (time: number) => {
     const drop = this.drop;
     if (!drop) return;
-    drop.start ??= time;
-    const progress = time === 0 ? 1 : Math.min(1, (time - drop.start) / .18);
-    drop.mesh.position.y = drop.height + .22 * (1 - progress) ** 2;
-    if (progress === 1) {
-      this.drop = undefined;
-      this.motion.stop();
+    if (drop.previous !== undefined) drop.elapsed += Math.min(.075, Math.max(0, time - drop.previous));
+    drop.previous = time;
+    const fall = .18;
+    const progress = time === 0 ? 1 : Math.min(1, drop.elapsed / fall);
+    drop.mesh.position.y = drop.height + .22 * (1 - progress ** 2);
+    if (progress < 1) return;
+    if (time !== 0) {
+      if (!drop.contact) {
+        drop.contact = true;
+        drop.elapsed = fall;
+        const { x, z } = drop.mesh.position;
+        this.burst.start(x, drop.height - (blockHeight - .025) / 2, z, 'dust', Math.round(drop.height * 100), 6);
+      }
+      const since = drop.elapsed - fall;
+      const compression = .085 * Math.sin(Math.min(1, since / .15) * Math.PI);
+      drop.mesh.scale.y = 1 - compression;
+      drop.mesh.position.y = drop.height - compression * (blockHeight - .025) / 2;
+      if (this.burst.update(since)) return;
     }
+    drop.mesh.scale.y = 1;
+    drop.mesh.position.y = drop.height;
+    this.burst.clear();
+    this.drop = undefined;
+    this.motion.stop();
   };
 
   update(game: Game, selected: number, added?: number, guideCell?: number) {
     this.cancelInput();
     this.motion.stop();
+    this.burst.clear();
     this.drop = undefined;
     this.mini.clear();
     const { size } = game.level;
@@ -87,7 +108,7 @@ export class ShadowScene {
           const center = bottom + (blockHeight - .025) / 2;
           const mesh = this.mini.mesh(new THREE.BoxGeometry(.76, blockHeight - .025, .76),
             new THREE.MeshLambertMaterial({ color }), x + .5, y + .5, center, owner);
-          this.drop = { mesh, height: center };
+          this.drop = { mesh, height: center, elapsed: 0, contact: false };
         } else {
           this.mini.box(x + .12, y + .12, x + .88, y + .88, bottom, bottom + blockHeight - .025, color, owner);
         }

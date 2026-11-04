@@ -1,7 +1,7 @@
 import './style.css';
 import { gameGuide } from '../../shared/game-guide';
 import { randomSeed } from '../../shared/random-puzzle';
-import { createGame, moveCar, undo, canMove, legalMoves, type Car, type Game, type Puzzle } from './engine';
+import { createGame, moveCar, undo, canMove, legalMoves, type Car, type Game, type Move, type Puzzle } from './engine';
 import { generatePuzzle } from './puzzles';
 import { solve } from './solver';
 import { TrafficScene } from './scene';
@@ -56,19 +56,20 @@ function save(){
   $('storage-warning').hidden=storageAvailable;
   $('save-state').textContent=storageAvailable?'Progress saved on this device.':'Saving unavailable. Keep this tab open.';
 }
-function performMove(id:string,delta:number){
+function performMove(id:string,delta:number,message=''){
   if(!moveCar(game,id,delta))return;
-  selected=id;notice='';sounds.play(game.status==='won'?'win':'reveal');draw();save();
+  selected=id;notice=message;sounds.play(game.status==='won'?'win':'reveal');draw({ id, delta });save();
   if(game.status==='won')$('next').focus();
 }
 function direction(sign:number,far=false){
   const car=current();const moves=legalMoves(game).filter(move=>move.id===car.id&&Math.sign(move.delta)===sign);
   const move=far?moves.sort((a,b)=>Math.abs(b.delta)-Math.abs(a.delta))[0]:moves.find(move=>move.delta===sign)??(car.id==='coral'&&sign>0?moves.find(move=>move.delta===exitDelta()):undefined);
   if(move)performMove(move.id,move.delta);
+  else if (game.status !== 'won') scene?.showBlocked(car, sign);
 }
-function draw(){
+function draw(move?: Move){
   const car=current(),won=game.status==='won';
-  scene?.update(game,selected);
+  scene?.update(game,selected,move);
   $('moves').textContent=String(game.history.length);$('par').textContent=game.puzzle.par===undefined?'—':String(game.puzzle.par);
   $('difficulty-label').textContent=game.puzzle.difficulty[0].toUpperCase()+game.puzzle.difficulty.slice(1);
   $('status').textContent=loading?'Loading puzzle…':won?`You won in ${game.history.length} moves.`:notice|| (exitClear()?'Press Drive out to win.':'Select or drag a car.');
@@ -104,7 +105,7 @@ $('undo').onclick=()=>{scene?.cancelInput();if(undo(game)){notice='';sounds.play
 $('hint').onclick=()=>{
   if(loading||game.status==='won')return;
   const solution=solve(game);
-  if(solution?.length){const step=solution[0];performMove(step.id,step.delta);notice=`Hint: moved ${label(current())}.`;draw();}
+  if(solution?.length){const step=solution[0];performMove(step.id,step.delta,`Hint: moved ${label(game.cars.find(car=>car.id===step.id)!)}.`);}
   else{notice='No hint found. Try Undo or Retry.';draw();}
 };
 $('open-menu').onclick=()=>{scene?.cancelInput();menu.showModal();};$('close-menu').onclick=()=>menu.close();

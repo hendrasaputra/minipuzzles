@@ -169,7 +169,7 @@ function startPour() {
     if (won && !random && !completed.includes(game.level.id)) completed.push(game.level.id);
     notice = won ? '' : `Jug ${names[source]} has ${game.current[source]} L. Jug ${names[destination]} has ${game.current[destination]} L.`;
     audio.play(won ? 'win' : 'flag');
-    draw();
+    draw(false);
     save();
     if (won) $('next').focus();
   };

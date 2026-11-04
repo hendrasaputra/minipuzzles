@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { MiniScene } from '../../shared/mini-scene';
 import { MaterialMotion } from '../../shared/material-motion';
 import { trace, type Game } from './engine';
-import { LaserLight } from './laser';
+import { beamArrival, LaserLight } from './laser';
+import { PixelBurst } from '../../shared/pixel-burst';
 
 type Point={x:number;y:number};
 
@@ -11,6 +12,11 @@ export class CrystalScene {
   private mini:MiniScene;
   private game?:Game;
   private laser?:LaserLight;
+  private glint = new PixelBurst();
+  private lit = new Set<string>();
+  private moves = 0;
+  private pulse?: { elapsed: number; last?: number; target?: Point; arrival: number };
+  private mirrorParts: { mesh: THREE.Mesh; yaw: number }[] = [];
   private motion:MaterialMotion;
   private selected:string|null=null;
   private pointers=new Set<number>();
@@ -18,7 +24,8 @@ export class CrystalScene {
   private press:{id:number;client:Point;mirror?:string;dragged:boolean}|null=null;
   constructor(host:HTMLElement,private onSelect:(id:string)=>void,private onRotate:(id:string)=>void){
     this.mini=new MiniScene(host,this.clearInput);
-    this.motion=new MaterialMotion(time=>this.laser?.update(time),()=>this.mini.repaint());
+    this.mini.effects.add(this.glint.object);
+    this.motion=new MaterialMotion(this.animate,()=>this.mini.repaint());
     this.mini.canvas.setAttribute('aria-label','3D crystal puzzle. In Play, tap a brass mirror to turn it. Choose Rotate to look around without turning mirrors.');
     this.mini.canvas.addEventListener('pointerdown',this.down);
     this.mini.canvas.addEventListener('pointermove',this.move);
@@ -27,7 +34,11 @@ export class CrystalScene {
     window.addEventListener('blur',this.cancelInput);
 
   }
-  update(game:Game,selectedId:string|null){this.cancelInput();this.game=game;this.selected=selectedId;this.draw();}
+  update(game:Game,selectedId:string|null){
+    this.cancelInput();
+    const forward = this.game === game && game.moves > this.moves;
+    this.game=game;this.moves=game.moves;this.selected=selectedId;this.draw(forward);
+  }
   private clearInput=()=>{this.press=null;this.pointers.clear();this.multi=false;};
   cancelInput=()=>{this.mini.cancelInput();};
   private mirrorAt(point:Point){const id=this.mini.pick(point.x,point.y);return this.game?.mirrors.some(mirror=>mirror.id===id)?id:undefined;}
@@ -51,9 +62,33 @@ export class CrystalScene {
     if(this.mirrorAt({x:event.clientX,y:event.clientY})!==press.mirror)return;
     this.onSelect(press.mirror);this.onRotate(press.mirror);
   };
-  private draw(){
+  private animate = (seconds: number) => {
+    const pulse = this.pulse;
+    if (pulse && seconds > 0) {
+      if (pulse.last !== undefined) pulse.elapsed += Math.min(.08, Math.max(0, seconds - pulse.last));
+      pulse.last = seconds;
+    }
+    const t = seconds === 0 ? Infinity : pulse?.elapsed ?? Infinity;
+    this.laser?.update(seconds, t);
+    const kick = t < .28 ? Math.sin(t * 34) * Math.exp(-t * 15) * .15 : 0;
+    for (const { mesh, yaw } of this.mirrorParts) mesh.rotation.y = yaw + kick;
+    if (pulse?.target && t >= pulse.arrival && seconds > 0) {
+      const { x, y } = pulse.target;
+      this.glint.start(x + .5, .55, y + .5, 'spark', x + y * 17, 7);
+      pulse.target = undefined;
+    }
+    if (seconds === 0) this.glint.clear();
+    else if (pulse) this.glint.update(t - pulse.arrival);
+    if (t >= 1.1) this.pulse = undefined;
+  };
+
+  private draw(forward: boolean){
     const game=this.game;if(!game)return;
     const {width,height,walls,crystals,source}=game.level,light=trace(game);
+    const target = forward ? light.lit.find(({x,y}) => !this.lit.has(`${x},${y}`)) : undefined;
+    this.lit = new Set(light.lit.map(({x,y}) => `${x},${y}`));
+    this.glint.clear();
+    this.mirrorParts = [];
     this.mini.clear();
     this.mini.box(-.16,-.16,width+.16,height+.16,-.38,-.09,'#b79c78');
     this.mini.box(-.18,-.18,width+.18,-.05,-.09,.12,'#d7bd88');
@@ -65,7 +100,9 @@ export class CrystalScene {
       this.mini.box(x+.07,y+.07,x+.93,y+.93,0,.44,'#afa6bd');
       this.mini.box(x+.11,y+.11,x+.89,y+.89,.43,.54,'#c6bed0');
     }
-    this.laser=new LaserLight(this.mini,light.segments);
+    this.laser=new LaserLight(this.mini,light.segments,forward);
+    this.pulse = forward ? { elapsed: 0, target,
+      arrival: target ? beamArrival(light.segments, target) / this.laser.pulseSpeed : Infinity } : undefined;
     for(const {x,y} of crystals){
       const lit=light.lit.some(cell=>cell.x===x&&cell.y===y);
       this.mini.box(x+.18,y+.18,x+.82,y+.82,0,.09,'#c5b9d1');
@@ -77,8 +114,9 @@ export class CrystalScene {
       const {x,y,id,slash}=mirror,yaw=slash?Math.PI/4:-Math.PI/4;
       this.mini.box(x+.15,y+.15,x+.85,y+.85,.01,.12,this.selected===id?'#d6b568':'#b59a72',id);
       this.mini.box(x+.41,y+.41,x+.59,y+.59,.12,.3,'#b79a62',id);
-      this.mini.mesh(new THREE.BoxGeometry(1.02,.76,.12),new THREE.MeshLambertMaterial({color:'#c6a468'}),x+.5,y+.5,.62,id,yaw);
-      this.mini.mesh(new THREE.BoxGeometry(.84,.58,.14),new THREE.MeshLambertMaterial({color:'#b6cbd2'}),x+.5,y+.5,.62,id,yaw);
+      const frame = this.mini.mesh(new THREE.BoxGeometry(1.02,.76,.12),new THREE.MeshLambertMaterial({color:'#c6a468'}),x+.5,y+.5,.62,id,yaw);
+      const glass = this.mini.mesh(new THREE.BoxGeometry(.84,.58,.14),new THREE.MeshLambertMaterial({color:'#b6cbd2'}),x+.5,y+.5,.62,id,yaw);
+      if (forward && id === game.history.at(-1)) this.mirrorParts.push({mesh:frame,yaw},{mesh:glass,yaw});
       if(this.selected===id){
         for(const dy of [.07,.9])this.mini.box(x+.07,y+dy,x+.93,y+dy+.03,.025,.055,'#c19944',id);
         for(const dx of [.07,.9])this.mini.box(x+dx,y+.07,x+dx+.03,y+.93,.025,.055,'#c19944',id);

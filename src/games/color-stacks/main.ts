@@ -109,8 +109,9 @@ function names(stack: number[]) {
 function stackMap(stacks: number[][], current: boolean) {
   return stacks.map((stack, index) => {
     const name = current ? stackName(index) : palette[stack[0]].mark;
-    const summary = current ? `Stack ${name}. From bottom to top, ${names(stack)}` : names(stack);
-    return `<div class="map-column${current && index === from ? ' source' : ''}" role="img" aria-label="${summary}">
+    const done = current && sorted(stack, data.game.level.capacity);
+    const summary = current ? `Stack ${name}. From bottom to top, ${names(stack)}${done ? '. Sorted.' : ''}` : names(stack);
+    return `<div class="map-column${current && index === from ? ' source' : ''}${done ? ' sorted' : ''}" role="img" aria-label="${summary}">
       ${miniStack(stack)}<small aria-hidden="true">${name}</small>
     </div>`;
   }).join('');

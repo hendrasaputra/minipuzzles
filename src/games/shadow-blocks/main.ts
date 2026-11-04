@@ -102,7 +102,7 @@ function save() {
   $('save-state').textContent = saving ? 'Progress saved on this device.' : 'Saving unavailable.';
 }
 
-function profile(title: string, target: number[], actual: number[], names: string[], active: number) {
+function profile(title: string, target: number[], actual: number[], names: string[], active: number, before?: number[]) {
   const matches = target.every((height, i) => height === actual[i]);
   function diagram(label: string, heights: number[], isGoal: boolean) {
     const bars = heights.map((height, i) => {
@@ -111,7 +111,8 @@ function profile(title: string, target: number[], actual: number[], names: strin
         if (z < height) state = !isGoal && z >= target[i] ? 'extra' : 'filled';
         return `<span class="shadow-tile ${state}"></span>`;
       }).join('');
-      return `<div class="shadow-column${i === active ? ' active' : ''}"><small>${names[i]}</small>${tiles}</div>`;
+      const changed = !isGoal && before && before[i] !== height;
+      return `<div class="shadow-column${i === active ? ' active' : ''}${changed ? ' changed' : ''}"><small>${names[i]}</small>${tiles}</div>`;
     }).join('');
     const summary = names.map((name, i) => `${name}: ${heights[i]}`).join(', ');
     return `<div class="shadow-diagram${isGoal ? ' goal' : ''}" role="img" aria-label="${label}. ${summary}">
@@ -128,7 +129,7 @@ function profile(title: string, target: number[], actual: number[], names: strin
   </div>`;
 }
 
-function draw(added?: number) {
+function draw(added?: number, before?: ReturnType<typeof shadows>) {
   const tutorial = !random && game.level.id === levels[0].id ? hint(game) : undefined;
   scene?.update(game, selected, added, tutorial?.cell);
   const index = levels.findIndex(level => level.id === game.level.id);
@@ -145,8 +146,8 @@ function draw(added?: number) {
       : `Choose stack ${square} and press − to remove one block.`;
   }
   $('status').textContent = game.won ? 'Both shadows match!' : notice || instruction;
-  $('front-shadow').innerHTML = profile('Columns', game.front, current.front, columns.slice(0, size).split(''), selected % size);
-  $('side-shadow').innerHTML = profile('Rows', game.side, current.side, Array.from({ length: size }, (_, i) => String(i + 1)), Math.floor(selected / size));
+  $('front-shadow').innerHTML = profile('Columns', game.front, current.front, columns.slice(0, size).split(''), selected % size, before?.front);
+  $('side-shadow').innerHTML = profile('Rows', game.side, current.side, Array.from({ length: size }, (_, i) => String(i + 1)), Math.floor(selected / size), before?.side);
   stackSelect.innerHTML = game.stacks.map((height, i) =>
     `<option value="${i}">Stack ${columns[i % size]}${Math.floor(i / size) + 1} · ${height}</option>`).join('');
   stackSelect.value = String(selected);
@@ -182,6 +183,7 @@ function newRandom(tier: Difficulty) {
 function change(cell: number, delta: 1 | -1) {
   if (menu.open || game.won) return;
   selected = cell;
+  const before = shadows(game.stacks, game.level.size);
   const changed = edit(game, cell, delta);
   notice = !changed && delta === 1
     ? game.used === game.budget ? 'No blocks left. Remove one to move it.' : 'This stack is full.'
@@ -190,7 +192,7 @@ function change(cell: number, delta: 1 | -1) {
     if (game.won && !random && !completed.includes(game.level.id)) completed.push(game.level.id);
     audio.play(game.won ? 'win' : 'flag');
   }
-  draw(changed && delta === 1 ? cell : undefined);
+  draw(changed && delta === 1 ? cell : undefined, changed ? before : undefined);
   save();
   if (game.won) $('next').focus();
 }

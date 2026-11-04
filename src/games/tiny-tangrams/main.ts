@@ -119,13 +119,13 @@ function save() {
   $('save-state').textContent = saving ? 'Progress saved on this device.' : 'Saving unavailable.';
 }
 
-function draw() {
+function draw(placedPiece?: number) {
   const { game, random } = data;
   const { level, placements } = game;
   const won = complete(game);
   const index = levels.findIndex(candidate => candidate.id === level.id);
   const fits = canPlace(game, selected, draft);
-  scene?.draw(game, selected, draft);
+  scene?.draw(game, selected, draft, placedPiece);
   $('title').textContent = level.title;
   $('level-number').textContent = random ? tiers[random.difficulty] : `${index + 1} / ${levels.length}`;
   $('moves').textContent = `${placements.filter(Boolean).length} / ${placements.length}`;
@@ -191,7 +191,7 @@ function change(move: Move) {
   if (move.placement && missing !== -1) choose(missing);
   notice = '';
   audio.play(won ? 'win' : 'flag');
-  draw();
+  draw(move.placement ? move.piece : undefined);
   save();
   if (won) $('next').focus();
 }

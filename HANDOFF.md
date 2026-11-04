@@ -41,7 +41,7 @@ Browser saves cannot follow a hostname change automatically. Use Petals' **Menu 
 4. Owner-approved icons and Traffic Garden are deployed and verified. Crate Garden and 3D rotation are live at 3e2eef4. Crystal Light is published in 8bfeee8. Water Garden and shared material motion are live in 569cf93. Frosty Paths is live in 5420daf.
 5. Hardware-test Traffic Garden on iOS/Android; extend its verified layout families if more variety is needed.
 
-Volume mode remains future work. Original design history stays in `INITIAL_IDEAS.md`; it is not the current release checklist.
+Original design history stays in `INITIAL_IDEAS.md`.
 
 ## Traffic Garden implementation
 
@@ -155,4 +155,14 @@ Bridge Islands is live as game twelve in 2313c34. Pages run 41797797533 succeede
 
 Flip Garden and Tiny Tangrams are games thirteen and fourteen on the local shelf. Flip Garden compares the goal pattern with your current flowers. Tiny Tangrams previews piece placement and checks exact outline coverage. Both have rotatable 3D views, worked examples, eight levels, seeded difficulty tiers, and replay saves.
 
-The local shelf includes all 21 games. The seven final additions are Color Stacks, Garden Sudoku, Rolling Stone, Stepping Stones, Water Balance, Perspective Paths, and Pocket Escape. Each has eight authored levels, seeded Easy, Medium, and Hard modes, visual help, and validated saves. The local review guide lists their goals and first puzzle steps. The public release remains the twelve-game Bridge Islands release.
+The local shelf includes all 21 games. The seven final additions are Color Stacks, Garden Sudoku, Rolling Stone, Stepping Stones, Water Balance, Perspective Paths, and Pocket Escape. Each has eight authored levels, seeded Easy, Medium, and Hard modes, visual help, and validated saves. The local review guide lists their goals and first puzzle steps. All 21 games are now live in release 3149d6f. Pages run 41819062553 succeeded and all 21 public game boards loaded in the browser.
+
+The approved PLAN effects are implemented locally across all 21 games. PixelBurst reuses a bounded pool and can play the three pinned PixelFX strips. Scene clocks drive visual motion and the pure puzzle engines remain authoritative. See docs/FX_REVIEW.md for pilot comparisons and VALIDATION.md for the browser check scope. The effects build is ready at http://127.0.0.1:4175/.
+
+Bridge Islands now has upright letter and built/needed badges on the islands, a visible goal, and explicit Goal and Current cards. The ocean shader animates a bounded wave surface. Bridge arrival starts a capped water burst at water height. The local preview is on port 4175.
+
+Bridge Islands now has staggered shoreline spray and a PixelFX confetti burst after the winning bridge settles. The production preview confirmed the win, confetti playback, and a quiet reload of the solved board. All 454 tests and the production build passed. Physical phone review is still open.
+
+The Bridge Islands update shipped separately in commit 17f1656 through Pages run 41839736682. The release passed 442 tests and the production build. The public Bridge Islands bundle and confetti asset match the release. The other games' pending effects remain local for review.
+
+Petals Volume adds three solver-verified lessons and three- or four-floor random puzzles. Use Menu → Game mode → Volume to try it. Clues share one count across the current slice and its immediate neighbors. The inspector highlights that footprint as you switch floors. The user tested the effects on a physical phone and identified the Play/Rotate switch as the main touch issue. Prototype two-finger orbit for swipe-based games and direct drag for tap-based games. The release passed 460 tests and the production build. The browser tool timed out before the new Volume UI could be checked visually.

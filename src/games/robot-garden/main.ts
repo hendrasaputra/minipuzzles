@@ -203,7 +203,7 @@ function startRun() {
     position = current;
     $('seed-count').textContent = `${seedCount(saved.level, current)} / ${saved.level.seeds.length}`;
     drawProgram();
-  }, finish);
+  }, finish, result.won, result.blocked ? saved.commands[result.path.length - 1] : undefined);
   else finish();
 }
 

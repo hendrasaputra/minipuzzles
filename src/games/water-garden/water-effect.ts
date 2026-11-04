@@ -3,6 +3,21 @@ import type { MiniScene } from '../../shared/mini-scene';
 import type { Cell,Flow } from './engine';
 
 type Segment=Flow['segments'][number];
+const key = ({ x, y }: Cell) => `${x},${y}`;
+
+/** Flow supplies breadth-first edges, so each new tile inherits its parent's distance. */
+export function waterDistances(segments: readonly Segment[], source: Cell): Map<string, number> {
+  const distances = new Map([[key(source), 0]]);
+  for (const { from, to } of segments) {
+    const distance = distances.get(key(from));
+    if (distance !== undefined && !distances.has(key(to))) distances.set(key(to), distance + 1);
+  }
+  return distances;
+}
+
+export const arrivalTime = (distance: number) => Math.min(.48, distance * .055);
+const waterColor = new THREE.Color('#65c4d1');
+const pulseColor = new THREE.Color('#d7fffb');
 export function waterPoint(segment:Segment,progress:number){
   const t=((progress%1)+1)%1,dx=segment.to.x-segment.from.x,dy=segment.to.y-segment.from.y;
   return{x:segment.from.x+.5+dx*t,y:segment.from.y+.5+dy*t,dx,dy,t};
@@ -11,16 +26,17 @@ export function waterPoint(segment:Segment,progress:number){
 /** Decorative water follows only reciprocal wet connections; it never participates in picking. */
 export class WaterEffect {
   private foam:{mesh:THREE.Mesh;segment:Segment;phase:number}[]=[];
-  private surfaces:THREE.MeshBasicMaterial[]=[];
+  private surfaces:{material:THREE.MeshBasicMaterial;arrival:number}[]=[];
   private rings:THREE.Mesh[]=[];
   private bubbles:THREE.Mesh[]=[];
   constructor(private mini:MiniScene,segments:Segment[],private source:Cell){
     const valid=segments.filter(s=>Math.hypot(s.to.x-s.from.x,s.to.y-s.from.y)>0);
+    const distances = waterDistances(valid, source);
     for(const segment of valid){
       const dx=segment.to.x-segment.from.x,dy=segment.to.y-segment.from.y,length=Math.hypot(dx,dy);
       const material=new THREE.MeshBasicMaterial({color:'#65c4d1',transparent:true,opacity:.82,depthWrite:false});
       this.make(new THREE.BoxGeometry(length,.028,.19),material,(segment.from.x+segment.to.x)/2+.5,(segment.from.y+segment.to.y)/2+.5,.19,-Math.atan2(dy,dx));
-      this.surfaces.push(material);
+      this.surfaces.push({material,arrival:arrivalTime(distances.get(key(segment.to)) ?? 0)});
     }
     const count=Math.min(64,valid.length*4);
     for(let i=0;i<count;i++){
@@ -39,8 +55,12 @@ export class WaterEffect {
   private make(geometry:THREE.BufferGeometry,material:THREE.MeshBasicMaterial,x:number,y:number,z:number,yaw=0){
     const mesh=this.mini.mesh(geometry,material,x,y,z,undefined,yaw);mesh.castShadow=false;mesh.receiveShadow=false;return mesh;
   }
-  update(seconds:number){
-    this.surfaces.forEach((material,i)=>material.opacity=.76+.09*Math.sin(seconds*2.5-i*.6));
+  update(seconds:number,elapsed = Infinity){
+    this.surfaces.forEach(({material,arrival},i)=>{
+      const pulse = Math.max(0, 1 - Math.abs(elapsed - arrival) / .14);
+      material.opacity = Math.min(1, .76 + .09 * Math.sin(seconds * 2.5 - i * .6) + pulse * .18);
+      material.color.copy(waterColor).lerp(pulseColor, pulse * .7);
+    });
     this.foam.forEach(({mesh,segment,phase},i)=>{
       const p=waterPoint(segment,seconds*.75+phase),length=Math.hypot(p.dx,p.dy),offset=Math.sin(seconds*2+i)*.035;
       const startsAtSpring=segment.from.x===this.source.x&&segment.from.y===this.source.y;

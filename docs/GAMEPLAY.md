@@ -17,18 +17,18 @@ Choose a size in **Menu → Board size**:
 | Intermediate | 16×16 | 40 |
 | Expert | 30×16 | 99 |
 
-Beginner, Intermediate and Expert use the familiar Windows Minesweeper dimensions/counts. Connected games can have two or three floors; the menu shows per-floor and total mine counts.
+Beginner, Intermediate and Expert use the familiar Windows Minesweeper dimensions/counts. Connected games can have two or three floors. Volume games can have three or four. The menu shows the mine count per floor and the total.
 
-## One floor or connected floors
+## Puzzle modes
 
 - **Classic:** eight neighbors on the same floor.
 - **Connected floors:** normal numbers remain local; ↑ and ↓ clues count the clipped 3×3 footprint on the immediately adjacent floor, including the aligned tile and excluding their own floor.
 
-All random multi-floor games use connected clues, available without completing lessons first. Tap an arrow clue to highlight its targets, then **View floor** to reach them. Flood reveal and chording use the same neighborhood as the displayed clue. Clear every safe tile on every floor to win; one mine ends the attempt.
+- **Volume:** every number counts the eight surrounding tiles on its own floor plus a 3×3 square on each floor directly above and below. That gives up to 26 neighbors.
 
-**Learn the rules** is an optional seven-level campaign with fixed, solver-validated openings. Its independent Layered floors are an introductory lesson before Connected. Existing learning attempts remain resumable. Old independent-floor random attempts remain playable with a visible legacy label; New random puzzle switches them to Connected without silently replacing an in-progress save.
+Choose Connected floors or Volume from **Menu → Game mode**. Tap a clue to highlight the tiles it counts, then use **View floor** or the floor buttons to inspect them. Flood reveal and chording use the same tiles. Open every safe tile to win.
 
-Volume and its 26-neighbor rule remain a future chapter.
+**Learn the rules** is an optional ten-level campaign with fixed, solver-validated openings. Its independent Layered floors are an introductory lesson before Connected and Volume. Existing learning attempts remain resumable. Old independent-floor random attempts remain playable with a visible legacy label; New random puzzle switches them to Connected without silently replacing an in-progress save.
 
 ## Touch and mouse
 

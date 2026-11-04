@@ -80,3 +80,11 @@
 @media (max-width: 420px) and (max-height: 660px) {
   .scene .mini-camera { top: -40px; }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .shadow-column.changed { animation: shadow-contact .36s ease-out; }
+}
+@keyframes shadow-contact {
+  from { background-color: #f2deaa; }
+  to { background-color: transparent; }
+}

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { MaterialMotion } from '../../shared/material-motion';
+import { PixelBurst } from '../../shared/pixel-burst';
 import { MiniScene } from '../../shared/mini-scene';
 import { currentGap, type Game, type Point, type View } from './engine';
 
@@ -7,12 +8,14 @@ export class PathScene {
   private readonly mini: MiniScene;
   private readonly motion: MaterialMotion;
   private readonly direction = new THREE.Vector3();
-  private growing?: { mesh: THREE.Mesh; start?: number };
+  private readonly burst = new PixelBurst();
+  private growing?: { mesh: THREE.Mesh; elapsed: number; previous?: number; sparked: boolean };
   private game?: Game;
 
   constructor(private readonly host: HTMLElement, onView: () => void) {
     this.mini = new MiniScene(host, () => {});
     this.mini.canvas.setAttribute('aria-label', '3D platforms. Turn and tilt to overlap the gold ring and blue dot.');
+    this.mini.effects.add(this.burst.object);
     this.mini.setMode('rotate');
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     host.addEventListener('camerachange', onView);
@@ -42,6 +45,7 @@ export class PathScene {
     this.game = game;
     this.motion.stop();
     this.growing = undefined;
+    this.burst.clear();
     this.mini.clear();
     const { points } = game.level;
     const minY = Math.min(...points.map(point => point.y));
@@ -55,7 +59,7 @@ export class PathScene {
     }
     for (let i = 0; i < game.history.length; i++) {
       const mesh = this.bridge(points[i], points[i + 1]);
-      if (animateBridge && i === game.history.length - 1) this.growing = { mesh };
+      if (animateBridge && i === game.history.length - 1) this.growing = { mesh, elapsed: 0, sparked: false };
     }
     this.mini.render();
     if (this.growing) this.motion.refresh();
@@ -73,10 +77,19 @@ export class PathScene {
   private animate = (seconds: number) => {
     const growing = this.growing;
     if (!growing) return;
-    growing.start ??= seconds;
-    const progress = seconds === 0 ? 1 : Math.min(1, (seconds - growing.start) / .28);
-    growing.mesh.scale.x = .08 + .92 * (1 - (1 - progress) ** 2);
-    if (progress === 1) {
+    if (seconds === 0) growing.elapsed = 1;
+    else if (growing.previous !== undefined) {
+      growing.elapsed += Math.min(.075, Math.max(0, seconds - growing.previous));
+    }
+    growing.previous = seconds;
+    const t = Math.min(1, growing.elapsed / .3);
+    growing.mesh.scale.x = .08 + .92 * (1 - (1 - t) ** 3) + .07 * Math.sin(t * Math.PI * 2) * (1 - t);
+    if (seconds !== 0 && !growing.sparked && growing.elapsed >= .2) {
+      const { x, y, z } = growing.mesh.position;
+      this.burst.start(x, y + .065, z, 'spark', this.game?.history.length, 5);
+      growing.sparked = true;
+    }
+    if (!this.burst.update(growing.elapsed - .2) && t === 1) {
       this.growing = undefined;
       this.motion.stop();
     }

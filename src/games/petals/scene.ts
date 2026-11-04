@@ -3,6 +3,8 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { clueNeighbors, type Game } from './engine';
 import { BoardGesture, type GestureAction, type TileHit } from '../../shared/gestures';
 import { clampZoom, dragPan, fitCamera } from '../../shared/camera';
+import { MaterialMotion } from '../../shared/material-motion';
+import { PixelBurst } from '../../shared/pixel-burst';
 
 const colors = ['#596fa2', '#558976', '#bc657a', '#8573ae', '#b07845', '#4e919c', '#7c7182', '#514454'];
 interface Batch {
@@ -42,6 +44,17 @@ export class BoardScene {
   private game?: Game;
   private active = -1;
   private hold?: ReturnType<typeof setTimeout>;
+  private burst = new PixelBurst('mine');
+  private ripple = new THREE.LineLoop(
+    new THREE.BufferGeometry().setFromPoints([[-.4, -.4], [.4, -.4], [.4, .4], [-.4, .4]]
+      .map(([x, z]) => new THREE.Vector3(x, 0, z))),
+    new THREE.LineBasicMaterial({ color: '#9e6d83', transparent: true, depthWrite: false }),
+  );
+  private motion: MaterialMotion;
+  private effectTime = 0;
+  private lastEffectTime?: number;
+  private lost = false;
+  private exploded = false;
   private sun = new THREE.DirectionalLight(0xfff6e4, 2.1);
 
   constructor(private host: HTMLElement, private action: (floor:number,index:number,flag:boolean,doubleTap?:boolean)=>void) {
@@ -54,7 +67,14 @@ export class BoardScene {
     this.scene.add(new THREE.HemisphereLight(0xfffaf2, 0xc9b3c8, 1.9));
     this.sun.position.set(-6, 12, 5); this.sun.castShadow = true;
     this.sun.shadow.mapSize.set(2048, 2048); this.sun.shadow.normalBias = .03;
-    this.scene.add(this.sun, this.board);
+    this.ripple.visible = false;
+    this.scene.add(this.sun, this.board, this.burst.object, this.ripple);
+    this.motion = new MaterialMotion(this.animateEffect, () => {
+      const shadows = this.renderer.shadowMap.autoUpdate;
+      this.renderer.shadowMap.autoUpdate = false;
+      this.renderer.render(this.scene, this.camera);
+      this.renderer.shadowMap.autoUpdate = shadows;
+    });
     const ground = new THREE.Mesh(new THREE.PlaneGeometry(200,200), new THREE.ShadowMaterial({opacity:.08}));
     ground.rotation.x = -Math.PI/2; ground.position.y = -.65; ground.receiveShadow = true; this.scene.add(ground);
     this.observer = new ResizeObserver(()=>this.resize()); this.observer.observe(host);
@@ -84,7 +104,11 @@ export class BoardScene {
     if(!this.labelMaterials.has(materialKey)) this.labelMaterials.set(materialKey,new THREE.MeshBasicMaterial({map:this.textures.get(key),transparent:true,depthWrite:false,opacity:this.dimmed ? .35 : 1}));
     return this.labelMaterials.get(materialKey)!;
   }
-  update(game:Game, active:number, exploded:boolean, inspected?:TileHit) {
+  update(game:Game, active:number, exploded:boolean, inspected?:TileHit, revealed?:TileHit) {
+    const hit = game === this.game && game.status === 'lost' && !this.lost ? game.exploded : undefined;
+    if (game !== this.game || active !== this.active || exploded !== this.exploded) this.clearEffect();
+    this.lost = game.status === 'lost';
+    this.exploded = exploded;
     if(game!==this.game){this.pan.set(0,0,0);this.zoom=1;}
     if(game!==this.game||active!==this.active)this.cancel();
     this.game=game;this.active=active;
@@ -146,7 +170,45 @@ export class BoardScene {
     const shadowExtent=Math.max(width,height)+floors*3;
     Object.assign(this.sun.shadow.camera,{left:-shadowExtent,right:shadowExtent,top:shadowExtent,bottom:-shadowExtent});this.sun.shadow.camera.updateProjectionMatrix();
     this.resize();
+    const cue = hit ?? revealed;
+    if (cue && (exploded || cue.floor === active)) {
+      this.clearEffect();
+      const offset = exploded ? (cue.floor - (floors - 1) / 2) * 1.4 : 0;
+      const x = cue.index % width - (width - 1) / 2 + offset;
+      const z = Math.floor(cue.index / width) - (height - 1) / 2 - offset;
+      const y = (exploded ? cue.floor * 2.3 : 0) + .235;
+      if (hit) this.burst.start(x, y, z, 'dust', cue.index, 10);
+      else {
+        this.ripple.position.set(x, y, z);
+        this.ripple.visible = true;
+      }
+      this.motion.refresh();
+    }
   }
+
+  private clearEffect() {
+    this.motion.stop();
+    this.burst.clear();
+    this.ripple.visible = false;
+    this.effectTime = 0;
+    this.lastEffectTime = undefined;
+  }
+
+  private animateEffect = (seconds: number) => {
+    if (seconds === 0) { this.clearEffect(); return; }
+    if (this.lastEffectTime !== undefined) {
+      this.effectTime += Math.min(.075, Math.max(0, seconds - this.lastEffectTime));
+    }
+    this.lastEffectTime = seconds;
+    if (this.ripple.visible) {
+      const progress = this.effectTime / .26;
+      this.ripple.visible = progress < 1;
+      this.ripple.scale.setScalar(.75 + progress * .5);
+      this.ripple.material.opacity = .55 * (1 - Math.min(1, progress));
+    }
+    if (!this.burst.update(this.effectTime) && !this.ripple.visible) this.clearEffect();
+  };
+
   private resize(){
     const w=this.host.clientWidth,h=this.host.clientHeight;if(!w||!h||this.bounds.isEmpty())return;
     this.renderer.setSize(w,h);fitCamera(this.camera,this.bounds,this.center,this.yaw,this.zoom,this.pan,w/h);this.renderer.render(this.scene,this.camera);

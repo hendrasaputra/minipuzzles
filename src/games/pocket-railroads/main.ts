@@ -183,7 +183,7 @@ function send() {
     save();
     $(complete(game) ? 'next' : 'send').focus();
   };
-  if (scene) scene.send(route.points, finish);
+  if (scene) scene.send(route.points, route.station === game.level.trains[game.delivered], finish);
   else finish();
 }
 
