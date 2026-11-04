@@ -43,14 +43,35 @@ Updated: 4 November 2026. Check items only after the relevant implementation and
 
 - [x] Implement independent sliding-car rules, undo, shortest-slide solver and seeded solvable puzzles.
 - [x] Add Easy, Medium and Hard, fresh random seeds, exact retry and solver hints.
-- [x] Build a tactile fixed-camera Canvas garden with drag, large buttons and keyboard controls.
+- [x] Build a tactile fixed-camera Three.js garden with drag, large buttons and keyboard controls.
 - [x] Validate local saves by replaying legal history; use a separate game key and shared mute preference.
 - [x] Add standalone Vite entry and a real playable shelf link.
-- [x] Run 152 tests, production build and browser checks; see VALIDATION.md.
-- [ ] Verify the approved Traffic Garden/icon deployment live.
+- [x] Run the initial 152 tests, production build and browser checks; see VALIDATION.md.
+- [x] Verify the approved Traffic Garden/icon deployment live (d584e90, successful Pages workflow).
 - [ ] Check actual iOS/Android touch gestures and speaker loudness.
 - [ ] Expand the 13 verified layout families if repeated play needs more variety.
 
+## Crate Garden
+
+- [x] Add pure push-only Sokoban rules, undo and bounded shortest-step solver.
+- [x] Create eight stable solver-verified gardens (6×6 and 7×7).
+- [x] Add an original Three.js garden with swipe/tap, large direction buttons and keyboard play.
+- [x] Save move history, current garden and completed gardens under a separate validated key.
+- [x] Add standalone Vite entry and playable shelf link in the local build.
+- [x] Complete all eight gardens in browser, check saved completion/undo, responsive layouts, tests and build.
+- [ ] Publish the reviewed Crate Garden build in a future release.
+- [ ] Test physical iOS/Android input and audio.
+
 ## Later games
 
-The remaining 19 planned entries describe ideas, not commitments or completed games. Crate Garden and Crystal Light are possible next candidates. Petals Volume mode remains unimplemented.
+The remaining 18 planned entries describe ideas, not commitments or completed games. Crystal Light is a possible next candidate. Petals Volume mode remains unimplemented.
+
+## Shared 3D rotation
+
+- [x] Require rotatable 3D boards for all future games.
+- [x] Replace the fixed Traffic/Crate Canvas views with real Three.js geometry.
+- [x] Add shared Play/Rotate modes, orbit/tilt, pinch/wheel zoom, keyboard camera control and reset.
+- [x] Keep puzzle gestures separate and update direction arrows for the current camera.
+- [x] Verify rotated car dragging and gardener swipes, unchanged progress during orbit, Petals compatibility, tests and build.
+- [ ] Release the local Crate Garden / rotation update after review.
+- [ ] Check rotation, pinch and frame cost on physical phones.

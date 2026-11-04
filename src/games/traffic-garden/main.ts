@@ -32,13 +32,15 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <dialog id="menu" class="sheet" aria-labelledby="menu-title"><div class="sheet-heading"><h2 id="menu-title">Your garden</h2><button id="close-menu">Done</button></div><div class="sheet-body">
   <label>Difficulty<select id="difficulty"><option value="easy">Easy · little jams</option><option value="medium">Medium · busy garden</option><option value="hard">Hard · tight squeeze</option></select></label>
   <div class="menu-pair"><button id="restart">Retry same puzzle</button><button id="new">New random puzzle</button></div>
-  <section class="instructions"><h3>Free the coral car</h3><p>Slide cars along their length. Cars cannot turn, overlap, or jump over each other. Clear a path for the coral exit car, then drive it through the gate on the right.</p><p>Tap a car to select it. Drag to slide, or use the car selector and large arrow buttons. Left/right keys move horizontal cars; up/down move vertical cars. Shift + arrow slides to the furthest available position.</p><p>Each slide counts as one move, even across several spaces. Driving out counts too. Par is the shortest solution found by the solver. Undo is unlimited within this puzzle. Hint plays one solution move.</p><p>No timer, penalties or forced guessing. Easy puzzles introduce the rules; harder ones need more planning.</p></section>
+  <section class="instructions"><h3>Free the coral car</h3><p>Slide cars along their length. Cars cannot turn, overlap, or jump over each other. Clear a path for the coral exit car, then drive it through the gate on the right.</p><p>Tap a car to select it. Drag to slide, or use the car selector and large arrow buttons. Left/right keys move horizontal cars; up/down move vertical cars. Shift + arrow slides to the furthest available position. Choose Rotate to drag the camera around and tilt it; pinch or scroll to zoom. Choose Play to slide cars again. The ↺ button resets the camera.</p><p>Each slide counts as one move, even across several spaces. Driving out counts too. Par is the shortest solution found by the solver. Undo is unlimited within this puzzle. Hint plays one solution move.</p><p>No timer, penalties or forced guessing. Easy puzzles introduce the rules; harder ones need more planning.</p></section>
   <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p><p id="seed" class="puzzle-id"></p>
 </div></dialog>`;
 const menu=$<HTMLDialogElement>('menu');
 let scene:TrafficScene|undefined;
 try{scene=new TrafficScene($('scene'),id=>{if(menu.open||loading)return;selected=id;notice='';draw();save();},(id,delta)=>{if(!menu.open&&!loading)performMove(id,delta);});}
 catch{$('scene').textContent='The board could not render. Use the car selector and move buttons below to play.';}
+function cameraArrows(){if(!scene)return;const car=current();$('backward').textContent=scene.screenDirection(car.axis,-1);$('forward').textContent=scene.screenDirection(car.axis,1);}
+$('scene').addEventListener('camerachange',cameraArrows);
 function label(car:Car){return car.id==='coral'?'Coral exit car':`Car ${car.id.replace(/^car-/, '').toUpperCase()}`;}
 function current(){return game.cars.find(car=>car.id===selected)??game.cars[0];}
 function exitDelta(){const car=game.cars.find(car=>car.id==='coral')!;return 6-car.x;}
@@ -68,7 +70,7 @@ function draw(){
   const focused=document.activeElement?.id;
   $('car-select').innerHTML=game.cars.map(c=>`<option value="${c.id}" ${c.id===selected?'selected':''}>${label(c)} · ${c.axis==='h'?'horizontal':'vertical'} · ${c.length} spaces · row ${c.y+1}, column ${c.x+1}</option>`).join('');
   $<HTMLSelectElement>('car-select').disabled=won||loading;
-  $('backward').textContent=car.axis==='h'?'↖':'↗';$('forward').textContent=car.axis==='h'?'↘':'↙';
+  cameraArrows();
   $<HTMLButtonElement>('backward').disabled=loading||!canMove(game,car.id,-1);
   $<HTMLButtonElement>('forward').disabled=loading||!(canMove(game,car.id,1)||(car.id==='coral'&&exitClear()));
   $('backward').setAttribute('aria-label',`Move ${label(car)} backward`);$('forward').setAttribute('aria-label',`Move ${label(car)} forward`);
@@ -108,7 +110,7 @@ $('sound').onclick=()=>{sounds.setEnabled(!sounds.enabled);if(sounds.enabled)sou
 for(const event of ['pointerdown','pointerup','keydown'])document.addEventListener(event,()=>sounds.unlock(),{capture:true});
 document.addEventListener('pointerdown',e=>{if(!(e.target instanceof Element)||!e.target.closest('#scene'))scene?.cancelInput();});
 window.addEventListener('keydown',e=>{
-  if(menu.open||loading||e.target instanceof HTMLSelectElement||e.altKey||e.ctrlKey||e.metaKey)return;
+  if(menu.open||loading||$('scene').dataset.cameraMode==='rotate'||e.target instanceof HTMLSelectElement||e.altKey||e.ctrlKey||e.metaKey)return;
   const car=current();
   if((car.axis==='h'&&['ArrowLeft','ArrowRight'].includes(e.key))||(car.axis==='v'&&['ArrowUp','ArrowDown'].includes(e.key))){e.preventDefault();direction(['ArrowLeft','ArrowUp'].includes(e.key)?-1:1,e.shiftKey);}
 });

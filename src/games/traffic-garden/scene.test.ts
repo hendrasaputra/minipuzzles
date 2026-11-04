@@ -1,103 +1,103 @@
-import { describe, expect, it } from 'vitest';
-import { axisDelta, canvasPoint, inside, nearestSlide, project, SlideGesture, unproject } from './projection';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { nearestSlide, projectedAxisDelta, SlideGesture } from './projection';
 
-describe('isometric parking projection',()=>{
-  it('roundtrips board coordinates including elevated roofs',()=>{
-    for(const [x,y,z] of [[0,0,0],[6,6,0],[2.5,3,.76],[8,2,.5]]){
-      const result=unproject(project(x,y,z),z);expect(result.x).toBeCloseTo(x);expect(result.y).toBeCloseTo(y);
-    }
-  });
-  it('maps pointer positions through contained-canvas letterboxing',()=>{
-    expect(canvasPoint({x:250,y:250},{left:10,top:10,width:480,height:480})).toEqual({x:240,y:200});
-    expect(canvasPoint({x:130,y:110},{left:10,top:10,width:240,height:200})).toEqual({x:240,y:200});
-  });
-  it('picks the projected car polygon rather than its ground-plane shadow',()=>{
-    const roof=[project(2,2,.7),project(4,2,.7),project(4,3,.7),project(2,3,.7)];
-    expect(inside(project(3,2.5,.7),roof)).toBe(true);
-    expect(inside(project(0,5),roof)).toBe(false);
-  });
-  it('projects diagonal drags onto the appropriate car axis',()=>{
-    expect(axisDelta('h',{x:68,y:34})).toBe(2);
-    expect(axisDelta('v',{x:-34,y:17})).toBe(1);
-    expect(axisDelta('h',{x:0,y:0})).toBe(0);
-  });
-});
-
-describe('car slide gesture',()=>{
-  const start={x:200,y:180},client={x:100,y:100};
-  it('selects on a tap without accidentally moving',()=>{
-    const gesture=new SlideGesture();gesture.begin('A','h',start,client,[-1,1,2]);
-    gesture.move({x:205,y:182},{x:104,y:103});expect(gesture.finish()).toBeNull();
-  });
-  it('snaps to a legal move and clamps the preview before a blocker',()=>{
-    const gesture=new SlideGesture();gesture.begin('A','h',start,client,[-1,1,2]);
-    gesture.move({x:370,y:265},{x:210,y:155});
-    expect(gesture.preview).toEqual({id:'A',delta:2});expect(gesture.finish()).toEqual({id:'A',delta:2});
-  });
-  it('can snap the final coral slide to the special exit while never choosing partial-offboard space',()=>{
-    expect(nearestSlide(.9,[0,2])).toBe(0);expect(nearestSlide(1.2,[0,2])).toBe(2);
-    const gesture=new SlideGesture();gesture.begin('coral','h',start,client,[2]);
-    gesture.move({x:251,y:205.5},{x:140,y:120});expect(gesture.finish()).toEqual({id:'coral',delta:2});
-  });
-  it('cancels a pending move and has no effect for a fully blocked car',()=>{
-    const gesture=new SlideGesture();gesture.begin('A','v',start,client,[-1,1]);
-    gesture.move({x:166,y:197},{x:70,y:115});gesture.cancel();expect(gesture.finish()).toBeNull();expect(gesture.preview).toBeNull();
-    gesture.begin('B','h',start,client,[]);gesture.move({x:300,y:230},{x:150,y:140});expect(gesture.finish()).toBeNull();
-  });
-});
-
-import { afterEach, vi } from 'vitest';
+const miniState=vi.hoisted(()=>({instances:[] as any[]}));
+vi.mock('../../shared/mini-scene',()=>({MiniScene:class{
+  rotating=false;
+  owner:string|undefined='A';
+  horizontal={x:34,y:17};vertical={x:-34,y:17};
+  handlers=new Map<string,(event:any)=>void>();
+  labels:string[]=[];
+  boxes:any[]=[];
+  canvas={setAttribute(){},setPointerCapture(){},addEventListener:(name:string,handler:(event:any)=>void)=>this.handlers.set(name,handler)};
+  constructor(_host:HTMLElement,public cameraCancel:()=>void){miniState.instances.push(this);}
+  clear(){this.labels=[];this.boxes=[];}
+  box(...args:any[]){this.boxes.push(args);}
+  label(text:string){this.labels.push(text);}
+  render(){}
+  cancelInput(){this.cameraCancel();}
+  pick(){return this.owner;}
+  project(x:number,y:number){return{x:x*this.horizontal.x+y*this.vertical.x,y:x*this.horizontal.y+y*this.vertical.y};}
+}}));
 import { TrafficScene } from './scene';
-import { createGame } from './engine';
-
+import { createGame, moveCar } from './engine';
 afterEach(()=>vi.unstubAllGlobals());
-function renderedScene() {
-  const handlers=new Map<string,(event:Record<string,unknown>)=>void>();
-  const labels:string[]=[];
-  const context=new Proxy({fillText(text:string){labels.push(text);}}, {get(target,key){return Reflect.get(target,key)??(()=>{});}});
-  const canvas={style:{},setAttribute(){},width:480,height:400,getContext(){return context;},addEventListener(name:string,handler:(event:Record<string,unknown>)=>void){handlers.set(name,handler);},setPointerCapture(){},getBoundingClientRect(){return{left:0,top:0,width:480,height:400};}};
-  vi.stubGlobal('document',{createElement(){return canvas;}});
+
+describe('camera-relative car slide gesture',()=>{
+  it('projects movement along the car axis at every camera orientation and scale',()=>{
+    for(const angle of [0,Math.PI/4,Math.PI/2,Math.PI,Math.PI*1.5])for(const scale of [12,40,100]){
+      const axis={x:Math.cos(angle)*scale,y:Math.sin(angle)*scale};
+      expect(projectedAxisDelta(axis,{x:axis.x*2,y:axis.y*2})).toBeCloseTo(2);
+      expect(projectedAxisDelta(axis,{x:-axis.y,y:axis.x})).toBeCloseTo(0);
+    }
+    expect(projectedAxisDelta({x:0,y:0},{x:20,y:20})).toBe(0);
+  });
+  it('uses CSS-pixel slop before snapping a legal move',()=>{
+    const gesture=new SlideGesture(),start={x:100,y:100};
+    gesture.begin('A',{x:-40,y:20},start,[-1,1,2]);
+    gesture.move({x:96,y:102});expect(gesture.finish()).toBeNull();
+    gesture.begin('A',{x:-40,y:20},start,[-1,1,2]);
+    gesture.move({x:0,y:150});expect(gesture.preview).toEqual({id:'A',delta:2});expect(gesture.finish()).toEqual({id:'A',delta:2});
+  });
+  it('never invents a partial-offboard escape or a move past a blocker',()=>{
+    expect(nearestSlide(.9,[0,2])).toBe(0);expect(nearestSlide(1.2,[0,2])).toBe(2);
+    const gesture=new SlideGesture();gesture.begin('coral',{x:34,y:17},{x:0,y:0},[2]);
+    gesture.move({x:51,y:25.5});expect(gesture.finish()).toEqual({id:'coral',delta:2});
+    gesture.begin('blocked',{x:34,y:17},{x:0,y:0},[]);gesture.move({x:100,y:50});expect(gesture.finish()).toBeNull();
+  });
+  it('cancels without committing a pending preview',()=>{
+    const gesture=new SlideGesture();gesture.begin('A',{x:34,y:17},{x:0,y:0},[1,2]);
+    gesture.move({x:68,y:34});gesture.cancel();expect(gesture.preview).toBeNull();expect(gesture.finish()).toBeNull();
+  });
+});
+
+function renderedScene(reentrant=false){
   vi.stubGlobal('window',{addEventListener(){}});
-  vi.stubGlobal('ResizeObserver',class{observe(){}});
-  const host={append(){}} as unknown as HTMLElement;
   const select=vi.fn(),move=vi.fn();
-  const scene=new TrafficScene(host,select,move);
+  const scene=new TrafficScene({} as HTMLElement,select,move);
+  const mini=miniState.instances[miniState.instances.length-1];
   const game=createGame({seed:'render-fixture',difficulty:'easy',cars:[
     {id:'coral',x:0,y:2,length:2,axis:'h',color:'#d88378'},
     {id:'A',x:0,y:0,length:2,axis:'h',color:'#91b2c4'},
     {id:'B',x:4,y:0,length:3,axis:'v',color:'#a9bb90'},
   ]});
   scene.update(game,'A');
-  const point=project(.88,.5,.78);
-  const event=(pointerId:number,x=point.x,y=point.y)=>({pointerId,clientX:x,clientY:y,button:0,preventDefault(){}});
-  return{scene,game,point,select,move,event,labels,send:(name:string,e:Record<string,unknown>)=>handlers.get(name)!(e)};
+  if(reentrant)select.mockImplementation((id:string)=>scene.update(game,id));
+  const send=(name:string,id=1,x=100,y=100)=>mini.handlers.get(name)({pointerId:id,clientX:x,clientY:y,button:0,preventDefault(){}});
+  return{scene,mini,game,select,move,send};
 }
 
-describe('Canvas scene input integration',()=>{
-  it('keeps cars on the far side visible/pickable above the large tray surface',()=>{
-    const {scene,point}=renderedScene();
-    const pick=scene as unknown as{pick(point:{x:number;y:number}):string|undefined};
-    expect(pick.pick(point)).toBe('A');
-    expect(pick.pick(project(.88,2.5,.78))).toBe('coral');
+describe('rotatable 3D Traffic Garden input',()=>{
+  it('selects the raycast owner without moving on tap',()=>{
+    const {mini,select,move,send}=renderedScene();
+    mini.owner='B';send('pointerdown');send('pointerup');
+    expect(select).toHaveBeenCalledExactlyOnceWith('B');expect(move).not.toHaveBeenCalled();
+    mini.owner=undefined;send('pointerdown',2);send('pointerup',2);expect(select).toHaveBeenCalledTimes(1);
   });
-  it('gives numbered cars distinct roof labels rather than the shared ID prefix',()=>{
-    const {scene,game,labels}=renderedScene();labels.length=0;
-    const numbered=createGame({...game.puzzle,cars:game.puzzle.cars.map((car,i)=>({...car,id:i===0?'coral':`car-${i}`}))});
-    scene.update(numbered,'car-1');
-    expect(labels).toEqual(expect.arrayContaining(['★','1','2']));expect(labels).not.toContain('CA');
+  it('draws every car as boxes and gives numbered cars distinct roof labels',()=>{
+    const {scene,mini,game}=renderedScene();
+    scene.update(createGame({...game.puzzle,cars:game.puzzle.cars.map((car,i)=>({...car,id:i===0?'coral':`car-${i}`}))}),'car-1');
+    expect(mini.labels).toEqual(expect.arrayContaining(['★','1','2']));expect(mini.labels).not.toContain('CA');
+    expect(mini.boxes.filter((box:any[])=>box[7]==='car-1').length).toBeGreaterThan(6);
   });
-  it('selects without moving on tap and commits a clamped drag without mutating game state',()=>{
-    const {scene,point,select,move,event,send,game}=renderedScene();
-    send('pointerdown',event(1));send('pointerup',event(1));
-    expect(select).toHaveBeenCalledWith('A');expect(move).not.toHaveBeenCalled();
-    send('pointerdown',event(2));send('pointermove',event(2,point.x+68,point.y+34));send('pointerup',event(2,point.x+68,point.y+34));
-    expect(move).toHaveBeenCalledWith('A',2);expect(game.history).toEqual([]);
-    scene.cancelInput();
+  it('drags correctly after camera rotation even when selection rerenders the same game',()=>{
+    const {mini,move,send,game}=renderedScene(true);
+    mini.horizontal={x:-30,y:10};
+    send('pointerdown');send('pointermove',1,40,120);send('pointerup',1,40,120);
+    expect(move).toHaveBeenCalledExactlyOnceWith('A',2);expect(game.history).toEqual([]);
   });
-  it('never commits after cancellation or a second pointer, including an unrelated pointer release',()=>{
-    const {scene,point,move,event,send}=renderedScene();
-    send('pointerdown',event(1));send('pointermove',event(1,point.x+68,point.y+34));send('pointerup',event(99));
-    expect(move).not.toHaveBeenCalled();scene.cancelInput();send('pointerup',event(1));expect(move).not.toHaveBeenCalled();
-    send('pointerdown',event(2));send('pointermove',event(2,point.x+68,point.y+34));send('pointerdown',event(3));send('pointerup',event(3));send('pointerup',event(2));expect(move).not.toHaveBeenCalled();
+  it('never selects or moves while the camera is in Rotate mode, including after completion',()=>{
+    const {mini,select,move,send,game,scene}=renderedScene();
+    mini.rotating=true;send('pointerdown');send('pointermove',1,168,134);send('pointerup',1,168,134);
+    expect(select).not.toHaveBeenCalled();expect(move).not.toHaveBeenCalled();
+    game.status='won';scene.update(game,'A');send('pointerdown',2);send('pointerup',2);expect(move).not.toHaveBeenCalled();
+  });
+  it('cancels preview on camera interaction, game replacement, pointer cancellation and multi-touch',()=>{
+    const {mini,scene,game,move,send}=renderedScene();
+    send('pointerdown');send('pointermove',1,168,134);mini.cameraCancel();send('pointerup');expect(move).not.toHaveBeenCalled();
+    send('pointerdown',2);send('pointermove',2,168,134);send('pointercancel',2);send('pointerup',2);expect(move).not.toHaveBeenCalled();
+    send('pointerdown',3);send('pointermove',3,168,134);send('pointerdown',4);send('pointerup',4);send('pointerup',3);expect(move).not.toHaveBeenCalled();
+    send('pointerdown',5);send('pointermove',5,168,134);moveCar(game,'A',1);scene.update(game,'A');send('pointerup',5);expect(move).not.toHaveBeenCalled();
+    send('pointerdown',6);send('pointermove',6,168,134);send('pointerup',99);expect(move).not.toHaveBeenCalled();scene.cancelInput();send('pointerup',6);expect(move).not.toHaveBeenCalled();
   });
 });

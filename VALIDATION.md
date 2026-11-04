@@ -123,3 +123,36 @@ Production-preview browser checks at localhost:4173 verified:
 Traffic Garden and the generated icon batch are local and uncommitted. The live site remains the previous deployment; publication awaits explicit owner approval after the icon commit/push was rejected by automatic approval review.
 
 The owner explicitly authorized publishing Traffic Garden and the icons on 4 November 2026, resolving the earlier approval block. Live deployment verification follows below.
+
+## Published Traffic Garden and icon set
+
+On 4 November 2026 the owner explicitly requested publication. Commit **d584e90** was pushed to main. [Pages run 41743698825](https://github.com/hendrasaputra/minipuzzles/actions/runs/41743698825) completed successfully. Live HTTPS browser checks confirmed two playable shelf entries, all 21 icons loaded at natural width 384, native navigation to `/games/traffic-garden/`, and a Hint changing the displayed move count from 0 to 1. [Live screenshot](docs/traffic-garden-live.jpg). The earlier approval block is resolved.
+
+## Crate Garden local vertical slice
+
+**179 tests across 18 files pass**; the production build emits four HTML pages. The 27 new tests cover pure push/walk legality, no pulling or double pushing, boundaries, undo/win, validated level definitions, every curated solution, solver non-mutation/budget, input projection/swipe/tap/cancel/multiple pointers and bounded save replay. Existing Petals and Traffic Garden tests remain passing. Only the pre-existing Petals/Three.js large-chunk build warning remains. Crate Garden's own entry is about 15.7kB / 6.4kB gzip, with no new dependencies.
+
+Browser checks on the production preview:
+
+- First garden completed using a large east button and ArrowRight in 2 steps/2 pushes. Reload restored the win; Undo restored 1 step/1 push; an isometric east swipe completed it again.
+- Gardens 2–8 completed through visible Hint/Next controls in 8, 9, 12, 16, 20, 25 and 29 steps. The last completion exposes Choose a garden. Menu displays all eight completed check marks; these survive reload.
+- Level selection returns to a fresh chosen garden while retaining completion marks. The independent save key restores the selected garden after direct refresh. Shared mute remains off from the earlier game setting.
+- No page overflow at 320×568, 390×844 or 844×390. Walk controls are at least 52px high; primary actions are 52–56px. The 7×7 board remains contained in portrait and landscape.
+- The local shelf has three real playable links and 18 planned entries. Hub → Crate Garden, back, and direct refresh work. No console warnings/errors on the tested path.
+
+[Crate Garden phone screenshot](docs/crate-garden-preview.jpg). Crate Garden remains local and uncommitted for review; the live release is d584e90 (Petals, Traffic Garden and icons). Physical iOS/Android touch/audio checks were not performed. The first version has eight fixed gardens, bounded solver hints, unlimited undo and no save transfer UI or automatic deadlock detection.
+
+## Shared 3D rotation (local)
+
+On 4 November 2026, Traffic Garden and Crate Garden were migrated from fixed Canvas views to actual Three.js geometry using the shared miniature camera. **183 tests across 19 files pass**, and the production build succeeds without warnings. New camera checks fit the board and roundtrip picking through a full horizontal orbit and the supported tilt range, exercise zoom/cancel/mode isolation, and pick the actual frontmost geometry. Game input tests use arbitrary rotated projected axes and verify cancellation/blocked moves. Earlier Canvas-only tests were replaced with camera-relative input checks. Existing engine/save tests and Petals camera tests remain passing.
+
+Browser evidence:
+
+- Crate Garden orbit/tilt changed the visible side of the garden while preserving 12 steps / 4 pushes. Rotate-mode keyboard control likewise left progress unchanged. Play-mode downward swipe after rotation changed 12 to 13 steps, then Undo restored 12.
+- Traffic Garden orbit preserved 0 moves. After switching to Play, dragging the rotated Car 9 moved it from row 5, column 4 to column 3 and incremented moves once. Undo restored the original position/count. Reset camera restored the default isometric view.
+- Button direction glyphs follow the current projected axes. Rotate, Play and reset controls measure at least 44×44px. Mobile 320×568 and landscape 844×390 fit without page overflow. The full rotated board remains visible at default zoom; zoom intentionally allows cropping.
+- Existing Petals Connected progress (floor 2, Flag, 92/142 cleared, 20 mines left) still loads. A drag rotates its board without changing progress. Hub/game navigation continues working. No console warnings/errors were observed on the tested path.
+
+[Rotated Crate Garden screenshot](docs/crate-garden-rotation.jpg). Camera orientation/mode are transient and do not alter save schemas, seeds or level layouts. The shared Three.js engine increases Traffic/Crate downloads by roughly 122kB gzip versus the former Canvas implementation; it is cached across games and excluded from the hub. No dependency was added.
+
+This update is local and uncommitted; d584e90 remains the live release. Physical iOS/Android pinch behavior, GPU frame cost and unsupported-WebGL fallback were not hardware-tested.

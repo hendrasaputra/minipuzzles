@@ -6,6 +6,8 @@
 - New domain: `puzzles.hensap.id`
 - Hub route: `/`
 - Petals route: `/games/petals/`
+- Traffic Garden route: `/games/traffic-garden/`
+- Crate Garden route: `/games/crate-garden/` (local development build; not yet deployed)
 
 ## DNS and Pages
 
@@ -36,3 +38,5 @@ Files are limited to 1MiB and validate before replacing progress. If you did not
 Pushes to `main` run `npm ci`, tests, TypeScript checking, the Vite multi-page build and Pages deployment. Pull requests run checks without deployment. Node.js 24 and pinned official Actions are used.
 
 `dist/index.html` is the lightweight hub; `dist/games/petals/index.html` is the standalone game. Relative asset URLs support the custom-domain root and project subpaths. Deploy the complete `dist/` tree, not just its top-level HTML.
+
+**4 November 2026 release:** d584e90 deployed successfully via Pages run 41743698825. Live browser checks confirmed all 21 generated icons loaded and Traffic Garden responds to input. Crate Garden is implemented locally for the next release.

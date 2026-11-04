@@ -6,8 +6,8 @@ export function clampZoom(value: number): number {
 
 /** Fit the unpanned scene first; panning must not make auto-fit zoom back out. */
 export function fitCamera(camera: THREE.OrthographicCamera, box: THREE.Box3, center: THREE.Vector3,
-  yaw: number, zoom: number, pan: THREE.Vector3, aspect: number): void {
-  camera.position.copy(center).add(new THREE.Vector3(Math.sin(yaw) * 20, 18, Math.cos(yaw) * 20));
+  yaw: number, zoom: number, pan: THREE.Vector3, aspect: number, tilt = Math.atan2(18, 20)): void {
+  camera.position.copy(center).add(new THREE.Vector3(Math.sin(yaw) * 20, 20 * Math.tan(tilt), Math.cos(yaw) * 20));
   camera.lookAt(center); camera.updateMatrixWorld();
   let extentX = 1, extentY = 1;
   for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {

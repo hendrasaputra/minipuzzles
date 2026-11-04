@@ -14,7 +14,7 @@ npm run build
 npm run preview
 ```
 
-Open `/` for the library `/games/petals/` for Minesweeper, and `/games/traffic-garden/` for the sliding-car puzzle. Serve `dist/` over HTTP(S), rather than opening files directly.
+Open `/` for the library `/games/petals/` for Minesweeper, and `/games/traffic-garden/` for the sliding-car puzzle. Crate Garden lives at `/games/crate-garden/`. Serve `dist/` over HTTP(S), rather than opening files directly.
 
 ## Layout
 
@@ -25,8 +25,9 @@ Open `/` for the library `/games/petals/` for Minesweeper, and `/games/traffic-g
 - `src/games/petals/solver.ts`, `campaign.ts`: visible-information deductions and fixed learning levels.
 - `src/games/petals/presets.ts`, `storage.ts`: board sizes and validated local/file saves.
 - `src/games/petals/scene.ts`: instanced geometry, glyphs, highlights and picking.
-- `games/traffic-garden/index.html`, `src/games/traffic-garden/`: pure sliding-car engine, bounded BFS solver, seeded generator, Canvas renderer, UI and validated history replay saves.
-- `src/shared/`: reusable audio, camera math and pointer gestures. Shared gesture tests also exercise Petals fixtures.
+- `games/traffic-garden/index.html`, `src/games/traffic-garden/`: pure sliding-car engine, bounded BFS solver, seeded generator, Three.js renderer, UI and validated history replay saves.
+- `games/crate-garden/index.html`, `src/games/crate-garden/`: pure Sokoban rules, stable curated levels, bounded BFS hints, Three.js scene, UI and validated replay saves.
+- `src/shared/`: reusable audio, camera math and pointer gestures. Shared gesture tests also exercise Petals fixtures. `mini-scene.ts` provides rotatable miniature geometry/picking and camera controls for the newer games. Every future game must support 3D rotation; keep camera gestures independent of puzzle actions.
 - `vite.config.ts`: explicit HTML inputs for every playable game.
 - `docs/art/`: shared icon direction, exact editable prompts and future review iterations.
 
