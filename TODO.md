@@ -64,7 +64,7 @@ Updated: 4 November 2026. Check items only after the relevant implementation and
 
 ## Later games
 
-The remaining 17 planned entries describe ideas, not commitments or completed games. Water Garden is a possible next candidate. Petals Volume mode remains unimplemented.
+The remaining 16 planned entries describe ideas, not commitments or completed games. Frosty Paths is a possible next candidate. Petals Volume mode remains unimplemented.
 
 ## Shared 3D rotation
 
@@ -85,5 +85,23 @@ The remaining 17 planned entries describe ideas, not commitments or completed ga
 - [x] Add validated local replay saves and completed-light tracking under a separate key.
 - [x] Verify all eight completions, reload/undo, rotation safety, responsive layouts, 222 tests and production build.
 - [x] Animate laser glow, traveling pulses and particles with hidden-tab/reduced-motion handling.
-- [ ] Publish Crystal Light after local review.
+- [x] Publish Crystal Light and laser effects after explicit owner approval (8bfeee8; verified live).
 - [ ] Test touch/pinch and GPU cost on physical phones.
+
+## Water Garden
+
+- [x] Add pure clockwise channel rotation, reciprocal-port flow, terminal flowers and bounded cyclic flow.
+- [x] Create eight stable solvable gardens, including branches and a decoy channel.
+- [x] Add 3D recessed channels, blue water, spring, flower pots and the shared rotation camera.
+- [x] Support channel taps, dropdown/Turn with opening directions, keyboard, hints, undo and retry.
+- [x] Validate local replay saves and preserve completed gardens under a separate key.
+- [x] Complete all eight gardens in-browser; verify reload, rotation safety, responsive layouts, 261 tests and build.
+- [x] Owner authorized publishing Water Garden with water particles and motion; deployment verification follows.
+- [ ] Test physical-phone input and GPU performance.
+
+## Material effects
+
+- [x] Animate connected water with foam/droplets, spring ripples/bubbles and surface shimmer.
+- [x] Share the capped, visibility-aware, reduced-motion MaterialMotion controller with laser effects.
+- [x] Require fitting water/laser/fire/ice effects as those materials appear in future games.
+- [x] Verify 269 tests, production build, route changes and decorative picking safety.

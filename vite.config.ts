@@ -11,6 +11,7 @@ export default defineConfig({
         trafficGarden: fileURLToPath(new URL('./games/traffic-garden/index.html', import.meta.url)),
         crateGarden: fileURLToPath(new URL('./games/crate-garden/index.html', import.meta.url)),
         crystalLight: fileURLToPath(new URL('./games/crystal-light/index.html', import.meta.url)),
+        waterGarden: fileURLToPath(new URL('./games/water-garden/index.html', import.meta.url)),
       },
     },
   },

@@ -12,7 +12,7 @@ The eight stable 5×5 to 7×7 layouts require 1, 2, 2, 3, 3, 4, 5 and 5 turns fr
 
 Local saves use `puzzles-crystal-light-v1` on the browser origin. Reads validate the level, mirror-ID history, selection and completed IDs, then replay legal turns instead of trusting saved positions or win flags. Saves are bounded at 5,000 turns / 1MiB; exceeding that retains the last stored save and displays a warning. No export/import UI is included yet. Shared mute uses the existing preference.
 
-Rules and levels remain independent of Three.js. The miniature scene uses faceted lavender crystals, brass mirrors and decorative golden beams with full rotation and actual 3D picking. No new dependency was added. Crystal Light is currently local and is not part of live release 3e2eef4.
+Rules and levels remain independent of Three.js. The miniature scene uses faceted lavender crystals, brass mirrors and decorative golden beams with full rotation and actual 3D picking. No new dependency was added. Crystal Light and its animated lasers are live in release 8bfeee8.
 
 ## Moving light
 

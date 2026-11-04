@@ -4,9 +4,7 @@ A shelf of small browser puzzle games, with tactile isometric worlds and touch-f
 
 **[Play at puzzles.hensap.id](https://puzzles.hensap.id/)**
 
-Play **Petals** (Minesweeper), **Traffic Garden** (sliding cars), and **Crate Garden** (crate pushing). All have rotatable 3D boards, touch and keyboard controls, sound, and local saves.
-
-**Crystal Light**, a mirror-and-beam puzzle with eight levels, is ready in the local development build.
+Play **Petals** (Minesweeper), **Traffic Garden** (sliding cars), **Crate Garden** (crate pushing), **Crystal Light** (mirrors and animated lasers), and **Water Garden** (flowing channels). All have rotatable 3D boards, touch and keyboard controls, sound, and local saves.
 
 ## Run locally
 
@@ -17,11 +15,11 @@ npm ci
 npm run dev
 ```
 
-The homepage is the game library. Petals lives at `/games/petals/`; Traffic Garden at `/games/traffic-garden/`; Crate Garden at `/games/crate-garden/`; Crystal Light at `/games/crystal-light/`.
+The homepage is the game library. Petals lives at `/games/petals/`; Traffic Garden at `/games/traffic-garden/`; Crate Garden at `/games/crate-garden/`; Crystal Light at `/games/crystal-light/`; Water Garden at `/games/water-garden/`.
 
 ## Project guide
 
-- [Development](docs/DEVELOPMENT.md) · [Petals gameplay](docs/GAMEPLAY.md) · [Traffic Garden](docs/TRAFFIC_GARDEN.md) · [Crate Garden](docs/CRATE_GARDEN.md) · [Crystal Light](docs/CRYSTAL_LIGHT.md)
+- [Development](docs/DEVELOPMENT.md) · [Petals gameplay](docs/GAMEPLAY.md) · [Traffic Garden](docs/TRAFFIC_GARDEN.md) · [Crate Garden](docs/CRATE_GARDEN.md) · [Crystal Light](docs/CRYSTAL_LIGHT.md) · [Water Garden](docs/WATER_GARDEN.md)
 - [Icon prompts and art workflow](docs/art/README.md)
 - [Progress](TODO.md) · [Developer handoff](HANDOFF.md) · [Agent instructions](AGENTS.md)
 - [Deployment and save migration](docs/DEPLOYMENT.md) · [Validation](VALIDATION.md)

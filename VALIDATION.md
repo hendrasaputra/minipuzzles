@@ -180,3 +180,27 @@ Browser checks on the production preview verified:
 222 tests across23 files pass; production build passes. Four new checks cover route interpolation at mirror corners/endpoints, bounded wrapping at blockers, animation without engine mutation, single frame-loop ownership, visibility/page lifecycle and reduced motion. Effects use at most80 meshes, update up to30fps, allocate no frame geometry, and redraw with cached shadow maps.
 
 Browser review confirmed motion between two otherwise unchanged screenshots:1,727 pixels changed above threshold15, all confined to beam-region bounds (479,223)–(817,449) in the1280×720 view. Outer orbit stayed at4 turns/6 of6 crystals, and camera rotation remained functional with no console warnings/errors. No real-device GPU/battery or reduced-motion hardware setting was checked; unit tests cover the motion-preference path. Effects remain local with Crystal Light.
+
+## Published Crystal Light and animated lasers
+
+After explicit owner approval, **8bfeee8** was pushed and [Pages run 41753843808](https://github.com/hendrasaputra/minipuzzles/actions/runs/41753843808) succeeded. Live HTTPS browser checks confirmed the four-game shelf, Crystal Light entry, first mirror turn completing at 1 turn / 1 crystal, animated laser assets and no console warnings/errors. [Live screenshot](docs/crystal-light-live.jpg). The earlier automatic approval rejection is resolved.
+
+## Water Garden local vertical slice
+
+**261 tests across 26 files pass** and the production build emits six HTML pages without warnings. The 39 new tests cover rotations/ports, reciprocal flow, branches and terminal flowers, blocked/dry/cyclic routes, validation, all eight solver solutions, solver bounds/non-mutation, undo/win, gesture isolation, wet/dry geometry and validated save replay. Existing four-game tests remain passing. Water Garden's own entry is about 16.8kB / 6.7kB gzip plus existing shared engine/camera/audio assets; no new dependency was added.
+
+Browser checks on production preview:
+
+- Direct channel tap completes First sip at 1 turn / 1 flower. Reload preserves the win; Undo reopens it; board Enter completes it again.
+- The remaining seven gardens complete via visible Hint/Next controls in 2, 3, 3, 4, 5, 6, 7 turns. Branching gardens water all two/three targets, visibly turn channels blue and brighten blossoms. All eight completion marks survive reload.
+- Picking another garden resets its opening while retaining completed marks. Camera orbit/tilt leaves 0 turns unchanged. Dropdown + Turn rotates the selected channel, with its opening directions exposed in the native options. Shared mute remains restored.
+- 320×568, 390×844 and 844×390 fit without page overflow. Shared camera targets remain 44px; primary controls are 52–56px. Landscape places the board beside controls.
+- Local shelf shows five real play links and 16 planned entries. Hub → Water Garden and direct refresh restore the chosen level/selection/progress. No console warnings/errors on the tested path.
+
+[Water Garden mobile preview](docs/water-garden-preview.jpg). Water Garden remains local and uncommitted; the published release is 8bfeee8 with four games. Physical iOS/Android input/GPU performance was not tested. The first version uses eight fixed gardens, static water surfaces and local saves without export/import.
+
+## Animated water and shared material controller
+
+269 tests across28 files pass; production build passes without warnings. Shared MaterialMotion tests verify one capped30fps loop, hidden/page lifecycle pausing, resumption and live reduced-motion preferences. Water tests verify particles stay within valid wet segments, cap64foam particles plus6bubbles/3rings, ignore raycasting and shadows, retain picking/input safety and rebuild with changed routes. Crystal laser tests remain passing after sharing the controller.
+
+Browser review found348 changed pixels above threshold15 between two no-input frames, confined to the spring/wet-region bounds (479,287)–(737,353) at1280×720. Blooming network stays at7turns/3flowers; undo restores6turns/1flower and Hint returns7/3 without stale water routes or console errors. [Animated water screenshot](docs/water-garden-motion.jpg). Physical-phone GPU/battery performance remains unmeasured. Owner explicitly authorized publication of this Water Garden/material-effects release.

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { MiniScene } from '../../shared/mini-scene';
+import { MaterialMotion } from '../../shared/material-motion';
 import { trace, type Game } from './engine';
 import { LaserLight } from './laser';
 
@@ -10,26 +11,21 @@ export class CrystalScene {
   private mini:MiniScene;
   private game?:Game;
   private laser?:LaserLight;
-  private frame=0;
-  private lastFrame=-Infinity;
-  private motion=window.matchMedia('(prefers-reduced-motion: reduce)');
-  private suspended=false;
+  private motion:MaterialMotion;
   private selected:string|null=null;
   private pointers=new Set<number>();
   private multi=false;
   private press:{id:number;client:Point;mirror?:string;dragged:boolean}|null=null;
   constructor(host:HTMLElement,private onSelect:(id:string)=>void,private onRotate:(id:string)=>void){
     this.mini=new MiniScene(host,this.clearInput);
+    this.motion=new MaterialMotion(time=>this.laser?.update(time),()=>this.mini.repaint());
     this.mini.canvas.setAttribute('aria-label','3D crystal puzzle. In Play, tap a brass mirror to turn it. Choose Rotate to look around without turning mirrors.');
     this.mini.canvas.addEventListener('pointerdown',this.down);
     this.mini.canvas.addEventListener('pointermove',this.move);
     this.mini.canvas.addEventListener('pointerup',this.up);
     this.mini.canvas.addEventListener('pointercancel',this.cancelInput);
     window.addEventListener('blur',this.cancelInput);
-    document.addEventListener('visibilitychange',this.syncAnimation);
-    this.motion.addEventListener('change',this.syncAnimation);
-    window.addEventListener('pagehide',()=>{this.suspended=true;this.syncAnimation();});
-    window.addEventListener('pageshow',()=>{this.suspended=false;this.syncAnimation();});
+
   }
   update(game:Game,selectedId:string|null){this.cancelInput();this.game=game;this.selected=selectedId;this.draw();}
   private clearInput=()=>{this.press=null;this.pointers.clear();this.multi=false;};
@@ -54,18 +50,6 @@ export class CrystalScene {
     if(this.mini.rotating||!press.mirror||press.dragged||Math.hypot(event.clientX-press.client.x,event.clientY-press.client.y)>8)return;
     if(this.mirrorAt({x:event.clientX,y:event.clientY})!==press.mirror)return;
     this.onSelect(press.mirror);this.onRotate(press.mirror);
-  };
-  private syncAnimation=()=>{
-    cancelAnimationFrame(this.frame);this.frame=0;
-    if(!this.game)return;
-    if(this.motion.matches){this.laser?.update(0);this.mini.repaint();}
-    if(!document.hidden&&!this.suspended&&!this.motion.matches)this.frame=requestAnimationFrame(this.animate);
-  };
-  private animate=(time:number)=>{
-    this.frame=0;
-    if(document.hidden||this.suspended||this.motion.matches)return;
-    if(time-this.lastFrame>=1000/30){this.lastFrame=time;this.laser?.update(time/1000);this.mini.repaint();}
-    this.frame=requestAnimationFrame(this.animate);
   };
   private draw(){
     const game=this.game;if(!game)return;
@@ -106,7 +90,6 @@ export class CrystalScene {
     const offsets={n:[0,-.29],e:[.29,0],s:[0,.29],w:[-.29,0]} as const,[dx,dy]=offsets[dir];
     this.mini.box(x+.5+dx-.12,y+.5+dy-.12,x+.5+dx+.12,y+.5+dy+.12,.36,.62,'#f8e4b1');
     this.mini.box(x+.34,y+.34,x+.66,y+.66,.57,.65,'#eee0b6');
-    this.laser.update(this.motion.matches?0:performance.now()/1000);
-    this.mini.render();this.syncAnimation();
+    this.mini.render();this.motion.refresh();
   }
 }
