@@ -125,6 +125,16 @@ Use short descriptions and clear goals. The hub lists playable games first and p
 
 The local build includes eight authored layouts and seeded Easy, Medium, and Hard modes. Track tiles form a single route. Hints compute the shortest number of turns. Roll traces the current connections and stops at the first gap or reaches the cup. Only a successful Roll completes the level.
 
-The scene reuses the 3D camera and animates the marble along the track curves. Small dust and arrival particles use MaterialMotion, which stops after each run. Reduced motion completes the run immediately. Local saves replay track turns and validate wins. The seventh game is available on the local shelf.
+The scene reuses the 3D camera and animates the marble along the track curves. Small dust and arrival particles use MaterialMotion, which stops after each run. Reduced motion completes the run immediately. Local saves replay track turns and validate wins. The seventh game is live at /games/marble-workshop/. Tap the marble or its launch pad to roll. The Roll button uses the same action.
 
-The simpler shelf and help for the six live games shipped in 4edaea3 through Pages run 41781709537. Marble Workshop remains in local preview. Final local verification passed 344 tests and the production build.
+The simpler shelf and help for the six live games shipped in 4edaea3 through Pages run 41781709537. Marble Workshop later shipped as the seventh game in 34b1411. Final local verification passed 344 tests and the production build.
+
+## Shadow Blocks and Picture Islands
+
+The local shelf now opens nine games. Shadow Blocks uses two shadow outlines and an exact block count. Picture Islands uses row and column clues on a 3D board and offers a flat keyboard board. Both have eight authored levels, three random difficulty tiers, hints, undo, saved progress, and visual help. These two games are ready for local review.
+
+Shadow Blocks now guides the first level one tap at a time. Gold highlights show the next square. The row and column shadow labels use the same letters and numbers as the board, and How to play opens directly from the target cards.
+
+Shadow Blocks now shows Goal and Your shadow separately for both axes. See example opens an illustration of one placed block creating one square in each current shadow.
+
+Picture Islands now puts See example beside the board and highlights the first picture's full middle column and row. The highlight works on both boards.

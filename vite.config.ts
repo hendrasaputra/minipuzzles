@@ -14,6 +14,8 @@ export default defineConfig({
         waterGarden: fileURLToPath(new URL('./games/water-garden/index.html', import.meta.url)),
         frostyPaths: fileURLToPath(new URL('./games/frosty-paths/index.html', import.meta.url)),
         marbleWorkshop: fileURLToPath(new URL('./games/marble-workshop/index.html', import.meta.url)),
+        shadowBlocks: fileURLToPath(new URL('./games/shadow-blocks/index.html', import.meta.url)),
+        pictureIslands: fileURLToPath(new URL('./games/picture-islands/index.html', import.meta.url)),
       },
     },
   },

@@ -253,3 +253,11 @@ Browser checks covered a failed roll, a successful first level, camera orbit, an
 Pages run 41781709537 deployed the simpler shelf and animated help from 4edaea3. The live shelf shows six playable games and groups planned games under Coming soon. The live Crystal Light menu opens four animated examples. The local shelf opens Marble Workshop as its seventh game. The final local build passed all 344 tests.
 
 Marble Workshop passed 345 tests and the production build before publication. At 390 × 844, a tap on the marble stopped at a gap before the track was fixed and reached the cup after one turn. The Roll button completed the same path. Camera rotation preserved the win and the page fit the viewport.
+
+Pages run 41782249698 deployed Marble Workshop from 34b1411. The public page shows tap-to-roll instructions and the Roll button. The shelf contains seven playable links and opens the Marble Workshop page.
+
+Shadow Blocks and Picture Islands passed local browser checks. Shadow Blocks completed its first level with three hints and restored the win. Picture Islands supported arrow navigation on the flat board, completed its first picture, and restored the win. Both opened from the nine-game local shelf, generated Hard puzzles, and fit a 320 px viewport without horizontal overflow. All 364 tests and the production build passed. The build retains the shared bundle size warning. Physical phone testing remains open.
+
+At 320 × 568, the updated Shadow Blocks tutorial highlighted A1 and then B2. Three direct taps completed the first level. Both outlines updated with each edit. The camera controls cleared the board, and How to play opened the visual guide without horizontal overflow.
+
+The separate Shadow Blocks diagrams fit a 320 × 568 viewport. One direct tap on A1 added one square to Your shadow in each panel. Both Goal diagrams stayed fixed. See example opened the placed-block illustration.

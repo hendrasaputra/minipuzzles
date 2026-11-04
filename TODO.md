@@ -136,4 +136,13 @@ The remaining 15 planned entries describe ideas, not commitments or completed ga
 - [x] Add turn, roll, hint, undo, retry, and replay saves.
 - [x] Keep 3D camera controls and animate the marble through track curves with particles.
 - [x] Add plain labels and visual help.
-- [ ] Publish Marble Workshop.
+- [x] Publish Marble Workshop as game seven with tap-to-roll and the Roll button.
+
+## Next two games
+
+- [x] Build Shadow Blocks with two shadow targets, a block budget, 3D rotation, and seeded puzzles.
+- [x] Build Picture Islands with unique solutions, 3D rotation, a flat keyboard grid, and seeded puzzles.
+- [x] Verify both local shelf links, first-level wins, save restore, and mobile layouts.
+- [ ] Review Shadow Blocks and Picture Islands.
+- [x] Make Shadow Blocks easier to learn with a guided first level and labeled row and column shadows.
+- [x] Add a worked clue example and guided first picture to Picture Islands.

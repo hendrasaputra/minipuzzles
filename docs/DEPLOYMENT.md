@@ -51,3 +51,5 @@ Pushes to `main` run `npm ci`, tests, TypeScript checking, the Vite multi-page b
 **Animated Water Garden release:** 569cf93 deployed successfully via Pages run 41755490204. Live water effects, first-turn completion and five-game shelf checks pass. The shared MaterialMotion controller and laser refactor are included.
 
 **Frosty Paths release:** 5420daf deployed successfully via Pages run 41758892888. Live checks verified six shelf links, 3D orbit, first-puzzle completion and saved win after refresh, with no console warnings/errors. Rotation, smooth slides, ice glints, snow and reduced-motion handling are retained. All six implemented games are now deployed.
+
+Marble Workshop shipped in commit 34b1411 through Pages run 41782249698. The public shelf opens it as the seventh game. Mobile viewport checks covered tapping the marble, using Roll, and rotating after a win.

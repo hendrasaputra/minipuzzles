@@ -1,0 +1,82 @@
+.shadow-profiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.profile {
+  min-height: 72px;
+  text-align: center;
+  padding: 5px;
+  border: 1px solid #dfd6e6;
+  border-radius: 10px;
+  background: #f6f0f7;
+  font-size: 13px;
+}
+.shadow-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 4px;
+}
+.shadow-diagram {
+  min-width: 0;
+  border-radius: 6px;
+  padding: 3px 0;
+  background: #fff;
+  font-size: 10px;
+}
+.shadow-diagram.goal { background: #e8e0ee; }
+.shadow-bars { display: flex; justify-content: center; gap: 2px; }
+.shadow-column { display: flex; flex-direction: column-reverse; align-items: center; gap: 2px; }
+.shadow-column small { font-size: 10px; color: #60516a; }
+.shadow-tile { width: clamp(8px, 2.8vw, 15px); height: 9px; border-radius: 2px; background: #f1ebf4; }
+.goal .shadow-tile.filled { background: #9782aa; }
+.shadow-tile.filled { background: #78618c; }
+.shadow-tile.extra { background: #ba625e; }
+.stack-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 52px 52px;
+  gap: 6px;
+}
+.stack-controls button {
+  min-height: 52px;
+  border: 1px solid #cbbbd5;
+  border-radius: 12px;
+  background: #e9dfed;
+  font-size: 22px;
+}
+.actions .primary { background: #78618c; border-color: #78618c; }
+.play-area { min-height: 116px; }
+@media (max-height: 500px) and (min-width: 601px) {
+  .game-shell {
+    grid-template-rows: auto auto auto 1fr 52px 56px;
+    grid-template-areas: 'board heading' 'board stats' 'board shadows' 'board status' 'board slide' 'board actions';
+  }
+  .play-area { min-height: 0; }
+  .shadow-targets { grid-area: shadows; }
+  .stack-controls { grid-area: slide; }
+}
+
+.shadow-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.shadow-heading button {
+  min-height: 44px;
+  flex-shrink: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.shadow-column.active small {
+  font-weight: 700;
+  color: #33253d;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+@media (max-width: 420px) and (max-height: 660px) {
+  .scene .mini-camera { top: -40px; }
+}
