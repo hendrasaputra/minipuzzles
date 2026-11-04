@@ -265,3 +265,7 @@ The separate Shadow Blocks diagrams fit a 320 × 568 viewport. One direct tap on
 The 81dd22e release passed 364 tests and the production build. Live browser checks confirmed nine playable links, separate Goal and Your shadow panels in Shadow Blocks, and the illustrated 2 1 clue in Picture Islands.
 
 Pocket Railroads passed the 370-test suite and production build. On a 390 × 844 viewport, a wrong send returned the train, Station B delivery persisted across reload, and Station A completed the level. The local shelf link and visual guide work. The build retains the shared bundle size warning. Physical phone performance remains untested.
+
+The Pocket Railroads release passed CI and deployed in Pages run 41794817158. Live browser checks found ten playable games and opened the train destination cards and visual guide.
+
+Robot Garden passed the 375-test suite and production build. Browser checks at 390 × 844 opened the example, stopped a blocked West command, restored East and North after reload, and completed the seed pickup and dock arrival. Rotating preserved the win. The local shelf opens Robot Garden as game eleven. The build retains the shared bundle size warning. Physical phone performance remains untested.

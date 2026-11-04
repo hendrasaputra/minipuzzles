@@ -142,3 +142,7 @@ Picture Islands now puts See example beside the board and highlights the first p
 Shadow Blocks and Picture Islands are live as games eight and nine in 81dd22e. The next local game is Pocket Railroads.
 
 Pocket Railroads is game ten on the local shelf. Its rules live in src/games/pocket-railroads. Trains follow a fixed branching network with player-controlled switches. The two station cards show the target and current route. Replay saves restore switches and deliveries. Shadow Blocks and Picture Islands are live. Pocket Railroads is ready for local review.
+
+Pocket Railroads is live as game ten in 1901a78. Pages run 41794817158 succeeded. Robot Garden is the next local game.
+
+Robot Garden is game eleven in local preview. Queue board-relative arrows and Run to collect all seeds and finish on the blue dock. The example shows the first level's East then North route. The pure engine checks blocked moves and solves authored and seeded layouts. Saves restore the command list and validated wins.

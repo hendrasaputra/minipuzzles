@@ -55,3 +55,5 @@ Pushes to `main` run `npm ci`, tests, TypeScript checking, the Vite multi-page b
 Marble Workshop shipped in commit 34b1411 through Pages run 41782249698. The public shelf opens it as the seventh game. Mobile viewport checks covered tapping the marble, using Roll, and rotating after a win.
 
 Shadow Blocks and Picture Islands shipped in commit 81dd22e. The public shelf has nine playable games. Both games open from the shelf with their guided first levels and examples.
+
+Pocket Railroads shipped in commit 1901a78 through Pages run 41794817158. The public shelf opens it as the tenth game, and its visual guide loads.

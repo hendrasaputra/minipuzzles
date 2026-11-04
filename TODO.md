@@ -150,3 +150,7 @@ The remaining 15 planned entries describe ideas, not commitments or completed ga
 - [x] Build Pocket Railroads with eight levels, seeded difficulty, 3D trains, and a visual guide.
 - [x] Verify wrong-route recovery, delivery, reload, and the local shelf link.
 - [ ] Review Pocket Railroads.
+- [x] Publish Pocket Railroads and verify its live shelf link and guide.
+- [x] Build Robot Garden with a rotatable board, command queue, and worked example.
+- [x] Verify blocked runs, restored commands, the first dock win, and the local shelf link.
+- [ ] Review Robot Garden.
