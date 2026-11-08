@@ -195,3 +195,4 @@ The collection now has 21 playable games.
 - [x] Restore the earlier board look across the collection and tune action motion and particles.
 - [x] Add two-finger camera rotation and a touch hint across all 21 games.
 - [ ] Check two-finger gestures across the collection on a physical phone.
+- [x] Hide Play and Rotate on touch-first devices while keeping the hint and camera reset.

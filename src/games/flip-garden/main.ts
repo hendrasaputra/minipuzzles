@@ -72,7 +72,7 @@ document.querySelector('#app')!.innerHTML = `
       { before: example(false), after: example(true),
         text: 'Tap B2 to flip it and the tiles above, below, left and right. Flowers turn into empty tiles. Empty tiles grow flowers.' },
       { before: '✿ · ✿', after: '✓', text: 'Win when every flower and empty tile matches the Goal map.' },
-      { before: '↺', after: '▧', text: 'Choose Rotate and drag to look around. Choose Play to flip tiles.' },
+      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
     ])}
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>

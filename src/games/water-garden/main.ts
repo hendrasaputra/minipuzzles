@@ -17,7 +17,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <header class="topbar"><a class="hub-back" href="../../" aria-label="Back to Puzzles">←</a><span class="brand">Water Garden</span><button id="open-menu" class="menu-button" aria-haspopup="dialog">Menu</button></header>
 <main class="game-shell"><div class="puzzle-heading"><h1 id="title"></h1><span id="level-number"></span></div><p id="storage-warning" class="storage-warning" hidden>Progress is not saved. Keep this tab open.</p>
 <div class="stats"><div><strong id="moves">0</strong><span>Turns</span></div><div><strong id="lit">0</strong><span>Flowers watered</span></div></div>
-<section class="play-area" aria-label="Water puzzle"><div id="scene" class="scene" tabindex="0" role="group" aria-label="Tap a channel to turn it. Choose Rotate to look around."></div></section>
+<section class="play-area" aria-label="Water puzzle"><div id="scene" class="scene" tabindex="0" role="group" aria-label="Tap a channel to turn it. Drag with two fingers to rotate the board."></div></section>
 <p id="status" class="status" role="status" aria-live="polite"></p>
 <div class="channel-controls"><label class="car-choice"><span class="sr-only">Choose a channel</span><select id="channel-select" aria-label="Choose a channel"></select></label><button id="turn">Turn ↻</button></div>
 <div class="actions"><button id="undo">Undo</button><button id="hint">Hint</button><button id="retry">Retry</button><button id="next" class="primary" hidden>Next level</button></div></main>
@@ -27,7 +27,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 ${gameGuide([
   { before: '💧 ━ │', after: '💧 ━ ━', text: 'Tap a channel to turn it. Match the openings.' },
   { before: '💧 · 🌱', after: '💧 ━ 🌼', text: 'Connect the spring to every flower. Water stops at gaps.' },
-  { before: 'Rotate', after: '↔ ↻', text: 'Choose Rotate and drag to look around. Pinch or scroll to zoom.' },
+  { before: '● ●', after: '↔ ↻', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag. Pinch or scroll to zoom.' },
   { before: 'Choose', after: 'Turn ↻', text: 'Pick a channel and press Turn. On the board, use Enter or Space.' },
 ])}
 <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;

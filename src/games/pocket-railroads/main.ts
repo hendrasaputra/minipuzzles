@@ -69,7 +69,7 @@ document.querySelector('#app')!.innerHTML = `
       { before: '🚂 B', after: 'B', text: 'Send each train to the station with the same letter.' },
       { before: '⑴ ↗ A', after: '⑴ ↘ B', text: 'Tap a numbered switch or choose it and press Flip switch. The gold line shows the route.' },
       { before: '🚂 B → A', after: '🚂 B → B', text: 'Tap the train or press Send train. A train sent to the wrong station returns to the yard.' },
-      { before: '↺', after: '▧', text: 'Choose Rotate and drag to turn the board.' },
+      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag.' },
     ])}
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>

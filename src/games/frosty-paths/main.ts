@@ -26,7 +26,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
   { before: '🐧 🧊 🪨', after: '🧊 🐧 🪨', text: 'Tap, swipe, or use arrows or WASD. Rocks and edges stop slides.' },
   { before: '🐧 🐟 🧊', after: '🧊 🧊 🐧', text: 'Slide over fish to pick them up.' },
   { before: '🐧 🧊 🟦', after: '🧊 🧊 🐧', text: 'Collect all fish and stop on the blue tile.' },
-  { before: '▦', after: '◈', text: 'Choose Rotate and drag. Pinch or scroll to zoom. Use ↺ to reset.' }
+  { before: '▦', after: '◈', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag. Use ↺ to reset.' }
 ])}<button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;
 const menu=$<HTMLDialogElement>('menu');
 const difficultySelect=$<HTMLSelectElement>('difficulty');

@@ -71,3 +71,5 @@ The full effects rollout and Petals Volume shipped in commit 5df1f17 through Pag
 The Crate Garden two-finger camera prototype shipped in commit 17047f0 through Pages run 41847811339. The live game serves the prototype bundle. Physical phone testing is open.
 
 The restored visuals, game sounds, and faster action feedback shipped in commit 8ba87a7 through Pages run 41859067081. All 21 public game routes and their release bundles were verified.
+
+Two-finger camera rotation and the touch hint shipped across all 21 games in commit 6eecb2c through Pages run 41861523371. All public game routes and their updated bundles were verified.

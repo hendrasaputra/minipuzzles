@@ -77,7 +77,7 @@ document.querySelector('#app')!.innerHTML = `
         after: '<span class="bridge-example"><b>1</b><i></i><b>3</b><i class="double"></i><b>2</b></span>',
         text: 'The middle island has three bridges in total. One goes left and two go right. All three islands are joined.' },
       { before: '↘ ✕', after: '↔ ✓', text: 'Bridges go straight to the nearest island in the same row or column. They cannot cross.' },
-      { before: '↺', after: '▧', text: 'Choose Rotate and drag to look around. Choose Play to add bridges.' },
+      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
     ])}
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>

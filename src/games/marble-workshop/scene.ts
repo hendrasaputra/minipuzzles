@@ -22,7 +22,7 @@ export class MarbleScene {
     this.mini = new MiniScene(host, this.clearPress);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const { canvas } = this.mini;
-    canvas.setAttribute('aria-label', '3D marble workshop. Tap a track to turn it or tap the marble to roll. Choose Rotate to look around.');
+    canvas.setAttribute('aria-label', '3D marble workshop. Tap a track to turn it or tap the marble to roll. Drag with two fingers to rotate the board.');
     canvas.addEventListener('pointerdown', this.down);
     canvas.addEventListener('pointermove', this.move);
     canvas.addEventListener('pointerup', this.up);

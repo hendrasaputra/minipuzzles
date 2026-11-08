@@ -19,7 +19,7 @@ export class ShadowScene {
     this.mini.effects.add(this.burst.object);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const canvas = this.mini.canvas;
-    canvas.setAttribute('aria-label', '3D stacks. Tap a square to add a block. Choose Rotate to look around.');
+    canvas.setAttribute('aria-label', '3D stacks. Tap a square to add a block. Drag with two fingers to rotate the board.');
     canvas.addEventListener('pointerdown', this.down);
     canvas.addEventListener('pointermove', this.move);
     canvas.addEventListener('pointerup', this.up);

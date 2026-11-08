@@ -69,7 +69,7 @@ document.querySelector('#app')!.innerHTML = `
         text: 'Start on S. Tap or drag to the next stone. Visit every stone before stepping onto F.' },
       { before: '● ↗ □', after: '● → □', text: 'Move along edges. Diagonal steps and jumps across water don’t count.' },
       { before: 'S — ● — ●', after: 'S — ●', text: 'Tap the previous stone or press Undo to go back one step.' },
-      { before: '↺', after: '▧', text: 'Choose Rotate and drag to look around. Choose Play to build your path.' },
+      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
     ], true)}
   </div>
 </dialog>`;

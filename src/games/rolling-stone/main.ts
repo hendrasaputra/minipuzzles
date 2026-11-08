@@ -67,7 +67,7 @@ document.querySelector('#app')!.innerHTML = `
       { before: '▮', after: '▬', text: 'Tap a landing tile or a direction button to roll. A standing block falls onto two tiles.' },
       { before: '▬', after: '▮ ★', text: 'Roll along the long side to stand up. Stand on the gold star to win.' },
       { before: '▬', after: '□ □', text: 'Both halves need a tile. A roll that would leave the board is blocked.' },
-      { before: '↺', after: '▧', text: 'Choose Rotate and drag to look around. Choose Play to roll again.' },
+      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
     ], true)}
     <p>Arrow keys move north, east, south, and west on the board.</p>
   </div>

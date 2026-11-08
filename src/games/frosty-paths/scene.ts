@@ -35,7 +35,7 @@ export class FrostScene {
     this.mini=new MiniScene(host,this.clearInput);
     this.mini.effects.add(this.burst.object);
     this.motion=new MaterialMotion(this.animate,()=>this.mini.repaint());
-    this.mini.canvas.setAttribute('aria-label','3D ice puzzle. In Play, swipe along the ice or tap beside the penguin to slide. Choose Rotate to look around.');
+    this.mini.canvas.setAttribute('aria-label','3D ice puzzle. Swipe along the ice or tap beside the penguin to slide. Drag with two fingers to rotate the board.');
     this.mini.canvas.addEventListener('pointerdown',this.down);this.mini.canvas.addEventListener('pointerup',this.up);this.mini.canvas.addEventListener('pointercancel',this.cancelInput);
     window.addEventListener('blur',this.cancelInput);
   }

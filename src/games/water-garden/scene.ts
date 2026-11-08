@@ -24,7 +24,7 @@ export class WaterScene {
   constructor(host:HTMLElement,private onSelect:(id:string)=>void,private onRotate:(id:string)=>void){
     this.mini=new MiniScene(host,this.clearInput);
     this.motion=new MaterialMotion(this.animate,()=>this.mini.repaint());
-    this.mini.canvas.setAttribute('aria-label','3D water garden. In Play, tap a channel tile to turn it. Choose Rotate to look around without turning tiles.');
+    this.mini.canvas.setAttribute('aria-label','3D water garden. Tap a channel tile to turn it. Drag with two fingers to rotate the board.');
     this.mini.canvas.addEventListener('pointerdown',this.down);
     this.mini.canvas.addEventListener('pointermove',this.move);
     this.mini.canvas.addEventListener('pointerup',this.up);

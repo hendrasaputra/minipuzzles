@@ -80,7 +80,7 @@ document.querySelector('#app')!.innerHTML = `
         after: '<span class="example-board"><i></i><i class="example-dock">🤖</i><i></i><i></i></span>',
         text: 'In this map, queue East to collect the seed, then North to reach D. Press Run.' },
       { before: '🤖 → ▧', after: '↶', text: 'A rock or an edge stops the robot. Edit your steps and run again from the start.' },
-      { before: '↺', after: '▧', text: 'Choose Rotate and drag to look around. The arrows turn with the board. The N, E, S and W labels stay on their edges.' },
+      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag. The arrows turn with the board. The N, E, S and W labels stay on their edges.' },
     ], true)}
   </div>
 </dialog>`;

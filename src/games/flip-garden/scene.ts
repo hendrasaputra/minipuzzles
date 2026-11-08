@@ -34,7 +34,7 @@ export class FlipScene {
     this.mini.effects.add(this.burst.object);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const { canvas } = this.mini;
-    canvas.setAttribute('aria-label', 'Your garden. Columns A through E and numbered rows match the goal map. Tap a tile to flip its cross. Choose Rotate to look around.');
+    canvas.setAttribute('aria-label', 'Your garden. Columns A through E and numbered rows match the goal map. Tap a tile to flip its cross. Drag with two fingers to rotate the board.');
     canvas.addEventListener('pointerdown', event => {
       if (this.mini.rotating || event.button !== 0) return;
       const tile = this.mini.pick(event.clientX, event.clientY);

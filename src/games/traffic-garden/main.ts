@@ -36,7 +36,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
   ${gameGuide([
     { before: '🚙 ▫', after: '▫ 🚙', text: 'Drag a car along its length, or select it and use the arrow buttons.' },
     { before: '🚗', after: '🏁', text: 'Clear a path for the red car, then press Drive out.' },
-    { before: '▦', after: '↻', text: 'Choose Rotate and drag to look around. Pinch or scroll to zoom.' },
+    { before: '▦', after: '↻', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag. Pinch or scroll to zoom.' },
     { before: '← →', after: '⇥', text: 'Arrow keys move the selected car. Hold Shift with an arrow key to slide it as far as it can go.' },
   ])}
   <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p><p id="seed" class="puzzle-id"></p>

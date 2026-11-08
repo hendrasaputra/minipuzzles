@@ -74,7 +74,7 @@ document.querySelector('#app')!.innerHTML = `
         text: 'Tap the mixed stack, then the empty space. Only the top blue block moves.' },
       { before: miniStack([0, 1]) + miniStack([1]), after: miniStack([0]) + miniStack([1, 1]),
         text: 'You can also move blue onto blue if there is space.' },
-      { before: '↺', after: '▧', text: 'Choose Rotate and drag to look around. Choose Play to move blocks.' },
+      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
     ])}
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>

@@ -76,7 +76,7 @@ document.querySelector('#app')!.innerHTML = `
       { before: '▣', after: '□', text: 'Choose a stack and press − to remove a block.' },
       { before: '▂ ▄', after: '▄', text: 'A row with stacks of 1 and 2 has a shadow 2 blocks high. Columns work the same way.' },
       { before: '▥ ▥', after: '✓ ✓', text: 'Make Your shadow look like Goal in both panels. Use every block.' },
-      { before: '↺', after: '▧', text: 'Choose Rotate and drag to turn the board.' },
+      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag.' },
     ])}
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>

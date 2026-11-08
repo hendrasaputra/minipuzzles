@@ -43,7 +43,7 @@ export class TrafficScene {
     });
     this.mini.effects.add(this.burst.object);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
-    this.mini.canvas.setAttribute('aria-label', '3D parking garden. In Play, drag a car along its length. In Rotate, drag to look around.');
+    this.mini.canvas.setAttribute('aria-label', '3D parking garden. Drag a car along its length. Drag with two fingers to rotate the board.');
     this.mini.canvas.addEventListener('pointerdown', this.down);
     this.mini.canvas.addEventListener('pointermove', this.move);
     this.mini.canvas.addEventListener('pointerup', this.up);

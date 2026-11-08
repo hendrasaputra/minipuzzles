@@ -81,7 +81,7 @@ document.querySelector('#app')!.innerHTML = `
       { before: '◤ + ◣', after: '◤', text: 'Choose a piece. Its preview shows where it will go.' },
       { before: '◣', after: '◢', text: 'Press Turn to rotate the piece a quarter turn.' },
       { before: '◤ + ◢', after: '■', text: 'Tap the board to place it, or choose a column and row and press Place. Two triangles can fill a square.' },
-      { before: '↺', after: '▧', text: 'Choose Rotate and drag to look around. Choose Play to place pieces again.' },
+      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
     ], true)}
   </div>
 </dialog>`;

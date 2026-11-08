@@ -1,1 +1,5 @@
 .mini-camera{position:absolute;top:4px;right:4px;display:flex;gap:3px;padding:3px;background:#faf8f3eb;border:1px solid #e6dfd3;border-radius:14px;z-index:1}.mini-camera button{font:inherit;font-size:13px;min-height:44px;min-width:44px;padding:0 10px;border:0;border-radius:10px;background:transparent;color:#5d5346;touch-action:manipulation;user-select:none;-webkit-user-select:none}.mini-camera button[aria-pressed=true]{background:#e6dfd0;color:#433b32;font-weight:600}.mini-camera button:focus-visible{outline:3px solid #8c6d43;outline-offset:1px}.scene[data-camera-mode=rotate]{outline:1px dashed #bdb29e;outline-offset:-2px}
+
+@media (pointer: coarse) and (hover: none) {
+  .mini-camera button[aria-pressed] { display: none; }
+}

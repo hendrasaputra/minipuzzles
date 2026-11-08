@@ -77,7 +77,7 @@ document.querySelector('#app')!.innerHTML = `
         text: 'Tap A, then B. A holds 6 L and B can hold 4 L, so the pour fills B and leaves 2 L in A.' },
       { before: 'C 2 L · A 0 L', after: 'C 0 L · A 2 L',
         text: 'C empties before A is full. A pour stops when the first jug is empty or the second jug is full.' },
-      { before: '↺', after: '▧', text: 'Choose Rotate and drag to look around. Choose Play to tap the jugs again.' },
+      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
     ], true)}
   </div>
 </dialog>`;

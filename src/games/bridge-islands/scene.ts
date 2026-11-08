@@ -44,7 +44,7 @@ export class BridgeScene {
     host.addEventListener('camerachange', this.positionMarkers);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     this.mini.canvas.setAttribute('aria-label',
-      '3D islands with bridge targets. Tap one island, then a neighbor. Use Rotate to look around.');
+      '3D islands with bridge targets. Tap one island, then a neighbor. Drag with two fingers to rotate the board.');
     this.mini.canvas.addEventListener('pointerdown', this.down);
     this.mini.canvas.addEventListener('pointerup', this.up);
     this.mini.canvas.addEventListener('pointercancel', this.cancelInput);

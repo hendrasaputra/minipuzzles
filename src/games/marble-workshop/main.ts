@@ -65,7 +65,7 @@ document.querySelector('#app')!.innerHTML = `
       { before: '│', after: '─', text: 'Tap a track to turn it. Line up the grooves.' },
       { before: '🔴 ─', after: '◎ 🔴', text: 'Tap the marble or press Roll. Aim for the cup.' },
       { before: '🔴 ╵', after: '↻ ─', text: 'If the marble stops, turn a track and try again.' },
-      { before: '↺', after: '▧', text: 'Choose Rotate and drag to turn the board.' },
+      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag.' },
     ])}
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>
