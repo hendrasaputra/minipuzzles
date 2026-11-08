@@ -67,10 +67,11 @@ document.querySelector('#app')!.innerHTML = `
     <p id="progress" class="muted"></p>
     ${gameGuide([
       { before: '🚂 B', after: 'B', text: 'Send each train to the station with the same letter.' },
-      { before: '⑴ ↗ A', after: '⑴ ↘ B', text: 'Tap a numbered switch or choose it and press Flip switch. The gold line shows the route.' },
+      { before: '⑴ ↗ A', after: '⑴ ↘ B', text: 'Tap a numbered switch or press Flip switch. The signal arrow points to the chosen branch. The gold line shows the full route.' },
       { before: '🚂 B → A', after: '🚂 B → B', text: 'Tap the train or press Send train. A train sent to the wrong station returns to the yard.' },
       { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag.' },
     ])}
+    <p class="muted">Ground Disc Signal by <a href="https://polyfork.dev/asset/ground-disc-signal-3d52e9">Polyfork</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Recolored and fitted with a branch arrow.</p>
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>
   </div>

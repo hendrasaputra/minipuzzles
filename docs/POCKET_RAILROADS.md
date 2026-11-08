@@ -11,3 +11,5 @@ A train sent to the wrong station returns to the yard. Trains that reached their
 Open Menu to choose from eight levels or start a seeded Easy, Medium, or Hard puzzle. Hard puzzles have more junctions and trains. Retry keeps the same layout and train order. Reload restores your progress.
 
 Use Rotate to look around the 3D board. The train travels along the rails with small steam effects. Reduced motion shows the result immediately.
+
+The switch signal prototype uses [Ground Disc Signal by Polyfork](https://polyfork.dev/asset/ground-disc-signal-3d52e9) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The game rescales and recolors the original GLB, turns its disc, and adds a gold arrow for the chosen branch.

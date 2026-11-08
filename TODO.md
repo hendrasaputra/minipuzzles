@@ -196,3 +196,5 @@ The collection now has 21 playable games.
 - [x] Add two-finger camera rotation and a touch hint across all 21 games.
 - [ ] Check two-finger gestures across the collection on a physical phone.
 - [x] Hide Play and Rotate on touch-first devices while keeping the hint and camera reset.
+- [x] Prototype the Polyfork Ground Disc Signal in Pocket Railroads.
+- [ ] Review the signal on a physical phone before expanding the asset trial.

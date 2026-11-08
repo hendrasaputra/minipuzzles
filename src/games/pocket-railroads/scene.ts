@@ -3,6 +3,7 @@ import { MiniScene } from '../../shared/mini-scene';
 import { MaterialMotion } from '../../shared/material-motion';
 import { PixelBurst } from '../../shared/pixel-burst';
 import { complete, trace, type Game, type Node, type Point } from './engine';
+import { loadSwitchSignal, switchSignal } from './switch-signal';
 
 export const stations = [
   { name: 'A', color: '#aa4b48' },
@@ -33,6 +34,9 @@ export class RailScene {
   private train: { mesh: THREE.Mesh; x: number; z: number }[] = [];
   private steam: THREE.Mesh[] = [];
   private readonly burst = new PixelBurst();
+  private readonly signals = new THREE.Group();
+  private signalTemplate?: THREE.Group;
+  private game?: Game;
   private contactTime = 0;
   private contactPrevious?: number;
   private press?: { target: string; pointer: number; x: number; y: number };
@@ -47,7 +51,12 @@ export class RailScene {
 
   constructor(host: HTMLElement, activate: (owner: string) => void) {
     this.mini = new MiniScene(host, this.cancelInput);
-    this.mini.effects.add(this.burst.object);
+    this.mini.effects.add(this.burst.object, this.signals);
+    void loadSwitchSignal().then(template => {
+      this.signalTemplate = template;
+      this.drawSignals();
+      this.mini.repaint();
+    }).catch(() => { /* The numbered switches and gold route still show the way. */ });
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const { canvas } = this.mini;
     canvas.setAttribute('aria-label', '3D railway. Tap a numbered switch to change the route or tap the train to send it.');
@@ -92,6 +101,7 @@ export class RailScene {
   }
 
   draw(game: Game, selected: number) {
+    this.game = game;
     this.cancelInput();
     this.motion.stop();
     this.ride = undefined;
@@ -137,6 +147,7 @@ export class RailScene {
       }
     };
     signs(game.level.root);
+    this.drawSignals();
     const station = stations[game.level.trains[Math.min(game.delivered, game.level.trains.length - 1)]];
     const part = (geometry: THREE.BufferGeometry, color: string, x: number, y: number, z: number) => {
       const mesh = this.mini.mesh(geometry, new THREE.MeshLambertMaterial({ color }), game.level.yard.x, game.level.yard.y, y, 'send');
@@ -163,6 +174,18 @@ export class RailScene {
     const resting = complete(game) ? route.points[route.points.length - 1] : game.level.yard;
     this.place(new THREE.Vector3(resting.x, 0, resting.y), new THREE.Vector3(1, 0, 0));
     this.mini.render();
+  }
+
+  private drawSignals() {
+    this.signals.clear();
+    const { game, signalTemplate } = this;
+    if (!game || !signalTemplate) return;
+    const place = (node: Node) => {
+      if ('station' in node) return;
+      this.signals.add(switchSignal(signalTemplate, node, game.switches[node.junction]));
+      node.branches.forEach(place);
+    };
+    place(game.level.root);
   }
 
   private place(point: THREE.Vector3, direction: THREE.Vector3) {
