@@ -34,7 +34,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
   { before: '🧑 📦 🟩', after: '⬜ 🧑 📦', text: 'Walk into one crate to push it. Put every crate on a green tile.' },
   { before: '📦 🧱', after: '↶ 📦', text: 'Stuck? Use Undo or Restart.' },
   { before: '▦', after: '◈', text: 'Drag with two fingers to turn the board. Pinch to zoom. Use ↺ to reset.' }
-])}<button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;
+])}<p class="muted">Grain Sack by <a href="https://polyfork.dev/asset/grain-sack-401d96">Polyfork</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Rescaled and tinted.</p>
+<button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;
 const menu=$<HTMLDialogElement>('menu');
 let scene:CrateScene|undefined;
 try{scene=new CrateScene($('scene'),step);}catch{$('scene').textContent='3D is unavailable. Use a browser with 3D graphics support.';}

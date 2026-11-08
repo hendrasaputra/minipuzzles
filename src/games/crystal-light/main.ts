@@ -28,6 +28,7 @@ ${gameGuide([
   { before: '● ●', after: '↔ ↻', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag. Pinch or scroll to zoom.' },
   { before: 'Choose', after: 'Turn ↻', text: 'Pick a mirror and press Turn. On the board, use Enter or Space.' },
 ])}
+<p class="muted">Optics Table by <a href="https://polyfork.dev/asset/optics-table-66db15">Polyfork</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Mounts isolated, resized, and recolored.</p>
 <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;
 const menu = $<HTMLDialogElement>('menu');
 const difficulty = $<HTMLSelectElement>('difficulty');

@@ -73,3 +73,5 @@ The Crate Garden two-finger camera prototype shipped in commit 17047f0 through P
 The restored visuals, game sounds, and faster action feedback shipped in commit 8ba87a7 through Pages run 41859067081. All 21 public game routes and their release bundles were verified.
 
 Two-finger camera rotation and the touch hint shipped across all 21 games in commit 6eecb2c through Pages run 41861523371. All public game routes and their updated bundles were verified.
+
+Pocket Railroads' Polyfork switch signal shipped in commit 569e14f through Pages run 42476007255. The live route references the updated game bundle.

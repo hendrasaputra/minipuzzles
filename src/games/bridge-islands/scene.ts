@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import { MiniScene } from '../../shared/mini-scene';
 import { MaterialMotion } from '../../shared/material-motion';
 import { PixelBurst } from '../../shared/pixel-burst';
+import { loadProp } from '../../shared/polyfork-prop';
+import dockUrl from './dock-platform-section.glb?url';
+import { dockLandings } from './dock-landings';
 import { complete, crosses, type Game } from './engine';
 import { oceanSurface } from './ocean';
 
@@ -20,7 +23,10 @@ export class BridgeScene {
   private elapsed = 0;
   private previous?: number;
   private burstStart = 0;
-  private growth?: { mesh: THREE.Mesh; axis: 'x' | 'z'; start: number; end: number };
+  private growth?: { mesh: THREE.Mesh; axis: 'x' | 'z'; start: number; end: number; edge: number };
+  private readonly docks = new THREE.Group();
+  private dockTemplate?: THREE.Group;
+  private game?: Game;
   private ocean?: THREE.ShaderMaterial;
   private readonly markers: HTMLDivElement;
   private readonly confetti: HTMLDivElement;
@@ -32,7 +38,13 @@ export class BridgeScene {
 
   constructor(private readonly host: HTMLElement, private readonly onIsland: (island: number) => void) {
     this.mini = new MiniScene(host, this.cancelInput);
-    this.mini.effects.add(this.burst.object);
+    this.mini.effects.add(this.burst.object, this.docks);
+    const timber = new THREE.Color('#ac8056');
+    void loadProp(dockUrl, color => color.lerp(timber, .5)).then(template => {
+      this.dockTemplate = template;
+      this.drawDocks();
+      this.mini.repaint();
+    }).catch(() => { /* The bridge remains visible while its landing prop is unavailable. */ });
     this.markers = document.createElement('div');
     this.markers.className = 'island-markers';
     this.markers.dataset.boardInput = '';
@@ -87,6 +99,7 @@ export class BridgeScene {
           this.burstStart = this.elapsed;
         }
         this.growth = undefined;
+        this.drawDocks();
       }
     }
     if (seconds === 0) this.burst.clear();
@@ -174,7 +187,14 @@ export class BridgeScene {
     if (restoreFocus && !won) (this.markers.children[selected] as HTMLButtonElement).focus({ preventScroll: true });
   }
 
+  private drawDocks() {
+    this.docks.clear();
+    if (!this.game || !this.dockTemplate) return;
+    for (const dock of dockLandings(this.game, this.dockTemplate, this.growth?.edge)) this.docks.add(dock);
+  }
+
   draw(game: Game, selected: number, connected: readonly number[], extended?: number) {
+    this.game = game;
     this.motion.stop();
     this.ocean = undefined;
     this.growth = undefined;
@@ -231,7 +251,7 @@ export class BridgeScene {
             horizontal ? from.y + lane : (near + far) / 2, .2,
           );
           const reverse = selected === b;
-          this.growth = { mesh, axis, start: reverse ? far : near, end: reverse ? near : far };
+          this.growth = { mesh, axis, start: reverse ? far : near, end: reverse ? near : far, edge: index };
         } else if (horizontal) {
           this.mini.box(near, from.y + lane - .09, far, from.y + lane + .09, .16, .24, '#ac8056');
         } else {
@@ -248,6 +268,7 @@ export class BridgeScene {
       this.mini.mesh(new THREE.CylinderGeometry(.49, .54, .12, 12),
         new THREE.MeshLambertMaterial({ color }), x, y, .29, owner);
     });
+    this.drawDocks();
     this.drawMarkers(game, selected, connected);
     this.mini.render();
     this.motion.refresh();

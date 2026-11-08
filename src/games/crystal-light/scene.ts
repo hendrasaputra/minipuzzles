@@ -4,6 +4,8 @@ import { MaterialMotion } from '../../shared/material-motion';
 import { trace, type Game } from './engine';
 import { beamArrival, LaserLight } from './laser';
 import { PixelBurst } from '../../shared/pixel-burst';
+import { loadProp } from '../../shared/polyfork-prop';
+import opticsTableUrl from './optics-table.glb?url';
 
 type Point={x:number;y:number};
 const turnDuration = .12;
@@ -14,6 +16,7 @@ export class CrystalScene {
   private game?:Game;
   private laser?:LaserLight;
   private glint = new PixelBurst();
+  private opticsMount?: THREE.Group;
   private lit = new Set<string>();
   private moves = 0;
   private pulse?: { elapsed: number; last?: number; target?: Point; arrival: number };
@@ -26,6 +29,21 @@ export class CrystalScene {
   constructor(host:HTMLElement,private onSelect:(id:string)=>void,private onRotate:(id:string)=>void){
     this.mini=new MiniScene(host,this.clearInput);
     this.mini.effects.add(this.glint.object);
+    const brass = new THREE.Color('#bd9a65'), steel = new THREE.Color('#6b6875');
+    void loadProp(opticsTableUrl, color => color.r > .5 ? brass : steel).then(asset => {
+      const fixtures = asset.getObjectByName('optics')?.children[0];
+      if (!fixtures) return;
+      // The puzzle draws its own laser and uses only the physical mounts from the model.
+      const bounds = new THREE.Box3().setFromObject(fixtures);
+      const center = bounds.getCenter(new THREE.Vector3());
+      fixtures.position.set(-center.x, -bounds.min.y, -center.z);
+      this.opticsMount = new THREE.Group();
+      this.opticsMount.add(fixtures);
+      this.opticsMount.scale.setScalar(.74);
+      this.mini.effects.add(this.opticsMount);
+      this.positionOptics();
+      this.mini.repaint();
+    }).catch(() => { /* The existing emitter remains visible if the accessory cannot load. */ });
     this.motion=new MaterialMotion(this.animate,()=>this.mini.repaint());
     this.mini.canvas.setAttribute('aria-label','3D crystal puzzle. Tap a brass mirror to turn it. Drag with two fingers to rotate the board.');
     this.mini.canvas.addEventListener('pointerdown',this.down);
@@ -85,6 +103,15 @@ export class CrystalScene {
     if (t >= 1.1) this.pulse = undefined;
   };
 
+  private positionOptics() {
+    if (!this.opticsMount || !this.game) return;
+    const {x, y, dir} = this.game.level.source;
+    const yaw = { n: Math.PI, e: Math.PI / 2, s: 0, w: -Math.PI / 2 }[dir];
+    const side = { n: -.38, e: -.38, s: .38, w: .38 }[dir];
+    this.opticsMount.rotation.y = yaw;
+    this.opticsMount.position.set(x + .5 + Math.cos(yaw) * side, .05, y + .5 - Math.sin(yaw) * side);
+  }
+
   private draw(forward: boolean){
     const game=this.game;if(!game)return;
     const {width,height,walls,crystals,source}=game.level,light=trace(game);
@@ -135,6 +162,7 @@ export class CrystalScene {
     const offsets={n:[0,-.29],e:[.29,0],s:[0,.29],w:[-.29,0]} as const,[dx,dy]=offsets[dir];
     this.mini.box(x+.5+dx-.12,y+.5+dy-.12,x+.5+dx+.12,y+.5+dy+.12,.36,.62,'#f8e4b1');
     this.mini.box(x+.34,y+.34,x+.66,y+.66,.57,.65,'#eee0b6');
+    this.positionOptics();
     this.mini.render();this.motion.refresh();
   }
 }

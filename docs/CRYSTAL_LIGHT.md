@@ -23,3 +23,5 @@ Beams have a soft golden halo, bright traveling pulses and small amber particles
 Choose **Random difficulty** and **New random puzzle** in Menu. Easy, Medium, and Hard have shortest solutions of 1–2, 3–4, and 5–6 mirror turns, respectively.
 
 Retry and reload keep the same opening. Random wins are separate from the eight authored levels.
+
+Crystal Light's emitter has small optical mounts from [Optics Table by Polyfork](https://polyfork.dev/asset/optics-table-66db15) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The mounts are isolated from the table and display beam, scaled to fit the emitter's tile, and recolored in brass and slate.

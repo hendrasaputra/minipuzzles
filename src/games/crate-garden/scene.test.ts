@@ -4,6 +4,9 @@ import * as THREE from 'three';
 import { createGame,move } from './engine';
 import { CrateScene, swipeDirection } from './scene';
 
+const { loadProp } = vi.hoisted(() => ({ loadProp: vi.fn<() => Promise<THREE.Group>>() }));
+vi.mock('../../shared/polyfork-prop', () => ({ loadProp }));
+
 const mockMotion=vi.hoisted(()=>({ tick: (_time:number)=>{} }));
 vi.mock('../../shared/material-motion',()=>({MaterialMotion:class{
   constructor(update:(time:number)=>void){mockMotion.tick=update;}
@@ -33,10 +36,14 @@ vi.mock('../../shared/mini-scene',()=>({MiniScene:class{
     this.boxes.push({owner,color,mesh});
     return mesh;
   }
-  clear(){this.boxes=[];}render(){}
+  clear(){this.boxes=[];}render(){}repaint(){}
   cancelInput(){this.cancel();}
 }}));
-beforeEach(()=>{views.length=0;vi.stubGlobal('window',{addEventListener(){}});});
+beforeEach(()=>{
+  views.length=0;
+  loadProp.mockReset().mockImplementation(() => Promise.reject(new Error('Asset unavailable')));
+  vi.stubGlobal('window',{addEventListener(){}});
+});
 afterEach(()=>vi.unstubAllGlobals());
 
 describe('camera-relative crate swipes',()=>{
@@ -63,6 +70,18 @@ function fixture(){
   const send=(name:string,id:number,point={x:200,y:200})=>view.handlers.get(name)!({button:0,pointerId:id,clientX:point.x,clientY:point.y,preventDefault(){}});
   return{direction,scene,game,view,send};
 }
+it('keeps the loaded sack off the playable grid when switching levels', async () => {
+  const sack = new THREE.Group();
+  loadProp.mockResolvedValueOnce(sack);
+  const { scene, game, view } = fixture();
+  await Promise.resolve();
+  const stand = sack.parent!;
+  expect(stand.parent).toBe(view.effects);
+  expect(stand.position.x).toBeGreaterThan(game.level.width);
+  scene.update(createGame({ ...game.level, width: 7, height: 7 }));
+  expect(stand.position.x).toBeCloseTo(7.28);
+  expect(stand.position.z).toBeCloseTo(6.38);
+});
 describe('3D crate play input',()=>{
   it('uses the picked elevated crate face as its exact tile, with no distant movement',()=>{
     const {direction,game,view,send}=fixture();view.pick.mockReturnValue('tile:3,2');

@@ -79,6 +79,7 @@ document.querySelector('#app')!.innerHTML = `
       { before: '↘ ✕', after: '↔ ✓', text: 'Bridges go straight to the nearest island in the same row or column. They cannot cross.' },
       { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
     ])}
+    <p class="muted">Dock Platform Section by <a href="https://polyfork.dev/asset/dock-platform-section-b36e7c">Polyfork</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Resized and recolored.</p>
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>
   </div>

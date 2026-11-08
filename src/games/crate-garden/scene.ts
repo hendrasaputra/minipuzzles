@@ -1,8 +1,10 @@
-import type { Mesh } from 'three';
+import { BoxGeometry, Color, Group, Mesh, MeshLambertMaterial } from 'three';
 import type { Direction, Game } from './engine';
 import { MaterialMotion } from '../../shared/material-motion';
 import { PixelBurst } from '../../shared/pixel-burst';
 import { MiniScene } from '../../shared/mini-scene';
+import { loadProp } from '../../shared/polyfork-prop';
+import sackUrl from './grain-sack.glb?url';
 
 type Point = { x: number; y: number };
 type Part = { mesh: Mesh; x: number; y: number; z: number };
@@ -27,6 +29,7 @@ export class CrateScene {
   private game?:Game;
   private readonly motion: MaterialMotion;
   private readonly burst = new PixelBurst('landing');
+  private readonly sackStand = new Group();
   private parts: Part[] = [];
   private crateParts: Part[] = [];
   private moving?: {
@@ -44,7 +47,16 @@ export class CrateScene {
   private press:{id:number;client:Point}|null=null;
   constructor(host:HTMLElement,private onDirection:(direction:Direction)=>void){
     this.mini=new MiniScene(host,this.clearInput);
-    this.mini.effects.add(this.burst.object);
+    this.mini.effects.add(this.burst.object, this.sackStand);
+    const burlap = new Color('#c5a674');
+    void loadProp(sackUrl, color => color.lerp(burlap, .3)).then(sack => {
+      sack.scale.setScalar(.52);
+      sack.rotation.y = -.2;
+      const stand = new Mesh(new BoxGeometry(.55, .13, .52), new MeshLambertMaterial({ color: '#b89570' }));
+      stand.position.set(-.045, -.065, 0);
+      this.sackStand.add(stand, sack);
+      this.mini.repaint();
+    }).catch(() => { /* The puzzle still runs without the decoration. */ });
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     this.mini.canvas.setAttribute('role','img');
     this.mini.canvas.setAttribute('aria-label','3D crate garden. Swipe or tap with one finger to move. Drag with two fingers to rotate, or pinch to zoom.');
@@ -136,6 +148,7 @@ export class CrateScene {
   private draw(){
     const game=this.game;if(!game)return;
     const {width,height,walls,goals}=game.level,has=(cells:Point[],x:number,y:number)=>cells.some(c=>c.x===x&&c.y===y);
+    this.sackStand.position.set(width + .28, -.22, height - .62);
     this.mini.clear();
     this.parts = [];
     this.crateParts = [];

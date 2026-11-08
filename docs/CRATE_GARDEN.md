@@ -24,3 +24,5 @@ In **Play**, swipe or tap with one finger to move the gardener. Drag two fingers
 Choose **Random difficulty** and **New random puzzle** in Menu. Easy has one crate, Medium has two, and Hard has three. The generator works backward from solved positions and checks solutions before offering a layout.
 
 Retry and reload keep the same opening. Random wins are separate from the eight authored levels.
+
+The burlap sack beside the board is [Grain Sack by Polyfork](https://polyfork.dev/asset/grain-sack-401d96), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The game resizes and tints it to match the garden.

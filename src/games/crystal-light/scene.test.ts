@@ -2,12 +2,15 @@ import { afterEach,beforeEach,describe,expect,it,vi } from 'vitest';
 import * as THREE from 'three';
 import type { Game } from './engine';
 import { CrystalScene } from './scene';
+import { loadProp } from '../../shared/polyfork-prop';
 
 const {views}=vi.hoisted(()=>({views:[] as Array<{
   rotating:boolean;cancel:()=>void;handlers:Map<string,(event:Record<string,unknown>)=>void>;pick:ReturnType<typeof vi.fn>;
+  effects:THREE.Group;
   boxes:Array<{owner?:string}>;meshes:Array<{owner?:string;yaw:number;geometry:THREE.BufferGeometry;object:THREE.Mesh}>;
 }>}));
 vi.mock('./engine',()=>({trace:(game:Game)=>({segments:[{from:{x:0,y:2},to:{x:2,y:2}}],lit:game.mirrors[0].slash?[{x:2,y:0}]:[],loop:false})}));
+vi.mock('../../shared/polyfork-prop',()=>({loadProp:vi.fn(async()=>new THREE.Group())}));
 vi.mock('../../shared/mini-scene',()=>({MiniScene:class{
   effects=new THREE.Group();
   rotating=false;handlers=new Map<string,(event:Record<string,unknown>)=>void>();pick=vi.fn(()=>undefined as string|undefined);
@@ -92,6 +95,27 @@ describe('Crystal Light 3D mirror input',()=>{
     expect(view.meshes.some(mesh=>mesh.geometry.type==='OctahedronGeometry'&&mesh.owner==='crystal:2,0')).toBe(true);
     expect(view.meshes.some(mesh=>!mesh.owner&&mesh.geometry.type==='OctahedronGeometry')).toBe(true);
     game.mirrors[0].slash=true;scene.update(game,'mirror-1');expect(view.meshes.find(mesh=>mesh.owner==='mirror-1')!.yaw).toBeCloseTo(Math.PI/4);
+  });
+  it('keeps only the optical mounts and moves them with the level emitter', async () => {
+    const asset = new THREE.Group(), optics = new THREE.Group();
+    optics.name = 'optics';
+    const fixtureMesh = new THREE.Mesh(new THREE.BoxGeometry(.25, .22, .7));
+    const displayBeam = new THREE.Mesh(new THREE.BoxGeometry(1, .01, .01));
+    optics.add(fixtureMesh, displayBeam);
+    asset.add(optics);
+    vi.mocked(loadProp).mockResolvedValueOnce(asset);
+    const { view, game, scene } = fixture();
+    await Promise.resolve();
+    const mount = fixtureMesh.parent!;
+    expect(mount.parent).toBe(view.effects);
+    expect(mount.children).toEqual([fixtureMesh]);
+    expect(mount.position.z).toBeCloseTo(game.level.source.y + .88);
+
+    const next = { ...game, level: { ...game.level, source: { x: 4, y: 1, dir: 'w' as const } } };
+    scene.update(next, 'mirror-1');
+    expect(mount.position.x).toBeCloseTo(4.5);
+    expect(mount.position.z).toBeCloseTo(1.88);
+    expect(mount.rotation.y).toBeCloseTo(-Math.PI / 2);
   });
   it('eases the selected mirror from its old angle to the new direction',()=>{
     const {view,scene,game}=fixture();

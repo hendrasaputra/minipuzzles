@@ -15,3 +15,5 @@ The board labels each island with its letter and bridge count. **D 0/1** means D
 The blue ocean has moving wave crests. When a bridge reaches the next island, droplets arc up and fall back to the water. Reduced motion shows a still ocean and places the bridge immediately.
 
 Waves kick up small droplets around every island. Finish a crossing to see a short pixel confetti burst. Reduced motion skips the spray and confetti.
+
+The bridge landings use [Dock Platform Section by Polyfork](https://polyfork.dev/asset/dock-platform-section-b36e7c) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The game resizes and recolors the original GLB to match its bridges.

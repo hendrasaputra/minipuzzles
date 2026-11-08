@@ -198,3 +198,5 @@ The collection now has 21 playable games.
 - [x] Hide Play and Rotate on touch-first devices while keeping the hint and camera reset.
 - [x] Prototype the Polyfork Ground Disc Signal in Pocket Railroads.
 - [ ] Review the signal on a physical phone before expanding the asset trial.
+- [x] Add attributed Polyfork props to Crate Garden, Crystal Light, and Bridge Islands.
+- [ ] Review the three Polyfork props on a physical phone.
