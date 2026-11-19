@@ -49,7 +49,7 @@ document.querySelector('#app')!.innerHTML = `
     <div><span>Your route ends at</span><strong id="route-station"></strong></div>
   </div>
   <p id="status" class="status" role="status" aria-live="polite"></p>
-  <div class="channel-controls">
+  <div class="channel-controls touch-optional">
     <label class="car-choice"><span class="sr-only">Choose a switch</span><select id="switch-select" aria-label="Choose a switch"></select></label>
     <button id="turn">Flip switch</button>
   </div>

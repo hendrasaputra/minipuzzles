@@ -52,7 +52,7 @@ document.querySelector('#app')!.innerHTML = `
     <div><strong>Your garden</strong><div id="current-pattern"></div></div>
   </div>
   <p id="status" class="status" role="status" aria-live="polite"></p>
-  <div class="flip-controls">
+  <div class="flip-controls touch-optional">
     <label class="car-choice"><span class="sr-only">Choose a tile</span><select id="tile-select" aria-label="Choose a tile"></select></label>
   </div>
   <div class="actions">

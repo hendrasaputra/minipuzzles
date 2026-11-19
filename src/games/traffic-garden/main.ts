@@ -24,10 +24,10 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <main class="game-shell">
   <div class="puzzle-heading"><h1>Free the red car</h1><span id="difficulty-label"></span></div>
   <p id="storage-warning" class="storage-warning" hidden>Progress isn’t being saved. Keep this tab open.</p>
-  <div class="stats"><div><strong id="moves">0</strong><span>Moves</span></div><div><strong id="par">—</strong><span>Fewest moves</span></div></div>
+  <div class="stats"><div><strong id="moves">0</strong><span>Moves</span></div><div id="par-stat" hidden><strong id="par">—</strong><span>Fewest moves</span></div></div>
   <section class="play-area" aria-label="Parking puzzle"><div id="scene" class="scene" role="group" tabindex="0" aria-label="3D parking board. Drag a car along its length, or select it and use the arrows."></div></section>
   <p id="status" class="status" role="status" aria-live="polite"></p>
-  <div class="slide-controls" id="slide-controls"><button id="backward" aria-label="Move selected car backward">↖</button><label class="car-choice"><span class="sr-only">Choose a car</span><select id="car-select" aria-label="Choose a car"></select></label><button id="forward" aria-label="Move selected car forward">↘</button></div>
+  <div class="slide-controls touch-optional" id="slide-controls"><button id="backward" aria-label="Move selected car backward">↖</button><label class="car-choice"><span class="sr-only">Choose a car</span><select id="car-select" aria-label="Choose a car"></select></label><button id="forward" aria-label="Move selected car forward">↘</button></div>
   <div class="actions"><button id="undo">Undo</button><button id="hint">Hint</button><button id="exit" class="primary" hidden>Drive out →</button><button id="next" class="primary" hidden>New puzzle</button></div>
 </main>
 <dialog id="menu" class="sheet" aria-labelledby="menu-title"><div class="sheet-heading"><h2 id="menu-title">Game options</h2><button id="close-menu">Done</button></div><div class="sheet-body">
@@ -70,9 +70,9 @@ function direction(sign:number,far=false){
 function draw(move?: Move){
   const car=current(),won=game.status==='won';
   scene?.update(game,selected,move);
-  $('moves').textContent=String(game.history.length);$('par').textContent=game.puzzle.par===undefined?'—':String(game.puzzle.par);
+  $('moves').textContent=String(game.history.length);$('par').textContent=game.puzzle.par===undefined?'—':String(game.puzzle.par);$('par-stat').hidden=!won||game.puzzle.par===undefined;
   $('difficulty-label').textContent=game.puzzle.difficulty[0].toUpperCase()+game.puzzle.difficulty.slice(1);
-  $('status').textContent=loading?'Loading puzzle…':won?`You won in ${game.history.length} moves.`:notice|| (exitClear()?'Press Drive out to win.':'Select or drag a car.');
+  $('status').textContent=loading?'Loading puzzle…':won?`You won in ${game.history.length} moves.${game.puzzle.par!==undefined&&game.history.length<=game.puzzle.par?' A perfect solve!':''}`:notice|| (exitClear()?'Press Drive out to win.':'Select or drag a car.');
   $('slide-controls').classList.toggle('finished',won);
   const focused=document.activeElement?.id;
   $('car-select').innerHTML=game.cars.map(c=>`<option value="${c.id}" ${c.id===selected?'selected':''}>${label(c)} · ${c.axis==='h'?'horizontal':'vertical'} · ${c.length} spaces · row ${c.y+1}, column ${c.x+1}</option>`).join('');

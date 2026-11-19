@@ -14,7 +14,7 @@ export function fitCamera(camera: THREE.OrthographicCamera, box: THREE.Box3, cen
     const p = new THREE.Vector3(x, y, z).applyMatrix4(camera.matrixWorldInverse);
     extentX = Math.max(extentX, Math.abs(p.x)); extentY = Math.max(extentY, Math.abs(p.y));
   }
-  const height = Math.max(extentY * 2, extentX * 2 / aspect) * 1.16 / clampZoom(zoom);
+  const height = Math.max(extentY * 2, extentX * 2 / aspect) * 1.08 / clampZoom(zoom);
   camera.left = -height * aspect / 2; camera.right = height * aspect / 2;
   camera.top = height / 2; camera.bottom = -height / 2;
   camera.near = .1; camera.far = 150;

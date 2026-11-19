@@ -48,7 +48,7 @@ document.querySelector('#app')!.innerHTML = `
   </section>
   <div id="amounts" class="jug-cards" aria-label="Current and goal amounts"></div>
   <p id="status" class="status" role="status" aria-live="polite"></p>
-  <div class="channel-controls jug-controls">
+  <div class="channel-controls jug-controls touch-optional">
     <label><span class="sr-only">Pour from</span><select id="from" aria-label="Pour from"></select></label>
     <label><span class="sr-only">Pour into</span><select id="to" aria-label="Pour into"></select></label>
   </div>

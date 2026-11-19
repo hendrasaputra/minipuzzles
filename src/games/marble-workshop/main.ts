@@ -45,7 +45,7 @@ document.querySelector('#app')!.innerHTML = `
     <div id="scene" class="scene" tabindex="0" role="group" aria-label="3D marble run. Tap a track to turn it. Tap the marble or press Roll to test your route."></div>
   </section>
   <p id="status" class="status" role="status" aria-live="polite"></p>
-  <div class="channel-controls">
+  <div class="channel-controls touch-optional">
     <label class="car-choice"><span class="sr-only">Choose a track</span><select id="track-select" aria-label="Choose a track"></select></label>
     <button id="turn">Turn ↻</button>
   </div>

@@ -85,3 +85,10 @@ h1{font-size:21px}
 .channel-controls select{width:100%;min-width:0;height:52px;padding:8px;font-size:16px;border:1px solid #c7d8d2;border-radius:13px;background:#fffaf4}
 .channel-controls button{min-height:52px;font-weight:600;border:1px solid #b6d0c8;border-radius:13px;background:#dcebe5;font-size:16px}
 @media(max-height:500px) and (min-width:601px){.channel-controls{grid-area:slide;grid-template-columns:minmax(0,1fr) 100px}}
+/* Win moment: once Next appears, the status line becomes a banner and Next pops in. */
+.game-shell:has(#next:not([hidden])) .status{flex-basis:auto;min-height:46px;padding:8px 16px;border-radius:14px;background:#fff6df;border:1px solid #ecd9a8;color:#5b4520;font-size:16px;font-weight:600;animation:win-banner .35s ease-out}
+#next:not([hidden]){animation:win-pop .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes win-banner{from{opacity:0;transform:translateY(6px)}}
+@keyframes win-pop{0%{transform:scale(.85)}100%{transform:scale(1)}}
+/* On touch-first screens the board does these actions directly; keep the list controls for screen readers and reveal them on focus. */
+@media(pointer:coarse){.touch-optional:not(:focus-within){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}}

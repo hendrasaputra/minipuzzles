@@ -49,7 +49,7 @@ document.querySelector('#app')!.innerHTML = `
     <div><span id="current-label">Island A · Current</span><strong id="current-count"></strong></div>
   </div>
   <p id="status" class="status" role="status" aria-live="polite"></p>
-  <div class="bridge-controls">
+  <div class="bridge-controls touch-optional">
     <label class="car-choice"><span class="sr-only">From island</span><select id="island-select" aria-label="From island"></select></label>
     <label class="car-choice"><span class="sr-only">To island</span><select id="neighbor-select" aria-label="To island"></select></label>
   </div>

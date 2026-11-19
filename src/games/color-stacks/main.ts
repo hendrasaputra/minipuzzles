@@ -52,7 +52,7 @@ document.querySelector('#app')!.innerHTML = `
     <div><strong>Your stacks</strong><div id="current-stacks" class="stack-map"></div></div>
   </section>
   <p id="status" class="status" role="status" aria-live="polite"></p>
-  <div class="stack-controls">
+  <div class="stack-controls touch-optional">
     <label class="car-choice"><span class="sr-only">From stack</span><select id="stack-select" aria-label="From stack"></select></label>
     <label class="car-choice"><span class="sr-only">To stack</span><select id="target-select" aria-label="To stack"></select></label>
   </div>

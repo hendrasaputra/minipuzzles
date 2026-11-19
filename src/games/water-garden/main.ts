@@ -20,7 +20,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <div class="stats"><div><strong id="moves">0</strong><span>Turns</span></div><div><strong id="lit">0</strong><span>Flowers watered</span></div></div>
 <section class="play-area" aria-label="Water puzzle"><div id="scene" class="scene" tabindex="0" role="group" aria-label="Tap a channel to turn it. Drag with two fingers to rotate the board."></div></section>
 <p id="status" class="status" role="status" aria-live="polite"></p>
-<div class="channel-controls"><label class="car-choice"><span class="sr-only">Choose a channel</span><select id="channel-select" aria-label="Choose a channel"></select></label><button id="turn">Turn ↻</button></div>
+<div class="channel-controls touch-optional"><label class="car-choice"><span class="sr-only">Choose a channel</span><select id="channel-select" aria-label="Choose a channel"></select></label><button id="turn">Turn ↻</button></div>
 <div class="actions"><button id="undo">Undo</button><button id="hint">Hint</button><button id="retry">Retry</button><button id="next" class="primary" hidden>Next level</button></div></main>
 <dialog id="menu" class="sheet" aria-labelledby="menu-title"><div class="sheet-heading"><h2 id="menu-title">Puzzle menu</h2><button id="close-menu">Done</button></div><div class="sheet-body"><label>Levels<select id="level-select"></select></label>
 <label>Random difficulty<select id="random-difficulty"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>

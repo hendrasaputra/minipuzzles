@@ -200,3 +200,8 @@ The collection now has 21 playable games.
 - [ ] Review the signal on a physical phone before expanding the asset trial.
 - [x] Add attributed Polyfork props to Crate Garden, Crystal Light, and Bridge Islands.
 - [ ] Review the three Polyfork props on a physical phone.
+- [x] Share the game page base styles in `src/shared/game-base.css`, fix the blue back arrow and match the Petals header.
+- [x] On touch-first screens, hide list controls that the board already covers (9 games). Shadow Blocks and Tiny Tangrams keep theirs because removing blocks and choosing or turning pieces need them.
+- [x] Retire the two-finger tip after the player has learned it, show Traffic Garden's fewest moves only after a win, add a win banner, tighten the board fit and compact the hub on phones.
+- [ ] On a physical phone, check the hidden list controls, the win banner and that the tighter board fit keeps edge props in view.
+- [ ] Give Shadow Blocks a board gesture for removing a block and Tiny Tangrams a way to pick and turn pieces on the board, then hide their list rows on touch too.

@@ -44,6 +44,8 @@ The four GLBs ship locally under CC BY 4.0. Each game credits the source and des
 
 The handoff checkout passed **474 tests across 63 files** and the production build. Prior release checks at 390 px in touch emulation confirmed the four models loaded. Pocket Railroads passed switch flip, undo, and delivery. The other three games completed their first levels. The live pages and their four GLB files were verified after deployment.
 
+Later on 19 November 2026, the game pages moved to one shared base stylesheet, [game-base.css](src/shared/game-base.css). On touch-first screens, list controls hide when the board already does the same action (they stay available to screen readers and reappear on focus). A win now turns the status line into a banner. Each change passed the tests, the build, and a 375 px touch-emulation check.
+
 The next open check is a physical phone review. Check that two-finger rotation leaves puzzle pieces alone, the next one-finger action works, and props stay readable at different angles. Listen for the action sounds and check motion on the device before expanding the asset trial.
 
 Pushing to `main` triggers the [Pages workflow](.github/workflows/pages.yml), which runs tests, builds, and deploys. Verify the Pages run and the affected live routes after each release. Earlier decisions and releases are available in Git history, [the deployment notes](docs/DEPLOYMENT.md), and [the original design](INITIAL_IDEAS.md).
