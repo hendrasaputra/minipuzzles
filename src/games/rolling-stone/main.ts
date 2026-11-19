@@ -1,6 +1,7 @@
 import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { gameGuide } from '../../shared/game-guide';
 import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { atGoal, createGame, directions, move, solve, undo, type Direction, type Level } from './engine';
@@ -195,3 +196,4 @@ window.addEventListener('pagehide', save);
 scene?.draw(data.game);
 draw();
 save();
+addMusic('rolling-stone');

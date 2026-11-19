@@ -6,6 +6,7 @@ import { levels } from './levels';
 import { CrystalScene } from './scene';
 import { readSave,writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { generateRandomLight, type RandomLight } from './random';
 
@@ -155,3 +156,4 @@ for(const event of ['pointerdown','pointerup','keydown'])document.addEventListen
 document.addEventListener('pointerdown',e=>{if(!(e.target instanceof Element)||!e.target.closest('#scene'))scene?.cancelInput();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
+addMusic('crystal-light');

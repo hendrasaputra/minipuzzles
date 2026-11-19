@@ -7,6 +7,7 @@ import { generateWorkshop, type RandomWorkshop } from './random';
 import { MarbleScene } from './scene';
 import { readSave, writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 
 const key = 'puzzles-marble-workshop-v1';
@@ -238,3 +239,4 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('pagehide', save);
 draw();
 save();
+addMusic('marble-workshop');

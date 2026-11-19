@@ -2,6 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { gameGuide } from '../../shared/game-guide';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { canEdit, createGame, edit, hint, shadows, undo, type Level } from './engine';
 import { generateShadow, levels, type RandomShadow } from './levels';
@@ -244,3 +245,4 @@ for (const event of ['pointerdown', 'pointerup', 'keydown']) {
 window.addEventListener('pagehide', save);
 draw();
 save();
+addMusic('shadow-blocks');

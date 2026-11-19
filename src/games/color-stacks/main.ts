@@ -1,6 +1,7 @@
 import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { gameGuide } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { applyMove, canMove, complete, createGame, solve, sorted, undo, type Level, type Move } from './engine';
@@ -279,3 +280,4 @@ window.addEventListener('pagehide', save);
 resetSelection();
 draw();
 save();
+addMusic('color-stacks');

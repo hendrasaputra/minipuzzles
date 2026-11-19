@@ -1,6 +1,7 @@
 import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { gameGuide } from '../../shared/game-guide';
 import { randomSeed, isDifficulty } from '../../shared/random-puzzle';
 import { clues, complete, createGame, hint, levels, markCell, randomPuzzle, undo, type Mark, type Puzzle } from './engine';
@@ -232,3 +233,4 @@ $('flat-board').onkeydown = event => {
   target.focus();
 };
 draw();
+addMusic('picture-islands');

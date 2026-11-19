@@ -4,6 +4,7 @@ import { randomSeed } from '../../shared/random-puzzle';
 import { startGame, retryGame, reveal, toggleFlag, chord, clueNeighbors, type Game } from './engine';
 import { BoardScene, type TileFeedback } from './scene';
 import { GameAudio, type SoundCue } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { BoardGesture, type GestureAction, type TileHit } from '../../shared/gestures';
 import { campaign } from './campaign';
 import { BOARD_SIZES, randomConfig, findBoardSize, type BoardSizeId } from './presets';
@@ -408,3 +409,4 @@ function tick(){$('timer').textContent=`${String(Math.floor(elapsed/60)).padStar
 setInterval(()=>{const now=performance.now();if(game.status==='playing'&&!document.hidden&&!rules.open&&!menu.open){elapsedRemainder+=Math.min(2000,now-lastTick);elapsed+=Math.floor(elapsedRemainder/1000);elapsedRemainder%=1000;tick();save();}lastTick=now;},1000);
 document.addEventListener('visibilitychange',()=>{lastTick=performance.now();save();});window.addEventListener('pagehide',save);
 markCompletion();draw();save();
+addMusic('petals');

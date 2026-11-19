@@ -1,6 +1,7 @@
 import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { gameGuide } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { applyMove, complete, createGame, hint, trace, undo, type Level } from './engine';
@@ -243,3 +244,4 @@ for (const event of ['pointerdown', 'pointerup', 'keydown']) {
 window.addEventListener('pagehide', save);
 draw();
 save();
+addMusic('pocket-railroads');

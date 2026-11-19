@@ -1,6 +1,7 @@
 import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { gameGuide } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { applyMove, canPlace, colors, complete, createGame, footprint, hint, nextTurn, pieceAt, shapeNames, undo, vertices,
@@ -291,3 +292,4 @@ for (const event of ['pointerdown', 'pointerup', 'keydown']) {
 window.addEventListener('pagehide', save);
 draw();
 save();
+addMusic('tiny-tangrams');

@@ -1,6 +1,7 @@
 import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { gameGuide } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { canStep, complete, createGame, directions, hint, neighbor, neighbors, step, undo, type Direction, type Level } from './engine';
@@ -225,3 +226,4 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) scene
 window.addEventListener('pagehide', save);
 draw();
 save();
+addMusic('stepping-stones');

@@ -7,6 +7,7 @@ import { solve } from './solver';
 import { TrafficScene } from './scene';
 import { readSave, writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 
 type Difficulty=Puzzle['difficulty'];
 const KEY='puzzles-traffic-garden-v1';
@@ -123,3 +124,4 @@ window.addEventListener('keydown',e=>{
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
+addMusic('traffic-garden');

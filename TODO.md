@@ -205,4 +205,5 @@ The collection now has 21 playable games.
 - [x] Retire the two-finger tip after the player has learned it, show Traffic Garden's fewest moves only after a win, add a win banner, tighten the board fit and compact the hub on phones.
 - [ ] On a physical phone, check the hidden list controls, the win banner and that the tighter board fit keeps edge props in view.
 - [x] Shadow Blocks: hold a square (or right-click, or press Delete) to remove a block. Tiny Tangrams: a touch piece tray, tap a placed piece to choose it, tap again to turn it, hold to lift it. Both now hide their list rows on touch.
-- [ ] Choose a zen background mood from the sound preview, then add it as an optional, low-cost ambient track.
+- [x] Add generated zen background music (`src/shared/ambient.ts`): Garden, Water or Night mood in each game's own key, a Music row in every menu (`puzzles-music`, follows Sound until chosen), suspended when off or hidden.
+- [ ] Listen to the music on a physical phone: volume against action sounds, battery feel, and iOS silent-switch behavior.

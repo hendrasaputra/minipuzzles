@@ -1,6 +1,7 @@
 import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { gameGuide } from '../../shared/game-guide';
 import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { complete, conflicts, createGame, enter, hint, levels, randomLevel, undo, values, type Level, type Value } from './engine';
@@ -242,3 +243,4 @@ board.onkeydown = event => {
   draw();
 };
 draw();
+addMusic('garden-sudoku');

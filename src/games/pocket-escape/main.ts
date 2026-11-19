@@ -1,6 +1,7 @@
 import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { gameGuide } from '../../shared/game-guide';
 import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { digit, randomRoom, rooms, symbols, unlock, type RandomRoom, type Room } from './engine';
@@ -244,3 +245,4 @@ buildCode();
 draw();
 scene?.draw(saved.room, saved.inspected, saved.won);
 save();
+addMusic('pocket-escape');

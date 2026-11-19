@@ -6,6 +6,7 @@ import { levels } from './levels';
 import { WaterScene } from './scene';
 import { readSave,writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { generateGarden, type RandomGarden } from './random';
 
@@ -75,3 +76,4 @@ for(const event of ['pointerdown','pointerup','keydown'])document.addEventListen
 document.addEventListener('pointerdown',e=>{if(!(e.target instanceof Element)||!e.target.closest('#scene'))scene?.cancelInput();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
+addMusic('water-garden');

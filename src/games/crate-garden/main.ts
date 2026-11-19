@@ -5,6 +5,7 @@ import { levels } from './levels';
 import { CrateScene, type StepCue } from './scene';
 import { readSave, writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
+import { addMusic } from '../../shared/ambient';
 import { gameGuide } from '../../shared/game-guide';
 import { randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { randomGarden, type RandomGarden } from './random';
@@ -126,3 +127,4 @@ for(const event of ['pointerdown','pointerup','keydown'])document.addEventListen
 document.addEventListener('pointerdown',e=>{if(!(e.target instanceof Element)||!e.target.closest('#scene'))scene?.cancelInput();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
+addMusic('crate-garden');
