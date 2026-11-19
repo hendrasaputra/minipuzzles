@@ -1,4 +1,4 @@
-import '../water-garden/style.css';
+import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { gameGuide } from '../../shared/game-guide';

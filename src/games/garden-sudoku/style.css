@@ -71,3 +71,5 @@
   .game-shell { grid-template-areas: 'board heading' 'board stats' 'board status' 'board slide' 'board actions'; }
   .plant-controls { grid-area: slide; }
 }
+.actions .primary { background: #5e8f88; border-color: #5e8f88; }
+.actions .primary { background: #5e8f88; border-color: #5e8f88; }

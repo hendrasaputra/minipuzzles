@@ -49,7 +49,7 @@ if(!levelId&&chapter()==='layered'){
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <header class="topbar">
   <a class="hub-back" href="../../" aria-label="Back to Puzzles">←</a>
-  <span class="brand"><span class="brand-cube" aria-hidden="true"></span>Petals</span>
+  <span class="brand">Petals</span>
   <button id="open-menu" class="menu-button" aria-haspopup="dialog">Menu</button>
 </header>
 <main class="game-shell">

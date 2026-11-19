@@ -1,3 +1,4 @@
+import '../../shared/game-base.css';
 import './style.css';
 import { createGame, move, undo, solve, type Direction, type Level } from './engine';
 import { levels } from './levels';

@@ -1,3 +1,4 @@
+import '../../shared/game-base.css';
 import './style.css';
 import { gameGuide } from '../../shared/game-guide';
 import { createGame,rotate,undo,solve,flow,pipePorts } from './engine';

@@ -1,4 +1,4 @@
-import './style.css';
+import '../../shared/game-base.css';
 import { gameGuide } from '../../shared/game-guide';
 import { randomSeed } from '../../shared/random-puzzle';
 import { createGame, moveCar, undo, canMove, legalMoves, type Car, type Game, type Move, type Puzzle } from './engine';

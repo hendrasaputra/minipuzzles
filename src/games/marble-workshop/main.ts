@@ -1,4 +1,4 @@
-import '../water-garden/style.css';
+import '../../shared/game-base.css';
 import './style.css';
 import { gameGuide } from '../../shared/game-guide';
 import { createGame, rotate, undo, solve, trace, run, trackPorts, type Level } from './engine';
