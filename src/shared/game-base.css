@@ -92,3 +92,6 @@ h1{font-size:21px}
 @keyframes win-pop{0%{transform:scale(.85)}100%{transform:scale(1)}}
 /* On touch-first screens the board does these actions directly; keep the list controls for screen readers and reveal them on focus. */
 @media(pointer:coarse){.touch-optional:not(:focus-within){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}}
+/* iPhone: keep controls clear of the notch, Dynamic Island and home indicator (pages use viewport-fit=cover). */
+#app{padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left)}
+.sheet-body{padding-bottom:calc(16px + env(safe-area-inset-bottom))}

@@ -3,6 +3,12 @@ import { soundTextures, soundVoices, type SoundGame } from './sound-voices';
 type Note = readonly [frequency: number, delay: number, duration: number, peak: number,
   wave?: OscillatorType, endFrequency?: number];
 export const MASTER_VOLUME = .25;
+
+// Safari 16.4+: mix with music or podcasts from other apps instead of stopping them, and follow the silent switch.
+try {
+  const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+  if (session) session.type = 'ambient';
+} catch { /* Older browsers keep their default. */ }
 export const SOUNDS = {
   reveal: [[740, 0, .07, .2], [988, .035, .08, .12]],
   flag: [[440, 0, .06, .2], [660, .045, .09, .15]],
