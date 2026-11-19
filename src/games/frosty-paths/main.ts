@@ -1,12 +1,12 @@
 import '../../shared/game-base.css';
 import './style.css';
-import { createGame, move, undo, solve, type Direction } from './engine';
+import { createGame, move, undo, solve, type Cell, type Direction } from './engine';
 import { levels } from './levels';
 import { FrostScene } from './scene';
 import { readSave, writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { generatePath, type RandomPath } from './random';
 
@@ -25,11 +25,11 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <div class="walk-controls" aria-label="Slide direction"><button data-dir="n" aria-label="Slide north">↗</button><button data-dir="e" aria-label="Slide east">↘</button><button data-dir="s" aria-label="Slide south">↙</button><button data-dir="w" aria-label="Slide west">↖</button></div>
 <div class="actions"><button id="undo">Undo</button><button id="hint">Hint</button><button id="retry">Restart</button><button id="next" class="primary" hidden>Next level</button></div></main>
 <dialog id="menu" class="sheet" aria-labelledby="menu-title"><div class="sheet-heading"><h2 id="menu-title">Menu</h2><button id="close-menu">Done</button></div><div class="sheet-body"><label>Levels<select id="level-select"></select></label><p id="progress" class="muted"></p><label>Random difficulty<select id="difficulty"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label><button id="new-random" class="menu-row">New random puzzle</button>${gameGuide([
-  { before: '🐧 🧊 🪨', after: '🧊 🐧 🪨', text: 'Tap, swipe, or use arrows or WASD. Rocks and edges stop slides.' },
-  { before: '🐧 🐟 🧊', after: '🧊 🧊 🐧', text: 'Slide over fish to pick them up.' },
-  { before: '🐧 🧊 🟦', after: '🧊 🧊 🐧', text: 'Collect all fish and stop on the blue tile.' },
-  { before: '▦', after: '◈', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag. Use ↺ to reset.' }
-])}<button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;
+  { gesture: 'tap', text: 'Tap a tile next to the penguin to slide that way. You can also swipe.' },
+  { before: '🐧 🧊 🧊 🪨', after: '🧊 🧊 🐧 🪨', text: 'The penguin slides until a rock or the edge stops it.' },
+  { before: '🐧 🐟 🟦', after: '🧊 🧊 🐧', text: 'Slide over every fish, then stop on the blue tile to win.' },
+  cameraStep,
+], false, `Use the arrow buttons below the board, or the arrow keys or WASD. ${cameraOther}`)}<button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;
 const menu=$<HTMLDialogElement>('menu');
 const difficultySelect=$<HTMLSelectElement>('difficulty');
 if(random)difficultySelect.value=random.difficulty;
@@ -42,6 +42,7 @@ function step(dir:Direction){if(menu.open)return;if(move(game,dir)){notice='';if
 function draw(updateScene = true){
   const won=game.status==='won';
   if(updateScene)scene?.update(game);
+  scene?.pointAt(!random&&index===0&&!won?nextTile():undefined);
   $('title').textContent=game.level.title;
   $('level-number').textContent=random?'Random':`${index+1} / ${levels.length}`;
   $('moves').textContent=String(game.moves);
@@ -57,6 +58,12 @@ function draw(updateScene = true){
   $('progress').textContent=`${completed.length} of ${levels.length} levels complete.`;
   $('sound').textContent=audio.enabled?'Sound: on':'Sound: off';
   $('sound').setAttribute('aria-pressed',String(audio.enabled));
+}
+/** The tile beside the penguin to tap for the solver's next slide on the first level. */
+function nextTile():Cell|undefined{
+  const dir=solve(game)?.[0];if(!dir)return;
+  const [dx,dy]=dir==='n'?[0,-1]:dir==='e'?[1,0]:dir==='s'?[0,1]:[-1,0];
+  return {x:game.player.x+dx,y:game.player.y+dy};
 }
 function restart(nextGame:typeof game){
   scene?.cancelInput();
@@ -93,3 +100,4 @@ document.addEventListener('pointerdown',e=>{if(!(e.target instanceof Element)||!
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
 addMusic('frosty-paths');
+showGuideOnFirstVisit('frosty-paths');

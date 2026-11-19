@@ -2,10 +2,10 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
-import { applyMove, canPlace, colors, complete, createGame, footprint, hint, nextTurn, pieceAt, shapeNames, undo, vertices,
-  type Level, type Move, type Placement, type Turn } from './engine';
+import { applyMove, canPlace, centre, colors, complete, createGame, footprint, hint, nextTurn, pieceAt, placementAt, shapeNames, undo, vertices,
+  type Level, type Move, type Placement, type Point, type Turn } from './engine';
 import { levels, randomLevel, type RandomTangram } from './levels';
 import { TangramScene } from './scene';
 import { readSave, writeSave, type Save } from './storage';
@@ -80,12 +80,11 @@ document.querySelector('#app')!.innerHTML = `
   <div class="sheet-body">
     <p>Fill the tan outline with every piece. Leave no gaps or overlaps.</p>
     ${gameGuide([
-      { before: '◤ + ◣', after: '◤', text: 'Choose a piece from the tray. Its preview shows where it will go.' },
-      { before: '◣', after: '◢', text: 'Press Turn to rotate the piece a quarter turn. Tap a placed piece twice to turn it where it sits.' },
-      { before: '◤ + ◢', after: '■', text: 'Tap the board to place it, or choose a column and row and press Place. Two triangles can fill a square.' },
-      { before: '◤', after: '·', text: 'Hold a placed piece to lift it off the board. With a mouse, right-click it.' },
-      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
-    ], true)}
+      { gesture: 'tap-two', before: '◤ + ◢', after: '■', text: 'Tap a piece in the tray, then tap the board to place it.' },
+      { gesture: 'tap', before: '◣', after: '◢', text: 'Press Turn to turn the chosen piece. Tap a placed piece twice to turn it where it sits.' },
+      { gesture: 'hold', before: '◤', after: '·', text: 'Hold a placed piece to lift it off the board.' },
+      cameraStep,
+    ], true, `With a mouse, click the board to place. You can also choose a piece, column and row from the lists and press Place. Right-click a piece to lift it. On the board, arrow keys move the spot and Enter or Space places. ${cameraOther}`)}
   </div>
 </dialog>`;
 
@@ -102,7 +101,11 @@ try {
     const hit = pieceAt(data.game, px, py);
     if (hit === selected) turnPlaced();
     else if (hit !== -1) { choose(hit); notice = ''; draw(); }
-    else if (cell) { draft = { ...draft, x: cell[0], y: cell[1] }; place(); }
+    else if (cell) {
+      const tapped = { ...draft, x: cell[0], y: cell[1] };
+      draft = canPlace(data.game, selected, tapped) ? tapped : placementAt(data.game, selected, [px, py], draft.turn) ?? tapped;
+      place();
+    }
   }, ([px, py]) => {
     const hit = pieceAt(data.game, px, py);
     if (hit === -1 || complete(data.game)) return;
@@ -143,8 +146,23 @@ function draw(placedPiece?: number) {
     : 'The piece does not fit here. Turn it or try another square.';
   const here = placements[selected];
   if (here && here.x === draft.x && here.y === draft.y && here.turn === draft.turn) instruction = `Tap piece ${selected + 1} again to turn it, or hold it to lift it off.`;
-  else if (index === 0 && !placements[0] && selected === 0 && fits) instruction = 'Place the first triangle at A1.';
-  else if (index === 0 && placements[0] && !placements[1] && !fits) instruction = 'Turn the second triangle until it fits at A1.';
+  // First level: point at the next step from the hint, and say the same thing in the status line.
+  const tutorial = !random && index === 0 && !won ? hint(game) : undefined;
+  let finger: Point | undefined;
+  if (tutorial) {
+    const name = ['first triangle', 'second triangle'][tutorial.piece] ?? `piece ${tutorial.piece + 1}`;
+    const target = tutorial.placement;
+    if (!target) {
+      finger = centre(footprint(level.pieces[tutorial.piece], placements[tutorial.piece]!));
+      instruction = `Hold the ${name} where the finger points to lift it off.`;
+    } else if (tutorial.piece !== selected) instruction = `Choose the ${name} from the pieces.`;
+    else if (draft.turn !== target.turn) instruction = `Press Turn until the ${name} matches the empty space.`;
+    else {
+      finger = centre(footprint(level.pieces[tutorial.piece], target));
+      instruction = `Tap where the finger points to place the ${name}.`;
+    }
+  }
+  scene?.pointAt(finger);
   $('status').textContent = won ? 'All pieces fit!' : notice || instruction;
 
   const shape = footprint(level.pieces[selected], { x: 0, y: 0, turn: draft.turn });
@@ -293,3 +311,4 @@ window.addEventListener('pagehide', save);
 draw();
 save();
 addMusic('tiny-tangrams');
+showGuideOnFirstVisit('tiny-tangrams');

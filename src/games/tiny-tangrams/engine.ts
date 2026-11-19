@@ -127,12 +127,29 @@ export function hint(game: Game): Move | undefined {
   if (missing !== -1) return { piece: missing, placement: game.level.solution[missing] };
 }
 
+function covers(tile: Triangle, px: number, py: number): boolean {
+  const side = ([ax, ay]: Point, [bx, by]: Point) => (bx - ax) * (py - ay) - (by - ay) * (px - ax);
+  const [a, b, c] = vertices(tile), s = [side(a, b), side(b, c), side(c, a)];
+  return s.every(v => v >= 0) || s.every(v => v <= 0);
+}
+
 /** Which placed piece covers a board point, or -1. Used to pick pieces by tapping them. */
 export function pieceAt(game: Game, px: number, py: number): number {
-  const side = ([ax, ay]: Point, [bx, by]: Point) => (bx - ax) * (py - ay) - (by - ay) * (px - ax);
   return game.placements.findIndex((placement, i) => placement !== null
-    && footprint(game.level.pieces[i], placement).some(tile => {
-      const [a, b, c] = vertices(tile), s = [side(a, b), side(b, c), side(c, a)];
-      return s.every(v => v >= 0) || s.every(v => v <= 0);
-    }));
+    && footprint(game.level.pieces[i], placement).some(tile => covers(tile, px, py)));
+}
+
+/** A fitting spot for a piece at this turn that covers the board point, so a tap anywhere on the gap places it. */
+export function placementAt(game: Game, index: number, [px, py]: Point, turn: Turn): Placement | undefined {
+  const piece = game.level.pieces[index];
+  for (let dy = 0; piece && dy < piece.size; dy++) for (let dx = 0; dx < piece.size; dx++) {
+    const placement = { x: Math.floor(px) - dx, y: Math.floor(py) - dy, turn };
+    if (canPlace(game, index, placement) && footprint(piece, placement).some(tile => covers(tile, px, py))) return placement;
+  }
+}
+
+/** The middle of a piece's shape. Every piece is convex, so this point lies on the piece. */
+export function centre(tiles: readonly Triangle[]): Point {
+  const points = tiles.flatMap(vertices);
+  return [points.reduce((sum, [x]) => sum + x, 0) / points.length, points.reduce((sum, [, y]) => sum + y, 0) / points.length];
 }

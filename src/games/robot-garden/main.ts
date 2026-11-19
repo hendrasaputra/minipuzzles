@@ -2,7 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { directions, isDirection, maxCommands, run, seedCount, solve, startPosition, type Direction } from './engine';
 import { levels, randomLevel } from './levels';
@@ -79,10 +79,12 @@ document.querySelector('#app')!.innerHTML = `
     ${gameGuide([
       { before: '<span class="example-board"><i></i><i class="example-dock">D</i><i>🤖</i><i>◆</i></span>',
         after: '<span class="example-board"><i></i><i class="example-dock">🤖</i><i></i><i></i></span>',
-        text: 'In this map, queue East to collect the seed, then North to reach D. Press Run.' },
-      { before: '🤖 → ▧', after: '↶', text: 'A rock or an edge stops the robot. Edit your steps and run again from the start.' },
-      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag. The arrows turn with the board. The N, E, S and W labels stay on their edges.' },
-    ], true)}
+        gesture: 'tap', text: 'Tap the arrow buttons below the board to add steps. Here: East takes the seed, then North reaches D.' },
+      { gesture: 'tap', text: 'Tap Run. The robot follows your steps from the start.' },
+      { before: '🤖 → ▧', after: 'Stop', text: 'A rock or the edge stops the robot. Change your steps and run again.' },
+      cameraStep,
+      { text: 'The arrow buttons turn with the board. The N, E, S and W labels stay on their edges.' },
+    ], true, `On the board, press the arrow keys to add steps. ${cameraOther}`)}
   </div>
 </dialog>`;
 
@@ -123,7 +125,7 @@ function draw(updateBoard = true) {
   $('level-number').textContent = saved.random ? tiers[saved.random.difficulty] : `${index + 1} / ${levels.length}`;
   $('seed-count').textContent = `${seedCount(saved.level, position)} / ${saved.level.seeds.length}`;
   const instruction = saved.level.id === levels[0].id
-    ? 'Queue East, then North. Press Run.'
+    ? 'Tap East, then North. Then tap Run.'
     : 'Queue steps to the seeds, then to the dock.';
   $('status').textContent = saved.won ? 'All seeds collected. Robot docked!' : notice || instruction;
   for (const direction of directions) {
@@ -271,3 +273,4 @@ window.addEventListener('pagehide', save);
 draw();
 save();
 addMusic('robot-garden');
+showGuideOnFirstVisit('robot-garden');

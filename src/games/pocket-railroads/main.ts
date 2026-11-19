@@ -2,7 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { applyMove, complete, createGame, hint, trace, undo, type Level } from './engine';
 import { generateRailroad, levels, type RandomRailroad } from './levels';
@@ -67,11 +67,11 @@ document.querySelector('#app')!.innerHTML = `
     <div class="menu-pair"><button id="new-random">New random puzzle</button></div>
     <p id="progress" class="muted"></p>
     ${gameGuide([
-      { before: '🚂 B', after: 'B', text: 'Send each train to the station with the same letter.' },
-      { before: '⑴ ↗ A', after: '⑴ ↘ B', text: 'Tap a numbered switch or press Flip switch. The signal arrow points to the chosen branch. The gold line shows the full route.' },
-      { before: '🚂 B → A', after: '🚂 B → B', text: 'Tap the train or press Send train. A train sent to the wrong station returns to the yard.' },
-      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag.' },
-    ])}
+      { before: '🚂 B', after: 'B', text: 'Each train goes to the station with its letter and colour.' },
+      { gesture: 'tap', before: '⑴ ↗ A', after: '⑴ ↘ B', text: 'Tap a numbered switch to change its branch. The gold line shows where the train will go.' },
+      { gesture: 'tap', before: '🚂 B → A', after: '🚂 B → B', text: 'Tap the train to send it. A train sent to the wrong station comes back.' },
+      cameraStep,
+    ], false, `Pick a switch from the list and press Flip switch, or press Enter or Space on the board. Send train sends it too. ${cameraOther}`)}
     <p class="muted">Ground Disc Signal by <a href="https://polyfork.dev/asset/ground-disc-signal-3d52e9">Polyfork</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Recolored and fitted with a branch arrow.</p>
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>
@@ -116,8 +116,12 @@ function draw(updateBoard = true) {
   $('moves').textContent = `${game.delivered} / ${game.level.trains.length}`;
   $('target-station').innerHTML = won ? 'All trains sent' : stationLabel(target);
   $('route-station').innerHTML = stationLabel(end);
-  const instruction = end === target ? 'The route matches. Send the train.'
-    : game.level.id === levels[0].id ? 'Tap switch 1 to change the route.'
+  // Level 1 tutorial: point at the Hint button's next move, a switch or the train.
+  const tutorial = !random && index === 0 && !won && !moving ? hint(game) : undefined;
+  scene?.pointAt(game, tutorial);
+  const instruction = tutorial === 'send' ? 'The route matches. Tap the train to send it.'
+    : tutorial !== undefined ? `Tap switch ${tutorial + 1} to change the route.`
+    : end === target ? 'The route matches. Send the train.'
     : 'Flip a switch to match the train’s station.';
   $('status').textContent = won ? 'All trains reached their stations!' : notice || instruction;
   switchSelect.innerHTML = game.switches.map((lower, i) =>
@@ -245,3 +249,4 @@ window.addEventListener('pagehide', save);
 draw();
 save();
 addMusic('pocket-railroads');
+showGuideOnFirstVisit('pocket-railroads');

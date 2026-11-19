@@ -2,7 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { complete, createGame, jugs, names, pour, poured, solve, undo, type Level, type Pour } from './engine';
 import { levels, randomLevel, type RandomBalance } from './levels';
@@ -74,12 +74,11 @@ document.querySelector('#app')!.innerHTML = `
   <div class="sheet-body">
     <p>Match each current amount to its goal. Gold rings mark the goals on the jugs.</p>
     ${gameGuide([
-      { before: 'A 6 L · B 0 L', after: 'A 2 L · B 4 L',
-        text: 'Tap A, then B. A holds 6 L and B can hold 4 L, so the pour fills B and leaves 2 L in A.' },
-      { before: 'C 2 L · A 0 L', after: 'C 0 L · A 2 L',
-        text: 'C empties before A is full. A pour stops when the first jug is empty or the second jug is full.' },
-      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
-    ], true)}
+      { gesture: 'tap-two', text: 'Tap a jug with water, then tap another jug to pour into it.' },
+      { text: 'The water stops when the jug you pour into is full, or the first jug is empty.' },
+      { text: 'Example: A has 6 L and B holds 4 L. Pour A into B. Now B has 4 L and A keeps 2 L.' },
+      cameraStep,
+    ], true, `Choose jugs in the Pour from and Pour into lists, then press Pour. ${cameraOther}`)}
   </div>
 </dialog>`;
 
@@ -127,8 +126,20 @@ function draw(updateBoard = true) {
     <strong>Jug ${names[i]}</strong><small>Holds ${level.capacities[i]} L</small>
     <span>Current <b>${current[i]} L</b></span><span>Goal <b>${level.goal[i]} L</b></span>
   </section>`).join('');
-  $('status').textContent = won ? 'All amounts match!' : notice ||
-    (level.id === levels[0].id && source === 0 && destination === 1 ? 'Tap A, then B. Or press Pour to fill B.' : 'Tap a jug with water, then tap another jug.');
+  // First level: point at the next jug to tap from the solver, and say the same in the status line.
+  const next = !random && index === 0 && !won && !moving ? solve(game)?.[0] : undefined;
+  let finger: number | undefined;
+  let guide: string | undefined;
+  if (next && !awaitingDestination) {
+    finger = next.from;
+    guide = `Tap jug ${names[next.from]}, then jug ${names[next.to]}.`;
+  } else if (next && source === next.from) {
+    finger = next.to;
+    guide = `Now tap jug ${names[next.to]} to pour.`;
+  }
+  scene?.pointAt(level, finger);
+  $('status').textContent = won ? 'All amounts match!' : (awaitingDestination ? guide : undefined) ?? (notice || guide
+    || (level.id === levels[0].id && source === 0 && destination === 1 ? 'Tap A, then B. Or press Pour to fill B.' : 'Tap a jug with water, then tap another jug.'));
   from.innerHTML = jugs.map(i => `<option value="${i}">From ${names[i]}</option>`).join('');
   to.innerHTML = jugs.filter(i => i !== source).map(i => `<option value="${i}">Into ${names[i]}</option>`).join('');
   from.value = String(source);
@@ -242,3 +253,4 @@ window.addEventListener('pagehide', save);
 draw();
 save();
 addMusic('water-balance');
+showGuideOnFirstVisit('water-balance');

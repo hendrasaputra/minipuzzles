@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { MiniScene } from '../../shared/mini-scene';
 import { MaterialMotion } from '../../shared/material-motion';
 import { PixelBurst } from '../../shared/pixel-burst';
-import { complete, trace, type Game, type Node, type Point } from './engine';
+import { complete, trace, type Game, type Move, type Node, type Point } from './engine';
 import { loadSwitchSignal, switchSignal } from './switch-signal';
 
 export const stations = [
@@ -82,6 +82,15 @@ export class RailScene {
   }
 
   cancelInput = () => { this.press = undefined; };
+
+  /** Points the tutorial finger at a switch or the waiting train, or hides it. */
+  pointAt(game: Game, move?: Move) {
+    if (move === 'send') { this.mini.showFinger(game.level.yard.x, game.level.yard.y, .6); return; }
+    const find = (node: Node): Node | undefined => 'station' in node ? undefined
+      : node.junction === move ? node : node.branches.map(find).find(Boolean);
+    const node = move === undefined ? undefined : find(game.level.root);
+    if (node) this.mini.showFinger(node.x, node.y, .16); else this.mini.hideFinger();
+  }
 
   private segment(from: Point, to: Point, highlight = false) {
     const horizontal = from.y === to.y;

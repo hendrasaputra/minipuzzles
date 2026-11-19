@@ -1,12 +1,12 @@
 import '../../shared/game-base.css';
 import './style.css';
-import { createGame, move, undo, solve, type Direction, type Level } from './engine';
+import { createGame, move, undo, solve, type Cell, type Direction, type Level } from './engine';
 import { levels } from './levels';
 import { CrateScene, type StepCue } from './scene';
 import { readSave, writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { randomGarden, type RandomGarden } from './random';
 
@@ -32,11 +32,11 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <dialog id="menu" class="sheet" aria-labelledby="menu-title"><div class="sheet-heading"><h2 id="menu-title">Menu</h2><button id="close-menu">Done</button></div><div class="sheet-body"><label>Levels<select id="level-select"></select></label><p id="progress" class="muted"></p>
 <label>Random difficulty<select id="random-difficulty"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>
 <div class="menu-pair"><button id="new-random">New random puzzle</button></div><p id="seed" class="puzzle-id" hidden></p>${gameGuide([
-  { before: '🧑 ⬜', after: '⬜ 🧑', text: 'Tap a tile next to you, swipe, or use the arrows or WASD to move.' },
-  { before: '🧑 📦 🟩', after: '⬜ 🧑 📦', text: 'Walk into one crate to push it. Put every crate on a green tile.' },
-  { before: '📦 🧱', after: '↶ 📦', text: 'Stuck? Use Undo or Restart.' },
-  { before: '▦', after: '◈', text: 'Drag with two fingers to turn the board. Pinch to zoom. Use ↺ to reset.' }
-])}<p class="muted">Grain Sack by <a href="https://polyfork.dev/asset/grain-sack-401d96">Polyfork</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Rescaled and tinted.</p>
+  { gesture: 'tap', before: '🧑 ⬜', after: '⬜ 🧑', text: 'Tap a tile next to the gardener to step there. You can also swipe.' },
+  { gesture: 'swipe', before: '🧑 📦 🟩', after: '⬜ 🧑 📦', text: 'Walk into a crate to push it. You can push one crate at a time.' },
+  { before: '📦 🟩', after: '✓', text: 'Put every crate on a green tile to win. Stuck? Tap Undo or Restart.' },
+  cameraStep,
+], false, `Use the arrow buttons below the board, or the arrow keys or WASD. ${cameraOther}`)}<p class="muted">Grain Sack by <a href="https://polyfork.dev/asset/grain-sack-401d96">Polyfork</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Rescaled and tinted.</p>
 <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;
 const menu=$<HTMLDialogElement>('menu');
 let scene:CrateScene|undefined;
@@ -62,6 +62,7 @@ function step(dir: Direction, message = '') {
 function draw(cue?: StepCue) {
   const won = game.status === 'won';
   scene?.update(game, cue);
+  scene?.pointAt(!random && index === 0 && !won ? nextTile() : undefined);
   $('title').textContent = game.level.title;
   $('level-number').textContent = random ? difficultyName(random.difficulty) : `${index + 1} / ${levels.length}`;
   $('moves').textContent = String(game.moves);
@@ -83,6 +84,13 @@ function draw(cue?: StepCue) {
   $('progress').textContent = `${completed.length} of ${levels.length} levels complete.`;
   $('sound').textContent = audio.enabled ? 'Sound: on' : 'Sound: off';
   $('sound').setAttribute('aria-pressed', String(audio.enabled));
+}
+/** The tile to tap for the solver's next step on the first level. */
+function nextTile(): Cell | undefined {
+  const dir = solve(game)?.[0];
+  if (!dir) return;
+  const [dx, dy] = dir === 'n' ? [0, -1] : dir === 'e' ? [1, 0] : dir === 's' ? [0, 1] : [-1, 0];
+  return { x: game.player.x + dx, y: game.player.y + dy };
 }
 function difficultyName(difficulty: Difficulty): string {
   return difficulty[0].toUpperCase() + difficulty.slice(1);
@@ -128,3 +136,4 @@ document.addEventListener('pointerdown',e=>{if(!(e.target instanceof Element)||!
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
 addMusic('crate-garden');
+showGuideOnFirstVisit('crate-garden');

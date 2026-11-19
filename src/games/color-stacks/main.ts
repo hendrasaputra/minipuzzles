@@ -2,7 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { applyMove, canMove, complete, createGame, solve, sorted, undo, type Level, type Move } from './engine';
 import { levels, randomLevel, type RandomStacks } from './levels';
@@ -71,12 +71,14 @@ document.querySelector('#app')!.innerHTML = `
     <p id="progress" class="muted"></p>
     <p>Fill one stack for each color. Move the top block onto an empty stack or onto a block of the same color.</p>
     ${gameGuide([
-      { before: miniStack([0, 1]) + miniStack([]), after: miniStack([0]) + miniStack([1]),
-        text: 'Tap the mixed stack, then the empty space. Only the top blue block moves.' },
-      { before: miniStack([0, 1]) + miniStack([1]), after: miniStack([0]) + miniStack([1, 1]),
-        text: 'You can also move blue onto blue if there is space.' },
-      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
-    ])}
+      { gesture: 'tap-two', before: miniStack([0, 1]) + miniStack([]), after: miniStack([0]) + miniStack([1]),
+        text: 'Tap a stack, then another stack. The top block moves across.' },
+      { gesture: 'tap-two', before: miniStack([0, 1]) + miniStack([1]), after: miniStack([0]) + miniStack([1, 1]),
+        text: 'A block can go on an empty stack or on the same color, if there is room.' },
+      { before: miniStack([1, 0]) + miniStack([0, 1]), after: miniStack([1, 1]) + miniStack([0, 0]),
+        text: 'Fill one stack with each color to win. Tap a stack again to let it go.' },
+      cameraStep,
+    ], false, `Pick stacks in the From and To lists and press Move, or press Enter or Space on the board. ${cameraOther}`)}
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>
   </div>
@@ -138,12 +140,19 @@ function draw(updateBoard = true, move?: Move) {
   $('level-number').textContent = random ? tierNames[random.difficulty] : `${levelIndex + 1} / ${levels.length}`;
   $('moves').textContent = `${count} / ${colors.length}`;
   let instruction = 'Move top blocks to sort each color into one stack.';
-  const tutorial = level.id === levels[0].id && !won ? solve(game)?.[0] : undefined;
+  const tutorial = !random && levelIndex === 0 && !won ? solve(game)?.[0] : undefined;
+  let tutorialStep = false;
   if (tutorial) {
     const name = palette[stacks[tutorial.from].at(-1)!].name.toLowerCase();
     instruction = `Move the top ${name} block from ${stackName(tutorial.from)} to ${stackName(tutorial.to)}.`;
+    // On the first level a pending pick always gets a next-tap line that matches the finger.
+    if (pending) {
+      tutorialStep = true;
+      instruction = from === tutorial.from ? `Now tap ${stackName(tutorial.to)}.` : `Tap ${stackName(from)} again to let it go.`;
+    }
   }
-  $('status').textContent = won ? 'Every color has its own stack!' : notice || instruction;
+  scene?.pointAt(game, tutorial ? (!pending ? tutorial.from : from === tutorial.from ? tutorial.to : from) : undefined);
+  $('status').textContent = won ? 'Every color has its own stack!' : (tutorialStep ? '' : notice) || instruction;
   $('goal-stacks').innerHTML = stackMap(colors.map(color => Array(level.capacity).fill(color)), false);
   $('current-stacks').innerHTML = stackMap(stacks, true);
 
@@ -281,3 +290,4 @@ resetSelection();
 draw();
 save();
 addMusic('color-stacks');
+showGuideOnFirstVisit('color-stacks');

@@ -3,3 +3,12 @@
 @media (pointer: coarse) and (hover: none) {
   .mini-camera button[aria-pressed] { display: none; }
 }
+/* First-level finger mark: a soft pulsing tap target that follows the board. */
+.board-finger { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; z-index: 2; pointer-events: none; }
+.board-finger[hidden] { display: none; }
+.board-finger::before, .board-finger::after { content: ''; position: absolute; inset: 0; border-radius: 50%; }
+.board-finger::before { inset: 11px; background: #fff; border: 3px solid #8e6d58; box-shadow: 0 3px 8px #4c382366; animation: finger-press 1.6s ease-in-out infinite; }
+.board-finger::after { inset: -4px; border: 3px solid #fff; box-shadow: 0 0 0 2px #8e6d58aa; animation: finger-ripple 1.6s ease-out infinite; }
+@keyframes finger-press { 0%, 100% { transform: translateY(-6px); opacity: .55; } 35%, 60% { transform: none; opacity: 1; } }
+@keyframes finger-ripple { 0%, 35% { transform: scale(.4); opacity: 0; } 45% { opacity: .9; } 100% { transform: scale(1.25); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .board-finger::before, .board-finger::after { animation: none; } .board-finger::after { opacity: .6; } }

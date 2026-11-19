@@ -37,6 +37,13 @@ export class MarbleScene {
     this.draw(game, selectedId);
   }
 
+  /** Points the tutorial finger at a track or the marble, or hides it. */
+  pointAt(target?: Cell | 'marble'): void {
+    const cell = target === 'marble' ? this.game?.level.source : target;
+    if (cell) this.mini.showFinger(cell.x + .5, cell.y + .5, target === 'marble' ? ROLL_HEIGHT + MARBLE_RADIUS + .02 : .3);
+    else this.mini.hideFinger();
+  }
+
   cancelInput = (): void => this.mini.cancelInput();
 
   roll(points: Cell[], reached: boolean, onDone: () => void): void {

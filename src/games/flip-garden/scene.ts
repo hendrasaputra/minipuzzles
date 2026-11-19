@@ -58,6 +58,12 @@ export class FlipScene {
 
   cancelInput = () => { this.press = undefined; };
 
+  /** Points the tutorial finger at a tile, or hides it. */
+  pointAt(size: number, cell?: number) {
+    if (cell === undefined) this.mini.hideFinger();
+    else this.mini.showFinger(cell % size + .5, Math.floor(cell / size) + .5, .2);
+  }
+
   private animate = (seconds: number) => {
     if (this.previous !== undefined) this.elapsed += Math.max(0, Math.min(.05, seconds - this.previous));
     this.previous = seconds;

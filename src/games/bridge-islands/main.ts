@@ -2,7 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { applyMove, complete, createGame, hint, totals, undo, type Count, type Level, type Move } from './engine';
 import { levels, randomLevel, type RandomBridge } from './levels';
@@ -68,18 +68,19 @@ document.querySelector('#app')!.innerHTML = `
     <p id="progress" class="muted"></p>
     <p>Connect every island. Each label shows bridges built / bridges needed. An island marked 1/2 still needs one bridge.</p>
     ${gameGuide([
-      { before: '<span class="bridge-example"><b>1</b> <b>3</b></span>',
+      { gesture: 'tap-two', before: '<span class="bridge-example"><b>1</b> <b>3</b></span>',
         after: '<span class="bridge-example"><b>1</b><i></i><b>3</b></span>',
-        text: 'Tap one island, then its neighbor. Or pick them in the lists and press Add bridge.' },
-      { before: '<span class="bridge-example"><b>3</b><i></i><b>2</b></span>',
+        text: 'Tap one island, then a neighbor in the same row or column. A bridge joins them.' },
+      { gesture: 'tap-two', before: '<span class="bridge-example"><b>3</b><i></i><b>2</b></span>',
         after: '<span class="bridge-example"><b>3</b><i class="double"></i><b>2</b></span>',
-        text: 'Repeat the same pair for two bridges. Repeat once more to clear both.' },
+        text: 'Tap the same pair again for a second bridge. A third time clears them.' },
+      { before: '<span class="bridge-example"><b>0/1</b></span>', after: '<span class="bridge-example"><b>1/1</b></span>',
+        text: 'Each island shows bridges built / bridges needed. Match every number.' },
       { before: '<span class="bridge-example"><b>1</b><i></i><b>3</b> <b>2</b></span>',
         after: '<span class="bridge-example"><b>1</b><i></i><b>3</b><i class="double"></i><b>2</b></span>',
-        text: 'The middle island has three bridges in total. One goes left and two go right. All three islands are joined.' },
-      { before: '↘ ✕', after: '↔ ✓', text: 'Bridges go straight to the nearest island in the same row or column. They cannot cross.' },
-      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
-    ])}
+        text: 'Join all islands into one group. Bridges cannot cross.' },
+      cameraStep,
+    ], false, `Pick two islands in the lists and press Add bridge, or press Enter or Space on the board. ${cameraOther}`)}
     <p class="muted">Dock Platform Section by <a href="https://polyfork.dev/asset/dock-platform-section-b36e7c">Polyfork</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Resized and recolored.</p>
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>
@@ -137,10 +138,21 @@ function draw(updateBoard = true, extended?: number) {
   $('target-count').textContent = String(level.islands[selected].goal);
   $('current-count').textContent = String(counts[selected]);
   let instruction = 'Tap an island, then a neighbor. 0/2 means 0 built, 2 needed.';
-  if (level.id === 'bridge-1' && !game.history.length && !pending) {
-    instruction = 'Tap A, then B. Watch A change from 0/1 to 1/1.';
-  }
   if (pending) instruction = `Island ${islandName(selected)} selected. Tap a neighboring island.`;
+  // First level only: point at the next island to tap, following the Hint move.
+  const move = !random && index === 0 && !won ? hint(game) : undefined;
+  let target: number | undefined;
+  if (move) {
+    let { a: first, b: second } = level.edges[move.edge];
+    if (pending && (selected === second || (selected !== first && edgeIndex(selected, first) >= 0 && edgeIndex(selected, second) < 0))) {
+      [first, second] = [second, first];
+    }
+    const half = pending && selected === first;
+    target = half ? second : first;
+    instruction = half ? `Now tap ${islandName(second)}.` : `Tap ${islandName(first)}, then ${islandName(second)}.`;
+    if (!game.history.length && !pending) instruction += ` Watch ${islandName(first)} change from 0/1 to 1/1.`;
+  }
+  scene?.pointAt(target === undefined ? undefined : level.islands[target]);
   if (matched === level.islands.length && !won) instruction = 'The numbers match. Join all islands into one group.';
   $('status').textContent = won ? 'All islands are connected and every number matches!' : notice || instruction;
   islandSelect.innerHTML = level.islands.map(({ goal }, i) =>
@@ -288,3 +300,4 @@ window.addEventListener('pagehide', save);
 draw();
 save();
 addMusic('bridge-islands');
+showGuideOnFirstVisit('bridge-islands');

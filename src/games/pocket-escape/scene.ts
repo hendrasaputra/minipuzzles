@@ -46,6 +46,12 @@ export class EscapeScene {
     canvas.addEventListener('pointercancel', () => { this.press = undefined; });
   }
 
+  /** Points the tutorial finger at a numbered clue, or hides it. */
+  pointAt(clue?: number) {
+    const at = clue === undefined ? undefined : positions[clue];
+    if (at) this.mini.showFinger(at[0], at[1], .55); else this.mini.hideFinger();
+  }
+
   draw(room: Room, inspected: number[], won: boolean) {
     this.motion.stop();
     this.opening = undefined;

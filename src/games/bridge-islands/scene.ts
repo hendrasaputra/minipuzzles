@@ -64,6 +64,12 @@ export class BridgeScene {
 
   cancelInput = () => { this.press = undefined; };
 
+  /** Points the tutorial finger at an island, or hides it. */
+  pointAt(island?: { x: number; y: number }) {
+    if (island) this.mini.showFinger(island.x, island.y, .35);
+    else this.mini.hideFinger();
+  }
+
   private down = (event: PointerEvent) => {
     if (this.mini.rotating || event.button !== 0) return;
     const island = this.mini.pick(event.clientX, event.clientY);

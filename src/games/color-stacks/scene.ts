@@ -21,6 +21,13 @@ const blockHeight = .53;
 const travelTime = .20;
 const settleTime = .10;
 
+function stackPoint(game: Game, index: number) {
+  const columns = Math.min(4, game.stacks.length);
+  const row = Math.floor(index / columns);
+  const count = Math.min(columns, game.stacks.length - row * columns);
+  return [(index % columns + (columns - count) / 2) * pitch + .57, row * pitch + .57] as const;
+}
+
 export class StackScene {
   private readonly mini: MiniScene;
   private readonly motion: MaterialMotion;
@@ -61,6 +68,13 @@ export class StackScene {
   }
 
   cancelInput = () => { this.press = undefined; };
+
+  /** Points the tutorial finger at the top of a stack, or hides it. */
+  pointAt(game: Game, index?: number) {
+    if (index === undefined) return this.mini.hideFinger();
+    const [x, y] = stackPoint(game, index);
+    this.mini.showFinger(x, y, .1 + blockHeight * game.stacks[index].length);
+  }
 
   private animate = (time: number) => {
     const moving = this.moving;
@@ -104,11 +118,7 @@ export class StackScene {
     this.mini.clear();
     const columns = Math.min(4, game.stacks.length);
     const rows = Math.ceil(game.stacks.length / columns);
-    const point = (index: number) => {
-      const row = Math.floor(index / columns);
-      const count = Math.min(columns, game.stacks.length - row * columns);
-      return [(index % columns + (columns - count) / 2) * pitch + .57, row * pitch + .57] as const;
-    };
+    const point = (index: number) => stackPoint(game, index);
     this.mini.box(-.08, -.08, columns * pitch + .04, rows * pitch + .12, -.29, -.08, '#b1a18c');
     this.mini.box(-.02, -.02, columns * pitch, rows * pitch + .07, -.08, 0, '#e5d7bf');
     game.stacks.forEach((stack, index) => {

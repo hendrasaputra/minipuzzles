@@ -65,6 +65,8 @@ export class CrateScene {
     this.mini.canvas.addEventListener('pointercancel',this.cancelInput);
     window.addEventListener('blur',this.cancelInput);
   }
+  /** Points the tutorial finger at a tile, above its crate when there is one, or hides it. */
+  pointAt(cell?:Point){if(cell)this.mini.showFinger(cell.x+.5,cell.y+.5,this.game?.crates.some(c=>c.x===cell.x&&c.y===cell.y)?.9:.05);else this.mini.hideFinger();}
   screenDirection(dir:Direction){const [x,y]=dir==='n'?[0,-1]:dir==='e'?[1,0]:dir==='s'?[0,1]:[-1,0];return this.mini.direction(x,y);}
   update(game:Game, cue?: StepCue) {
     this.cancelInput();

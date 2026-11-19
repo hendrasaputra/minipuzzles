@@ -1,5 +1,5 @@
 import './style.css';
-import { gameGuide } from '../../shared/game-guide';
+import { gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { randomSeed } from '../../shared/random-puzzle';
 import { startGame, retryGame, reveal, toggleFlag, chord, clueNeighbors, type Game } from './engine';
 import { BoardScene, type TileFeedback } from './scene';
@@ -113,13 +113,12 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="sheet-body rules-copy">
     <p>Open every safe tile. Hitting a mine ends the game.</p>
     ${gameGuide([
-      { before: '◇', after: '2', text: 'Tap a tile to open it. The number counts nearby mines.' },
-      { before: '◇', after: '⚑', text: 'Hold or right-click a tile to flag it. You can also choose Flag.' },
-      { before: '⚑ 1 ◇', after: '⚑ 1 □', text: 'Place the right flags, then double-tap the number to open the other tiles.' },
-      { before: '↑ 1', after: '▦', text: 'An arrow counts mines in a 3×3 square one floor up or down. Tap it to see the tiles it counts.' },
-      { before: '▦  12  ▦', after: '▦', text: 'In Volume, a number counts nearby mines across up to three floors. Tap it to see the tiles on each floor.' },
-    ], true)}
-    <p>Drag to turn the board. Pinch or scroll to zoom. When zoomed in, drag to move the view.</p>
+      { gesture: 'tap', before: '◇', after: '2', text: 'Tap a tile to open it. Its number tells how many mines touch it.' },
+      { gesture: 'hold', before: '◇', after: '⚑', text: 'Hold a tile to flag a mine you have found.' },
+      { gesture: 'tap', before: '⚑ 1 ◇', after: '⚑ 1 □', text: 'When a number has all its flags, double-tap it to open the tiles around it.' },
+      { before: '↑ 1', after: '▦', text: 'On boards with more floors, some numbers also count mines on other floors. Tap any number to see exactly which tiles it counts.' },
+      { gesture: 'rotate', text: 'Drag with two fingers to turn the board. Pinch to zoom. When zoomed in, drag to move around.' },
+    ], true, 'With a mouse, right-click to flag, drag to turn the board and scroll to zoom. The 2D board in the menu works with the keyboard.')}
     <button id="start-play" class="primary full">Back to game</button>
   </div>
 </dialog>
@@ -410,3 +409,4 @@ setInterval(()=>{const now=performance.now();if(game.status==='playing'&&!docume
 document.addEventListener('visibilitychange',()=>{lastTick=performance.now();save();});window.addEventListener('pagehide',save);
 markCompletion();draw();save();
 addMusic('petals');
+showGuideOnFirstVisit('petals');

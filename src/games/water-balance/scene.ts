@@ -57,6 +57,12 @@ export class BalanceScene {
     canvas.addEventListener('pointercancel', () => { this.press = undefined; });
   }
 
+  /** Points the tutorial finger at the middle of a jug, or hides it. */
+  pointAt(level: Level, jug?: number) {
+    if (jug === undefined) this.mini.hideFinger();
+    else this.mini.showFinger(spacing * jug, 0, floor + level.capacities[jug] * literHeight / 2);
+  }
+
   draw(level: Level, current: Amounts, source: number, destination: number) {
     this.motion.stop();
     this.animation = undefined;

@@ -1,6 +1,6 @@
 import '../../shared/game-base.css';
 import './style.css';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { createGame, rotate, undo, solve, trace, run, trackPorts, type Level } from './engine';
 import { levels } from './levels';
 import { generateWorkshop, type RandomWorkshop } from './random';
@@ -63,11 +63,11 @@ document.querySelector('#app')!.innerHTML = `
     <div class="menu-pair"><button id="new-random">New random puzzle</button></div>
     <p id="progress" class="muted"></p>
     ${gameGuide([
-      { before: '│', after: '─', text: 'Tap a track to turn it. Line up the grooves.' },
-      { before: '🔴 ─', after: '◎ 🔴', text: 'Tap the marble or press Roll. Aim for the cup.' },
-      { before: '🔴 ╵', after: '↻ ─', text: 'If the marble stops, turn a track and try again.' },
-      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag.' },
-    ])}
+      { gesture: 'tap', before: '│', after: '─', text: 'Tap a track to turn it. Line up the grooves from the marble to the cup.' },
+      { gesture: 'tap', before: '🔴 ─', after: '◎ 🔴', text: 'Tap the marble to roll it. You can also press Roll.' },
+      { before: '🔴 ╵', after: '↻ ─', text: 'If the marble stops, turn a track and roll again.' },
+      cameraStep,
+    ], false, `Pick a track from the list and press Turn, or press Enter or Space on the board. ${cameraOther}`)}
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>
   </div>
@@ -99,6 +99,11 @@ function draw(updateBoard = true) {
   const won = game.status === 'won';
   const index = levels.findIndex(level => level.id === game.level.id);
   if (updateBoard) scene?.update(game, selected);
+  // On the first level, point at the next track to turn, then at the marble once the route is lined up.
+  if (!random && index === 0 && !won && !rolling) {
+    const [id] = solve(game);
+    scene?.pointAt(id ? game.tracks.find(track => track.id === id) : 'marble');
+  } else scene?.pointAt();
   $('title').textContent = game.level.title;
   $('level-number').textContent = random ? difficultyNames[random.difficulty] : `${index + 1} / ${levels.length}`;
   $('moves').textContent = String(game.moves);
@@ -240,3 +245,4 @@ window.addEventListener('pagehide', save);
 draw();
 save();
 addMusic('marble-workshop');
+showGuideOnFirstVisit('marble-workshop');

@@ -1,6 +1,6 @@
 import '../../shared/game-base.css';
 import './style.css';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { createGame,rotate,undo,solve,flow,pipePorts } from './engine';
 import { levels } from './levels';
 import { WaterScene } from './scene';
@@ -27,11 +27,10 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <label>Random difficulty<select id="random-difficulty"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>
 <div class="menu-pair"><button id="new-random">New random puzzle</button></div><p id="progress" class="muted"></p>
 ${gameGuide([
-  { before: '💧 ━ │', after: '💧 ━ ━', text: 'Tap a channel to turn it. Match the openings.' },
-  { before: '💧 · 🌱', after: '💧 ━ 🌼', text: 'Connect the spring to every flower. Water stops at gaps.' },
-  { before: '● ●', after: '↔ ↻', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag. Pinch or scroll to zoom.' },
-  { before: 'Choose', after: 'Turn ↻', text: 'Pick a channel and press Turn. On the board, use Enter or Space.' },
-])}
+  { gesture: 'tap', before: '💧 ━ │', after: '💧 ━ ━', text: 'Tap a channel to turn it a quarter turn. Line up the openings.' },
+  { before: '💧 · 🌱', after: '💧 ━ 🌼', text: 'Water flows from the spring through joined channels. Reach every flower to win.' },
+  cameraStep,
+], false, `Pick a channel from the list and press Turn, or press Enter or Space on the board. ${cameraOther}`)}
 <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;
 const menu=$<HTMLDialogElement>('menu');
 const difficultySelect=$<HTMLSelectElement>('random-difficulty');
@@ -41,7 +40,7 @@ let scene:WaterScene|undefined;
 try{scene=new WaterScene($('scene'),id=>{if(menu.open)return;selected=id;draw();save();},id=>{if(!menu.open)turn(id);});}catch{$('scene').textContent='The 3D board did not load. Try another browser.';}
 function save(){try{localStorage.setItem(KEY,writeSave(index,game,selected,completed,random));}catch{saving=false;}$('storage-warning').hidden=saving;$('save-state').textContent=saving?'Progress saved.':'Could not save.';}
 function turn(id:string){if(!rotate(game,id))return;selected=id;notice='';if(!random&&game.status==='won'&&!completed.includes(game.level.id))completed.push(game.level.id);audio.play(game.status==='won'?'win':'flag');draw();save();if(game.status==='won')$('next').focus();}
-function draw(updateScene = true){const won=game.status==='won',water=flow(game);if(updateScene)scene?.update(game,selected);$('title').textContent=game.level.title;$('level-number').textContent=random?difficultyNames[random.difficulty]:`${index+1} / ${levels.length}`;$('moves').textContent=String(game.moves);$('lit').textContent=`${water.watered.length} / ${game.level.flowers.length}`;$('status').textContent=won?'All flowers watered!':notice||'Turn the channels to water every flower.';$('channel-select').innerHTML=game.pipes.map((pipe,i)=>`<option value="${pipe.id}" ${pipe.id===selected?'selected':''}>Channel ${i+1} · row ${pipe.y+1}, column ${pipe.x+1} · ${pipe.kind==='elbow'?'corner':pipe.kind==='tee'?'branch':'straight'} · opens ${pipePorts(pipe).map(dir=>({n:'north',e:'east',s:'south',w:'west'})[dir]).join(' + ')}</option>`).join('');$<HTMLSelectElement>('channel-select').disabled=won;$<HTMLButtonElement>('turn').disabled=won;$<HTMLButtonElement>('undo').disabled=!game.history.length;$('hint').hidden=won;$('next').hidden=!won;$('next').textContent=random?'New random puzzle':index===levels.length-1?'Choose a level':'Next level';$('level-select').innerHTML=(random?'<option value="" disabled selected>Random garden</option>':'')+levels.map((level,i)=>`<option value="${i}" ${!random&&index===i?'selected':''}>${i+1}. ${level.title}${completed.includes(level.id)?' ✓':''}</option>`).join('');$('progress').textContent=`${completed.length} of ${levels.length} levels complete.`;$('sound').textContent=audio.enabled?'Sound: on':'Sound: off';$('sound').setAttribute('aria-pressed',String(audio.enabled));}
+function draw(updateScene = true){const won=game.status==='won',water=flow(game);if(updateScene)scene?.update(game,selected);$('title').textContent=game.level.title;$('level-number').textContent=random?difficultyNames[random.difficulty]:`${index+1} / ${levels.length}`;$('moves').textContent=String(game.moves);$('lit').textContent=`${water.watered.length} / ${game.level.flowers.length}`;$('status').textContent=won?'All flowers watered!':notice||'Turn the channels to water every flower.';scene?.pointAt(!random&&index===0&&!won?game.pipes.find(pipe=>pipe.id===solve(game)?.[0]):undefined);$('channel-select').innerHTML=game.pipes.map((pipe,i)=>`<option value="${pipe.id}" ${pipe.id===selected?'selected':''}>Channel ${i+1} · row ${pipe.y+1}, column ${pipe.x+1} · ${pipe.kind==='elbow'?'corner':pipe.kind==='tee'?'branch':'straight'} · opens ${pipePorts(pipe).map(dir=>({n:'north',e:'east',s:'south',w:'west'})[dir]).join(' + ')}</option>`).join('');$<HTMLSelectElement>('channel-select').disabled=won;$<HTMLButtonElement>('turn').disabled=won;$<HTMLButtonElement>('undo').disabled=!game.history.length;$('hint').hidden=won;$('next').hidden=!won;$('next').textContent=random?'New random puzzle':index===levels.length-1?'Choose a level':'Next level';$('level-select').innerHTML=(random?'<option value="" disabled selected>Random garden</option>':'')+levels.map((level,i)=>`<option value="${i}" ${!random&&index===i?'selected':''}>${i+1}. ${level.title}${completed.includes(level.id)?' ✓':''}</option>`).join('');$('progress').textContent=`${completed.length} of ${levels.length} levels complete.`;$('sound').textContent=audio.enabled?'Sound: on':'Sound: off';$('sound').setAttribute('aria-pressed',String(audio.enabled));}
 function load(next: number, puzzle?: RandomGarden) {
   const nextGame = createGame(puzzle ? generateGarden(puzzle) : levels[next]);
   scene?.cancelInput();
@@ -77,3 +76,4 @@ document.addEventListener('pointerdown',e=>{if(!(e.target instanceof Element)||!
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
 addMusic('water-garden');
+showGuideOnFirstVisit('water-garden');

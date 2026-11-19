@@ -2,7 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { aligned, complete, createGame, hint, join, undo, type Level } from './engine';
 import { levels, randomLevel, type RandomPath } from './levels';
@@ -67,11 +67,11 @@ document.querySelector('#app')!.innerHTML = `
   <div class="sheet-body">
     <p>Two platforms can look connected from the right angle. Join them to build a bridge.</p>
     ${gameGuide([
-      { before: '🟡　🔵', after: '◉', text: 'Drag to turn and tilt the board. Move the blue dot into the gold ring.' },
-      { before: '◉', after: '▰━▰', text: 'When the view says Dots lined up, press Join. A bridge fills the gap.' },
-      { before: '▰━▰　▰', after: '▰━▰━▰', text: 'Join the next gap. Win when the whole path is connected.' },
-    ], true)}
-    <p>Use the Turn and Tilt buttons or focus the board and use arrow keys. Use ↺ to reset the view.</p>
+      { gesture: 'drag', before: '🟡　🔵', after: '◉', text: 'Drag the board with one finger to turn and tilt it. Move the blue dot into the gold ring.' },
+      { before: '◉', after: '▰━▰', text: 'When the dots line up, press Join. A bridge fills the gap.' },
+      { before: '▰━▰　▰', after: '▰━▰━▰', text: 'Join every gap to make one path.' },
+      { gesture: 'pinch', text: 'Pinch to zoom. ↺ puts the view back.' },
+    ], true, 'Use the Turn and Tilt buttons, or focus the board and press the arrow keys. With a mouse, drag the board and scroll to zoom. Home also resets the view.')}
   </div>
 </dialog>`;
 
@@ -110,7 +110,7 @@ function updateView() {
   $('dots').classList.toggle('ready', ready);
   $<HTMLButtonElement>('join').disabled = !ready;
   const instruction = saved.game.level.id === 'perspective-1'
-    ? 'Turn right to bring the blue dot into the gold ring.'
+    ? 'Drag the board to move the blue dot into the gold ring.'
     : 'Turn and tilt to line up the next pair of dots.';
   const text = complete(saved.game) ? 'Path complete!'
     : ready ? 'Dots lined up. Press Join.' : notice || instruction;
@@ -208,3 +208,4 @@ window.addEventListener('pagehide', save);
 draw();
 save();
 addMusic('perspective-paths');
+showGuideOnFirstVisit('perspective-paths');

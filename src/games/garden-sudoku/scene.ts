@@ -36,6 +36,14 @@ export class GardenScene {
     canvas.addEventListener('pointercancel', () => { this.press = undefined; });
   }
 
+  /** Points the tutorial finger at a square, or hides it. */
+  pointAt(game: Game, cell?: number) {
+    if (cell === undefined) return this.mini.hideFinger();
+    const col = cell % 4, row = Math.floor(cell / 4);
+    const top = game.cells[cell] ? game.level.givens[cell] ? .3 : .22 : .08;
+    this.mini.showFinger(col + (col >= 2 ? .21 : 0) + .5, row + (row >= 2 ? .21 : 0) + .5, top + .05);
+  }
+
   clearFeedback() {
     if (this.planting) this.posePlant(1);
     this.planting = undefined;

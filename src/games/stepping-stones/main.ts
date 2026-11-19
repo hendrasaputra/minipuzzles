@@ -2,7 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { canStep, complete, createGame, directions, hint, neighbor, neighbors, step, undo, type Direction, type Level } from './engine';
 import { levels, randomLevel, type RandomPath } from './levels';
@@ -65,13 +65,14 @@ document.querySelector('#app')!.innerHTML = `
   <div class="sheet-heading"><h2 id="example-title">How to make a path</h2><button id="close-example">Done</button></div>
   <div class="sheet-body">
     ${gameGuide([
-      { before: '<span class="stone-example"><b class="on">S</b><b>·</b><b class="finish">F</b></span>',
+      { gesture: 'tap', before: '<span class="stone-example"><b class="on">S</b><b>·</b><b class="finish">F</b></span>',
         after: '<span class="stone-example"><b class="on">S</b><b class="on">●</b><b class="on">F</b></span>',
-        text: 'Start on S. Tap or drag to the next stone. Visit every stone before stepping onto F.' },
-      { before: '● ↗ □', after: '● → □', text: 'Move along edges. Diagonal steps and jumps across water don’t count.' },
-      { before: 'S — ● — ●', after: 'S — ●', text: 'Tap the previous stone or press Undo to go back one step.' },
-      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
-    ], true)}
+        text: 'Start on S. Tap a stone right beside you to step on it.' },
+      { gesture: 'drag', text: 'Drag across stones to take several steps at once. Visit every stone, then end on F.' },
+      { before: '● ↗ □', after: '● → □', text: 'Step up, down, left or right. No diagonal steps and no jumps over water.' },
+      { gesture: 'tap', before: 'S — ● — ●', after: 'S — ●', text: 'Tap the stone you just left to go back one step.' },
+      cameraStep,
+    ], true, `Use the arrow buttons under the board or the arrow keys to step. Undo also goes back one step. ${cameraOther}`)}
   </div>
 </dialog>`;
 
@@ -115,8 +116,12 @@ function draw(pulse = false, removed?: number) {
   $('level-number').textContent = random ? tiers[random.difficulty] : `${index + 1} / ${levels.length}`;
   $('moves').textContent = `${path.length} / ${level.route.length}`;
   const available = neighbors(level.size, path.at(-1)!).some(cell => !path.includes(cell) && canStep(game, cell));
-  const instruction = path.length === 1
-    ? 'Start is marked S. Tap a stone beside it.'
+  const tutorial = !random && index === 0 && !won ? hint(game) : undefined;
+  const back = tutorial && !('cell' in tutorial);
+  scene?.pointAt(level.size, tutorial ? 'cell' in tutorial ? tutorial.cell : path.at(-2) : undefined);
+  const instruction = back ? 'Tap the stone you just left to step back.'
+    : path.length === 1 ? `Start is marked S. Tap ${tutorial ? 'the stone the finger shows' : 'a stone beside it'}.`
+    : tutorial ? 'Tap the next stone the finger shows.'
     : available ? 'Continue from the gold stone.' : 'No new stone in reach. Undo to try another route.';
   $('status').textContent = won ? 'Every stone visited. Path complete!' : notice || instruction;
   drawDirections();
@@ -227,3 +232,4 @@ window.addEventListener('pagehide', save);
 draw();
 save();
 addMusic('stepping-stones');
+showGuideOnFirstVisit('stepping-stones');

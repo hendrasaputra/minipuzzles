@@ -1,5 +1,5 @@
 import '../../shared/game-base.css';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { randomSeed } from '../../shared/random-puzzle';
 import { createGame, moveCar, undo, canMove, legalMoves, type Car, type Game, type Move, type Puzzle } from './engine';
 import { generatePuzzle } from './puzzles';
@@ -35,11 +35,10 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
   <label>Difficulty<select id="difficulty"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>
   <div class="menu-pair"><button id="restart">Retry</button><button id="new">New random puzzle</button></div>
   ${gameGuide([
-    { before: '🚙 ▫', after: '▫ 🚙', text: 'Drag a car along its length, or select it and use the arrow buttons.' },
-    { before: '🚗', after: '🏁', text: 'Clear a path for the red car, then press Drive out.' },
-    { before: '▦', after: '↻', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag. Pinch or scroll to zoom.' },
-    { before: '← →', after: '⇥', text: 'Arrow keys move the selected car. Hold Shift with an arrow key to slide it as far as it can go.' },
-  ])}
+    { gesture: 'drag', before: '🚙 ▫', after: '▫ 🚙', text: 'Drag a car to slide it. Cars only move forward and back.' },
+    { before: '🚗', after: '🏁', text: 'Clear a path for the red car. Then tap Drive out.' },
+    cameraStep,
+  ], false, `Pick a car from the list and use the arrow buttons. Arrow keys move the chosen car; hold Shift to slide it all the way. ${cameraOther}`)}
   <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p><p id="seed" class="puzzle-id"></p>
 </div></dialog>`;
 const menu=$<HTMLDialogElement>('menu');
@@ -68,12 +67,23 @@ function direction(sign:number,far=false){
   if(move)performMove(move.id,move.delta);
   else if (game.status !== 'won') scene?.showBlocked(car, sign);
 }
+// Traffic Garden has no fixed first level, so the finger guides Easy puzzles until the player's first win. Cached per board.
+const firstWinKey='puzzles-traffic-garden-first-win';
+let learned=(()=>{try{return !!localStorage.getItem(firstWinKey);}catch{return false;}})();
+let tutorial={key:'',car:undefined as Car|undefined};
+function tutorialCar(){
+  const key=game.puzzle.seed+game.cars.map(car=>`${car.x},${car.y}`).join('|');
+  if(tutorial.key!==key){const id=solve(game)?.[0]?.id;tutorial={key,car:game.cars.find(car=>car.id===id)};}
+  return tutorial.car;
+}
 function draw(move?: Move){
   const car=current(),won=game.status==='won';
   scene?.update(game,selected,move);
   $('moves').textContent=String(game.history.length);$('par').textContent=game.puzzle.par===undefined?'—':String(game.puzzle.par);$('par-stat').hidden=!won||game.puzzle.par===undefined;
   $('difficulty-label').textContent=game.puzzle.difficulty[0].toUpperCase()+game.puzzle.difficulty.slice(1);
   $('status').textContent=loading?'Loading puzzle…':won?`You won in ${game.history.length} moves.${game.puzzle.par!==undefined&&game.history.length<=game.puzzle.par?' A perfect solve!':''}`:notice|| (exitClear()?'Press Drive out to win.':'Select or drag a car.');
+  if(won&&!learned){learned=true;try{localStorage.setItem(firstWinKey,'1');}catch{/* the finger just shows again next visit */}}
+  scene?.pointAt(!won&&!loading&&!learned&&game.puzzle.difficulty==='easy'?tutorialCar():undefined);
   $('slide-controls').classList.toggle('finished',won);
   const focused=document.activeElement?.id;
   $('car-select').innerHTML=game.cars.map(c=>`<option value="${c.id}" ${c.id===selected?'selected':''}>${label(c)} · ${c.axis==='h'?'horizontal':'vertical'} · ${c.length} spaces · row ${c.y+1}, column ${c.x+1}</option>`).join('');
@@ -125,3 +135,4 @@ window.addEventListener('keydown',e=>{
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
 addMusic('traffic-garden');
+showGuideOnFirstVisit('traffic-garden');

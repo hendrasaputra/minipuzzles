@@ -29,6 +29,12 @@ export class StoneScene {
 
   cancelInput = () => { this.press = undefined; };
 
+  /** Points the tutorial finger at a stone, or hides it. */
+  pointAt(size: number, cell?: number) {
+    if (cell === undefined) this.mini.hideFinger();
+    else this.mini.showFinger(cell % size + .5, Math.floor(cell / size) + .5, .22);
+  }
+
   arrow(direction: Direction) {
     return this.mini.direction(...offsets[direction]);
   }

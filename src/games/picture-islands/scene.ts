@@ -41,6 +41,13 @@ export class IslandScene {
     canvas.addEventListener('pointercancel', () => { this.press = undefined; });
   }
 
+  /** Points the tutorial finger at a tile, or hides it. */
+  pointAt(game: Game, cell?: number) {
+    if (cell === undefined) return this.mini.hideFinger();
+    const { size } = game.puzzle;
+    this.mini.showFinger(cell % size + .5, Math.floor(cell / size) + .5, game.marks[cell] === 1 ? .3 : .1);
+  }
+
   clearFeedback() {
     if (this.lift) this.lift.mesh.position.y = this.lift.y;
     this.lift = undefined;

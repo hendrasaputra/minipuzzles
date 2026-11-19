@@ -88,6 +88,13 @@ export class ShadowScene {
     this.motion.stop();
   };
 
+  /** Points the tutorial finger at the top of a stack, or hides it. */
+  pointAt(game: Game, cell?: number) {
+    if (cell === undefined) { this.mini.hideFinger(); return; }
+    const { size } = game.level;
+    this.mini.showFinger(cell % size + .5, Math.floor(cell / size) + .5, .035 + game.stacks[cell] * blockHeight);
+  }
+
   update(game: Game, selected: number, added?: number, guideCell?: number) {
     this.cancelInput();
     this.motion.stop();
@@ -121,6 +128,7 @@ export class ShadowScene {
         }
       }
     });
+    this.pointAt(game, guideCell);
     this.mini.render();
     if (this.drop) this.motion.refresh();
   }

@@ -53,6 +53,8 @@ export class CrystalScene {
     window.addEventListener('blur',this.cancelInput);
 
   }
+  /** Points the tutorial finger at the top of a mirror, or hides it. */
+  pointAt(cell?:Point){if(cell)this.mini.showFinger(cell.x+.5,cell.y+.5,1.02);else this.mini.hideFinger();}
   update(game:Game,selectedId:string|null){
     this.cancelInput();
     const forward = this.game === game && game.moves > this.moves;

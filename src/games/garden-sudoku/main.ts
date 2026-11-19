@@ -2,7 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { complete, conflicts, createGame, enter, hint, levels, randomLevel, undo, values, type Level, type Value } from './engine';
 import { GardenScene } from './scene';
@@ -73,10 +73,12 @@ document.querySelector('#app')!.innerHTML = `
       <figcaption>This row already has 1, 2, and 4. Check the column and box before filling the missing square with 3.</figcaption>
     </figure>
     ${gameGuide([
-      { before: '1 2 □ 4', after: '1 2 3 4', text: 'Choose an empty square and press its plant button.' },
-      { before: '2 2', after: '2 □', text: 'Red squares repeat a plant. Clear or change your entry.' },
-      { before: '▧', after: '▦', text: 'Choose Flat board to play with arrow keys and numbers 1–4. Backspace clears a square.' },
-    ], true)}
+      { gesture: 'tap', text: 'Tap an empty square on the board.' },
+      { gesture: 'tap', before: '1 2 □ 4', after: '1 2 3 4', text: 'Tap a plant button below the board to plant it there.' },
+      { before: '1 2 3 4', after: '✓', text: 'Use each plant once in every row, column and 2×2 box.' },
+      { gesture: 'tap', before: '2 2', after: '2 □', text: 'Red squares repeat a plant. Tap Clear or pick another plant.' },
+      cameraStep,
+    ], true, `Choose Flat board to play with arrow keys and the numbers 1–4. Backspace clears a square. ${cameraOther}`)}
   </div>
 </dialog>`;
 
@@ -130,9 +132,17 @@ function draw(planted?: number) {
   $('title').textContent = game.level.title;
   $('level-number').textContent = random ? random.difficulty[0].toUpperCase() + random.difficulty.slice(1) : `${index + 1} / ${levels.length}`;
   let instruction = 'Use each plant once per row, column, and 2×2 box.';
-  if (game.history.length === 0 && game.level.id === levels[0].id) instruction = 'The first row has 1, 2, and 4. Put 3 in the highlighted square.';
   if (game.level.givens[selected]) instruction = 'This plant is given. Choose a square you can change.';
-  $('status').textContent = won ? 'Garden complete!' : notice || (clashes.size ? 'A plant repeats in a row, column, or box.' : instruction);
+  // First level only: point at the square the Hint button would fill.
+  const tutorial = !random && index === 0 && !won ? hint(game, selected) : undefined;
+  scene?.pointAt(game, tutorial?.cell);
+  if (tutorial) {
+    const { cell, value } = tutorial;
+    if (selected !== cell) instruction = `Tap the square in row ${Math.floor(cell / 4) + 1}, column ${cell % 4 + 1}.`;
+    else if (game.history.length === 0 && cell === 2) instruction = 'The first row has 1, 2, and 4. Put 3 in the highlighted square.';
+    else instruction = `Put ${value} in the highlighted square.`;
+  }
+  $('status').textContent = won ? 'Garden complete!' : notice || (clashes.size && !tutorial ? 'A plant repeats in a row, column, or box.' : instruction);
   $('scene').hidden = flat;
   $('flat-board').hidden = !flat;
   $('board-view').textContent = flat ? '3D board' : 'Flat board';
@@ -244,3 +254,4 @@ board.onkeydown = event => {
 };
 draw();
 addMusic('garden-sudoku');
+showGuideOnFirstVisit('garden-sudoku');

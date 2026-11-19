@@ -51,6 +51,8 @@ export class TrafficScene {
     window.addEventListener('blur', () => this.cancelInput());
   }
 
+  /** Points the tutorial finger at the middle of a car's roof, or hides it. */
+  pointAt(car?:Car){if(car)this.mini.showFinger(car.x+(car.axis==='h'?car.length/2:.5),car.y+(car.axis==='v'?car.length/2:.5),.8);else this.mini.hideFinger();}
   screenDirection(axis:'h'|'v',sign:number){return this.mini.direction(axis==='h'?sign:0,axis==='v'?sign:0);}
   update(game: Game, selectedId: string | null, move?: Move): void {
     const key = game.cars.map(car => `${car.id}:${car.x},${car.y}`).join('|');

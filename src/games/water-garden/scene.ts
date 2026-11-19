@@ -31,6 +31,8 @@ export class WaterScene {
     this.mini.canvas.addEventListener('pointercancel',this.cancelInput);
     window.addEventListener('blur',this.cancelInput);
   }
+  /** Points the tutorial finger at a channel, or hides it. */
+  pointAt(cell?:{x:number;y:number}){if(cell)this.mini.showFinger(cell.x+.5,cell.y+.5,.16);else this.mini.hideFinger();}
   update(game:Game,selectedId:string|null){
     this.cancelInput();
     const forward = this.game === game && game.moves > this.moves;

@@ -39,6 +39,8 @@ export class FrostScene {
     this.mini.canvas.addEventListener('pointerdown',this.down);this.mini.canvas.addEventListener('pointerup',this.up);this.mini.canvas.addEventListener('pointercancel',this.cancelInput);
     window.addEventListener('blur',this.cancelInput);
   }
+  /** Points the tutorial finger at an ice tile, or hides it. */
+  pointAt(cell?:Point){if(cell)this.mini.showFinger(cell.x+.5,cell.y+.5,.2);else this.mini.hideFinger();}
   screenDirection(dir:Direction){const [x,y]=dir==='n'?[0,-1]:dir==='e'?[1,0]:dir==='s'?[0,1]:[-1,0];return this.mini.direction(x,y);}
   update(game:Game){
     this.cancelInput();const from=this.logical,to={...game.player};

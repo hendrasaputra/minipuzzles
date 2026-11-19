@@ -1,6 +1,6 @@
 import '../../shared/game-base.css';
 import './style.css';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
@@ -73,12 +73,12 @@ document.querySelector('#app')!.innerHTML = `
         <path d="M10 10 22 3 34 10 22 17Z" fill="#f1cb83"/>
         <path d="M10 10 22 17 22 30 10 23Z" fill="#bd8744"/>
         <path d="M22 17 34 10 34 23 22 30Z" fill="#dba65e"/>
-      </svg>`, after: '🟪 🟪', text: 'One block on A1 makes one purple square in Your shadow for column A and one for row 1.' },
-      { before: '▣', after: '□', text: 'Hold a square to remove a block. With a mouse, right-click. You can also choose a stack and press −.' },
-      { before: '▂ ▄', after: '▄', text: 'A row with stacks of 1 and 2 has a shadow 2 blocks high. Columns work the same way.' },
-      { before: '▥ ▥', after: '✓ ✓', text: 'Make Your shadow look like Goal in both panels. Use every block.' },
-      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag.' },
-    ])}
+      </svg>`, after: '🟪 🟪', gesture: 'tap', text: 'Tap a square to add a block. A block on A1 fills column A and row 1 in Your shadow.' },
+      { gesture: 'hold', text: 'Hold a square to take its top block off.' },
+      { before: '▂ ▄', after: '▄', text: 'A shadow shows the tallest stack in its row or column. Stacks of 1 and 2 make a shadow 2 high.' },
+      { before: '▥ ▥', after: '✓ ✓', text: 'Make Your shadow match Goal in both panels. Use every block.' },
+      cameraStep,
+    ], false, `With a mouse, right-click a square to remove a block. With a keyboard, choose a stack from the list and press + or −, or press Enter to add and Delete to remove on the board. ${cameraOther}`)}
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>
   </div>
@@ -131,7 +131,8 @@ function profile(title: string, target: number[], actual: number[], names: strin
 }
 
 function draw(added?: number, before?: ReturnType<typeof shadows>) {
-  const tutorial = !random && game.level.id === levels[0].id ? hint(game) : undefined;
+  // Level 1 tutorial: the Hint move's square is highlighted and marked with the finger.
+  const tutorial = !random && !game.won && game.level.id === levels[0].id ? hint(game) : undefined;
   scene?.update(game, selected, added, tutorial?.cell);
   const index = levels.findIndex(level => level.id === game.level.id);
   const { size } = game.level;
@@ -246,3 +247,4 @@ window.addEventListener('pagehide', save);
 draw();
 save();
 addMusic('shadow-blocks');
+showGuideOnFirstVisit('shadow-blocks');

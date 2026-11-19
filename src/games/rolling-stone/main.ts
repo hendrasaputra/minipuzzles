@@ -2,7 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { atGoal, createGame, directions, move, solve, undo, type Direction, type Level } from './engine';
 import { levels, randomLevel, type RandomBoard } from './levels';
@@ -65,12 +65,11 @@ document.querySelector('#app')!.innerHTML = `
   <div class="sheet-body">
     <div class="stone-example" aria-hidden="true"><i></i><span>→</span><i class="flat"></i><span>→</span><i class="goal"></i></div>
     ${gameGuide([
-      { before: '▮', after: '▬', text: 'Tap a landing tile or a direction button to roll. A standing block falls onto two tiles.' },
-      { before: '▬', after: '▮ ★', text: 'Roll along the long side to stand up. Stand on the gold star to win.' },
-      { before: '▬', after: '□ □', text: 'Both halves need a tile. A roll that would leave the board is blocked.' },
-      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
-    ], true)}
-    <p>Arrow keys move north, east, south, and west on the board.</p>
+      { gesture: 'tap', before: '▮', after: '▬', text: 'Tap a tile next to the block to roll it there. A standing block lies down across two tiles.' },
+      { gesture: 'tap', before: '▬', after: '▮ ★', text: 'Roll a lying block the long way to stand it up. Stand it on the gold star to win.' },
+      { before: '▬', after: '□ □', text: 'Both ends must land on tiles. A roll off the path does not happen.' },
+      cameraStep,
+    ], true, `The arrow buttons below the board roll the block too, and so do the arrow keys. ${cameraOther}`)}
   </div>
 </dialog>`;
 
@@ -102,7 +101,10 @@ function draw() {
   $('level-number').textContent = random ? difficultyNames[random.difficulty] : `${index + 1} / ${levels.length}`;
   $('moves').textContent = String(game.history.length);
   const stance = game.block.stance === 'up' ? 'Block is standing.' : 'Block is lying flat.';
-  const instruction = game.level.id === levels[0].id ? 'Roll twice toward the gold star.' : stance;
+  // Level 1 tutorial: point at a tile the solver's next roll lands on, the same move Hint makes.
+  const tutorial = !random && index === 0 && !won ? solve(game.level, game.block)?.[0] : undefined;
+  scene?.pointAt(tutorial);
+  const instruction = tutorial ? 'Tap the marked tile to roll the block toward the star.' : stance;
   $('status').textContent = won ? 'Block upright on the goal!' : notice || instruction;
   $<HTMLButtonElement>('undo').disabled = !game.history.length;
   for (const direction of directions) $<HTMLButtonElement>(`move-${direction}`).disabled = won;
@@ -197,3 +199,4 @@ scene?.draw(data.game);
 draw();
 save();
 addMusic('rolling-stone');
+showGuideOnFirstVisit('rolling-stone');

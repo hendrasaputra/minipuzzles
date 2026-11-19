@@ -46,6 +46,12 @@ export class TangramScene {
     canvas.addEventListener('contextmenu', event => event.preventDefault());
   }
 
+  /** Points the tutorial finger at a board point just above the pieces, or hides it. */
+  pointAt(point?: Point) {
+    if (point) this.mini.showFinger(point[0], point[1], .18);
+    else this.mini.hideFinger();
+  }
+
   cancelInput = () => { clearTimeout(this.press?.timer); this.press = undefined; };
 
   private point(x: number, y: number): Point | undefined {

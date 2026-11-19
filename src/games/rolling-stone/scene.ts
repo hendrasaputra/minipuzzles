@@ -51,6 +51,14 @@ export class StoneScene {
     return this.mini.direction(...vectors[direction]);
   }
 
+  /** Points the tutorial finger at a tile the block lands on when rolled this way, or hides it. */
+  pointAt(direction?: Direction) {
+    const game = this.game;
+    const next = game && direction ? nextBlock(game.level, game.block, direction) : undefined;
+    const tile = next && footprint(next)[0];
+    if (tile) this.mini.showFinger(tile.x + .5, tile.y + .5, .02); else this.mini.hideFinger();
+  }
+
   draw(game: Game) {
     this.motion.stop();
     this.rolling = undefined;

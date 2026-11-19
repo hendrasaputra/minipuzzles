@@ -2,7 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { complete, createGame, flip, solve, undo, type Level } from './engine';
 import { levels, randomLevel, type RandomGarden } from './levels';
@@ -70,11 +70,12 @@ document.querySelector('#app')!.innerHTML = `
     <p id="progress" class="muted"></p>
     <p>Make every tile in Your garden match the Goal. The letters and numbers label the same positions on the 3D board and both maps.</p>
     ${gameGuide([
-      { before: example(false), after: example(true),
-        text: 'Tap B2 to flip it and the tiles above, below, left and right. Flowers turn into empty tiles. Empty tiles grow flowers.' },
-      { before: '✿ · ✿', after: '✓', text: 'Win when every flower and empty tile matches the Goal map.' },
-      { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
-    ])}
+      { gesture: 'tap', before: example(false), after: example(true),
+        text: 'Tap a tile. It flips, and so do the tiles above, below, left and right.' },
+      { before: '✿', after: '·', text: 'A flower turns into an empty tile. An empty tile grows a flower.' },
+      { before: '✿ · ✿', after: '✓', text: 'Make Your garden match the Goal map to win.' },
+      cameraStep,
+    ], false, `Pick a tile in the list and press Flip tile, or press Enter or Space on the board. ${cameraOther}`)}
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>
   </div>
@@ -127,10 +128,17 @@ function draw(updateBoard = true, pressed?: number) {
   $('moves').textContent = `${matches} / ${cells.length}`;
   $('goal-pattern').innerHTML = pattern(level.goal, level.size, 'Goal');
   $('current-pattern').innerHTML = pattern(current, level.size, 'Your garden');
-  const instruction = level.id === 'flip-1' && !game.history.length
-    ? 'Flip B2 in the middle to grow five flowers.'
-    : 'Match the flowers and empty tiles in the Goal map.';
-  $('status').textContent = won ? 'Your garden matches the goal!' : notice || instruction;
+  // First level only: point at the next tile from the same solver the Hint button uses.
+  const tutorial = !random && index === 0 && !won ? solve(game)?.[0] : undefined;
+  scene?.pointAt(level.size, tutorial);
+  let instruction = 'Match the flowers and empty tiles in the Goal map.';
+  if (tutorial !== undefined) {
+    instruction = !game.history.length && tutorial === 4
+      ? 'Tap B2 in the middle to grow five flowers.'
+      : `Tap ${tileName(level.size, tutorial)} next.`;
+  }
+  $('status').textContent = won ? 'Your garden matches the goal!'
+    : tutorial !== undefined && game.history.length ? instruction : notice || instruction;
   tileSelect.innerHTML = cells.map(i => `<option value="${i}">Tile ${tileName(level.size, i)} · ${current & (1 << i) ? 'Flower' : 'Empty'}</option>`).join('');
   tileSelect.value = String(selected);
   tileSelect.disabled = won;
@@ -229,3 +237,4 @@ window.addEventListener('pagehide', save);
 draw();
 save();
 addMusic('flip-garden');
+showGuideOnFirstVisit('flip-garden');

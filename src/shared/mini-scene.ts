@@ -107,11 +107,23 @@ export class MiniScene {
     Object.assign(this.sun.shadow.camera,{left:-extent,right:extent,top:extent,bottom:-extent,far:50});this.sun.shadow.camera.updateProjectionMatrix();this.resize();
   }
   private resize(){const w=this.host.clientWidth,h=this.host.clientHeight;if(!w||!h||this.bounds.isEmpty())return;
-    this.renderer.setSize(w,h);fitCamera(this.camera,this.bounds,this.center,this.yaw,this.zoom,new THREE.Vector3(),w/h,this.tilt);const scale=labelScale(h/(this.camera.top-this.camera.bottom),this.tilt);for(const label of this.labels)label.scale.set(scale,scale,1);this.renderer.render(this.scene,this.camera);this.host.dispatchEvent?.(new Event('camerachange'));
+    this.renderer.setSize(w,h);fitCamera(this.camera,this.bounds,this.center,this.yaw,this.zoom,new THREE.Vector3(),w/h,this.tilt);const scale=labelScale(h/(this.camera.top-this.camera.bottom),this.tilt);for(const label of this.labels)label.scale.set(scale,scale,1);this.placeFinger();this.renderer.render(this.scene,this.camera);this.host.dispatchEvent?.(new Event('camerachange'));
   }
   repaint(){
     const autoUpdate=this.renderer.shadowMap.autoUpdate;this.renderer.shadowMap.autoUpdate=false;
     this.renderer.render(this.scene,this.camera);this.renderer.shadowMap.autoUpdate=autoUpdate;
+  }
+  private finger?:HTMLElement;private fingerAt?:[number,number,number];
+  /** Shows a pulsing finger mark on a board point, for first-level tutorials. It follows the camera and never blocks taps. */
+  showFinger(x:number,y:number,z=0){
+    if(!this.finger){this.finger=document.createElement('div');this.finger.className='board-finger';this.finger.setAttribute('aria-hidden','true');this.host.append(this.finger);}
+    this.fingerAt=[x,y,z];this.placeFinger();
+  }
+  hideFinger(){this.fingerAt=undefined;if(this.finger)this.finger.hidden=true;}
+  private placeFinger(){
+    const finger=this.finger,at=this.fingerAt;if(!finger||!at)return;
+    const point=this.project(at[0],at[1],at[2]),rect=this.host.getBoundingClientRect();
+    finger.hidden=false;finger.style.transform=`translate(${point.x-rect.left}px,${point.y-rect.top}px)`;
   }
   project(x:number,y:number,z=0):Point{return cameraPoint(this.camera,new THREE.Vector3(x,z,y),this.canvas.getBoundingClientRect());}
   direction(dx:number,dy:number):string{const a=this.project(this.center.x,this.center.z),b=this.project(this.center.x+dx,this.center.z+dy);return screenArrow(b.x-a.x,b.y-a.y);}

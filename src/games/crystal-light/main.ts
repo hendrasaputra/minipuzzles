@@ -1,6 +1,6 @@
 import '../../shared/game-base.css';
 import './style.css';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { createGame,rotate,undo,solve,trace,type Level } from './engine';
 import { levels } from './levels';
 import { CrystalScene } from './scene';
@@ -25,11 +25,10 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <div class="actions"><button id="undo">Undo</button><button id="hint">Hint</button><button id="retry">Retry</button><button id="next" class="primary" hidden>Next level</button></div></main>
 <dialog id="menu" class="sheet" aria-labelledby="menu-title"><div class="sheet-heading"><h2 id="menu-title">Puzzle menu</h2><button id="close-menu">Done</button></div><div class="sheet-body"><label>Levels<select id="level-select"></select></label><p id="progress" class="muted"></p><label>Random difficulty<select id="difficulty"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label><div class="actions"><button id="new-random">New random puzzle</button></div>
 ${gameGuide([
-  { before: '☀ ━ ╲', after: '☀ ━ ╱', text: 'Tap a mirror to turn it. Aim the beam at the crystals.' },
+  { gesture: 'tap', before: '☀ ━ ╲', after: '☀ ━ ╱', text: 'Tap a mirror to turn it. The beam bounces off it.' },
   { before: '☀ · ◇', after: '☀ ━ ◆', text: 'Light every crystal to win. Blocks stop the beam.' },
-  { before: '● ●', after: '↔ ↻', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag. Pinch or scroll to zoom.' },
-  { before: 'Choose', after: 'Turn ↻', text: 'Pick a mirror and press Turn. On the board, use Enter or Space.' },
-])}
+  cameraStep,
+], false, `Pick a mirror from the list and press Turn, or press Enter or Space on the board. ${cameraOther}`)}
 <p class="muted">Optics Table by <a href="https://polyfork.dev/asset/optics-table-66db15">Polyfork</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Mounts isolated, resized, and recolored.</p>
 <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button><p id="save-state" class="muted"></p></div></dialog>`;
 const menu = $<HTMLDialogElement>('menu');
@@ -63,6 +62,7 @@ function draw(updateScene = true) {
   const won = game.status === 'won';
   const beam = trace(game);
   if (updateScene) scene?.update(game, selected);
+  scene?.pointAt(!random && index === 0 && !won ? game.mirrors.find(mirror => mirror.id === solve(game)?.[0]) : undefined);
   $('title').textContent = game.level.title;
   $('level-number').textContent = random ? random.difficulty[0].toUpperCase() + random.difficulty.slice(1) : `${index + 1} / ${levels.length}`;
   $('moves').textContent = String(game.moves);
@@ -157,3 +157,4 @@ document.addEventListener('pointerdown',e=>{if(!(e.target instanceof Element)||!
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
 addMusic('crystal-light');
+showGuideOnFirstVisit('crystal-light');

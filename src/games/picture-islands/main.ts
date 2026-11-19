@@ -2,7 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { randomSeed, isDifficulty } from '../../shared/random-puzzle';
 import { clues, complete, createGame, hint, levels, markCell, randomPuzzle, undo, type Mark, type Puzzle } from './engine';
 import { IslandScene } from './scene';
@@ -58,11 +58,12 @@ document.querySelector('#app')!.innerHTML = `
     <div class="menu-pair"><button id="new-random">New random puzzle</button></div>
     <p id="progress" class="muted"></p>
     ${gameGuide([
-      { before: '2 □ □ □', after: '■ ■ □', text: 'A clue of 2 means two filled tiles together.' },
+      { gesture: 'tap', before: '□', after: '■', text: 'Tap a tile to fill it. Tap it again to clear it.' },
+      { before: '2 □ □ □', after: '■ ■ □', text: 'Each clue is a group of filled tiles in that row or column. 2 means two together.' },
       { before: '1 1 □ □ □', after: '■ × ■', text: 'Leave at least one empty tile between groups.' },
-      { before: '□', after: '×', text: 'Choose Mark empty to cross out a tile. Tap the same mark to clear it.' },
-      { before: '▧', after: '▦', text: 'Use Flat board for a clear view of the clues. Arrow keys move between tiles.' },
-    ])}
+      { gesture: 'tap', before: '□', after: '×', text: 'Choose × Mark empty, then tap a tile that stays blank. Choose Fill to go back.' },
+      cameraStep,
+    ], false, `Choose Flat board for a clear view of the clues. Arrow keys move between its tiles. ${cameraOther}`)}
     <button id="sound" class="menu-row" aria-pressed="true">Sound: on</button>
     <p id="save-state" class="muted"></p>
   </div>
@@ -127,12 +128,17 @@ function draw(filled?: number) {
   const firstColumn = [2, 7, 12, 17, 22];
   const middleRow = [10, 11, 12, 13, 14];
   const columnDone = firstColumn.every(cell => game.marks[cell] === 1);
-  const guide = !won && game.puzzle.id === levels[0].id && mode === 1
+  const guide = !won && !random && levelIndex === 0 && mode === 1
     ? columnDone ? middleRow : firstColumn
     : [];
-  const instruction = guide.length
+  // First level only: point at the next highlighted tile, or at an extra tile to clear.
+  const target = guide.length ? guide.find(cell => game.marks[cell] !== 1) ?? hint(game)?.cell : undefined;
+  let instruction = guide.length
     ? `The ${columnDone ? 'middle row' : 'middle column'} has a clue of 5. Fill all five tiles there.`
     : 'Match every row and column clue to reveal the picture.';
+  if (guide.length && guide.every(cell => game.marks[cell] === 1)) instruction = 'A tile is filled by mistake. Tap it to clear it.';
+  if (!won && !random && levelIndex === 0 && mode === -1) instruction = 'Choose Fill to color the tiles.';
+  scene?.pointAt(game, flat ? undefined : target);
   $('status').textContent = won ? 'Picture complete!' : notice || instruction;
   $('scene').hidden = flat;
   $('flat-board').hidden = !flat;
@@ -234,3 +240,4 @@ $('flat-board').onkeydown = event => {
 };
 draw();
 addMusic('picture-islands');
+showGuideOnFirstVisit('picture-islands');

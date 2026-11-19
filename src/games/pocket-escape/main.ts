@@ -2,7 +2,7 @@ import '../../shared/game-base.css';
 import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
-import { gameGuide } from '../../shared/game-guide';
+import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { digit, randomRoom, rooms, symbols, unlock, type RandomRoom, type Room } from './engine';
 import { EscapeScene, places } from './scene';
@@ -65,10 +65,12 @@ document.querySelector('#app')!.innerHTML = `
 <dialog id="example" class="sheet" aria-labelledby="example-title">
   <div class="sheet-heading"><h2 id="example-title">How to open the door</h2><button id="close-example">Done</button></div>
   <div class="sheet-body">${gameGuide([
-    { before: '● ★ ● ◆ ●', after: '① 3', text: 'Clue 1 asks how many circles there are. Count three circles for the first digit.' },
-    { before: '② 1 3 ?', after: '② 5', text: 'The numbers go up by 2. The next number is 5.' },
-    { before: '① 3  ② 5', after: '🔓', text: 'Enter the digits in clue order and press Unlock.' },
-  ], true)}</div>
+    { gesture: 'tap', text: 'Tap a numbered piece of furniture to read its clue.' },
+    { before: '● ★ ● ◆ ●', after: '① 3', text: 'Clue 1 asks how many circles there are. There are 3, so the first digit is 3.' },
+    { before: '② 1 3 ?', after: '② 5', text: 'Clue 2 counts up by 2: 1, 3, then 5. The second digit is 5.' },
+    { before: '① 3  ② 5', after: '🔓', text: 'Type one digit per clue, in clue order. Then press Unlock.' },
+    cameraStep,
+  ], true, `The numbered buttons below the room open the same clues. Press Enter in the code boxes to unlock. ${cameraOther}`)}</div>
 </dialog>`;
 
 const menu = $<HTMLDialogElement>('menu');
@@ -103,7 +105,11 @@ function draw() {
     ? random.difficulty[0].toUpperCase() + random.difficulty.slice(1)
     : `${index + 1} / ${rooms.length}`;
   $('clue-count').textContent = `${inspected.length} / ${room.clues.length}`;
-  $('status').textContent = won ? 'Door unlocked!' : notice || 'Read the numbered clues. Enter their digits to unlock the door.';
+  // Level 1 tutorial: point at the next clue to read, as the Hint button would open it.
+  const tutorial = !random && index === 0 && !won ? room.clues.findIndex((_, i) => !inspected.includes(i)) : -1;
+  scene?.pointAt(tutorial >= 0 ? tutorial : undefined);
+  $('status').textContent = won ? 'Door unlocked!' : notice
+    || (tutorial >= 0 ? `Tap clue ${tutorial + 1} on the ${places[tutorial].toLowerCase()} to read it.` : 'Read the numbered clues. Enter their digits to unlock the door.');
   $('clue-buttons').innerHTML = room.clues.map((_, i) =>
     `<button data-clue="${i}">${i + 1}. ${places[i]}${inspected.includes(i) ? ' ✓' : ''}</button>`).join('');
   $('code').querySelectorAll('input').forEach((input, i) => {
@@ -246,3 +252,4 @@ draw();
 scene?.draw(saved.room, saved.inspected, saved.won);
 save();
 addMusic('pocket-escape');
+showGuideOnFirstVisit('pocket-escape');
