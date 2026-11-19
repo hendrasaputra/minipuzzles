@@ -48,6 +48,8 @@ export const gameMoods: Record<SoundGame, Mood> = {
 };
 
 const musicKey = 'puzzles-music';
+/** Music sits under the action sounds: its loudest notes stay about half as loud as a tap cue. */
+export const MUSIC_VOLUME = .25;
 /** Music follows the sound setting until the player chooses otherwise. */
 export function musicPreference(music: string | null, sound: string | null): boolean {
   return music ? music === 'on' : sound !== 'off';
@@ -88,7 +90,7 @@ class Ambient {
       const context = this.context!;
       void context.resume().catch(() => {});
       this.playing = true;
-      this.master!.gain.setTargetAtTime(.5, context.currentTime, 1.5);
+      this.master!.gain.setTargetAtTime(MUSIC_VOLUME, context.currentTime, 1.5);
       if (!this.sources.length) { this.pad(); this.bed(); }
       const next = () => {
         if (!this.playing) return;
