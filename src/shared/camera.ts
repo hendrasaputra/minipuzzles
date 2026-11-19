@@ -28,3 +28,11 @@ export function dragPan(camera: THREE.OrthographicCamera, dx: number, dy: number
     .multiplyScalar(-dx * (camera.right - camera.left) / width)
     .addScaledVector(new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion), dy * (camera.top - camera.bottom) / height);
 }
+
+/**
+ * On a narrow portrait screen the board's width is the limit. Facing a large square board edge-on
+ * instead of corner-on makes each tile about 41% wider, which keeps taps near Apple's 44 px guideline.
+ */
+export function defaultYaw(aspect: number, columns: number): number {
+  return aspect < .8 && columns >= 8 ? 0 : Math.PI / 4;
+}

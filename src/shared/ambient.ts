@@ -1,3 +1,4 @@
+import './menu-toggle.css';
 import type { SoundGame } from './sound-voices';
 
 /**
@@ -207,6 +208,14 @@ export function addMusic(game: SoundGame) {
   const label = () => { button.textContent = enabled ? 'Music: on' : 'Music: off'; button.setAttribute('aria-pressed', String(enabled)); };
   label();
   sound.after(button);
+  // Put both switches at the top of the menu, where they are easy to find.
+  const body = sound.closest('.sheet-body');
+  if (body) {
+    const group = document.createElement('div');
+    group.className = 'menu-toggles';
+    group.append(sound, button);
+    body.prepend(group);
+  }
   button.onclick = () => {
     enabled = !enabled; label();
     try { localStorage.setItem(musicKey, enabled ? 'on' : 'off'); } catch { /* keep the in-memory choice */ }

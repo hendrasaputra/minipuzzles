@@ -32,7 +32,7 @@ document.querySelector('#app')!.innerHTML = `
 </header>
 <main class="game-shell">
   <div class="puzzle-heading"><h1 id="title"></h1><span id="level-number"></span></div>
-  <p class="stone-goal">Stand the block upright on the gold star.</p>
+  <p class="stone-goal board-goal">Stand the block upright on the gold star.</p>
   <div class="stats stone-stats">
     <div><strong id="moves">0</strong><span>Rolls</span></div>
     <button id="show-help" aria-haspopup="dialog">See example</button>

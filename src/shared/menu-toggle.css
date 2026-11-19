@@ -1,0 +1,10 @@
+/* Sound and Music rows read as on/off switches. */
+.menu-toggles { display: grid; gap: 2px; margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid #e6dfd3; }
+.menu-row[aria-pressed] { justify-content: space-between; gap: 12px; }
+.menu-row[aria-pressed]::after {
+  content: ''; flex: 0 0 auto; width: 48px; height: 28px; border-radius: 14px;
+  background: radial-gradient(circle at 14px 50%, #fff 10px, transparent 11px) #d6cdbf;
+  transition: background-color .2s;
+}
+.menu-row[aria-pressed="true"]::after { background: radial-gradient(circle at 34px 50%, #fff 10px, transparent 11px) #6f9467; }
+@media (prefers-reduced-motion: reduce) { .menu-row[aria-pressed]::after { transition: none; } }

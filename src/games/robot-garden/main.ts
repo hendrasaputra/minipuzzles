@@ -40,7 +40,7 @@ document.querySelector('#app')!.innerHTML = `
 <main class="game-shell">
   <div class="puzzle-heading"><h1 id="title"></h1><span id="level-number"></span></div>
   <p id="storage-warning" class="storage-warning" hidden>Progress isn’t being saved. Keep this tab open.</p>
-  <p class="robot-goal">Collect every seed, then stop on the blue dock marked D.</p>
+  <p class="robot-goal board-goal">Collect every seed, then stop on the blue dock marked D.</p>
   <div class="stats robot-stats">
     <div><strong id="seed-count"></strong><span>Seeds collected</span></div>
     <button id="show-help" aria-haspopup="dialog">See example</button>

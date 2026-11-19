@@ -31,7 +31,7 @@ document.querySelector('#app')!.innerHTML = `
 </header>
 <main class="game-shell">
   <div class="puzzle-heading"><h1 id="title"></h1><span id="level-number"></span></div>
-  <p class="path-goal"><strong>Goal</strong> Join every gap to make one path.</p>
+  <p class="path-goal board-goal"><strong>Goal</strong> Join every gap to make one path.</p>
   <div class="stats path-stats">
     <div><strong id="moves"></strong><span>Gaps joined</span></div>
     <button id="show-help" aria-haspopup="dialog">See example</button>

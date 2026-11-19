@@ -1,6 +1,6 @@
 import { afterEach,describe,expect,it,vi } from 'vitest';
 import * as THREE from 'three';
-import { MiniScene,cameraPoint,cameraGround } from './mini-scene';
+import { MiniScene,cameraPoint,cameraGround,labelScale } from './mini-scene';
 import { fitCamera } from './camera';
 
 vi.mock('three',async original=>{
@@ -108,5 +108,13 @@ describe('camera gesture separation',()=>{
   });
   it('picks actual frontmost 3D geometry after rotation',()=>{
     const {scene,event,send}=fixture();scene.setMode('rotate');for(let i=0;i<6;i++){const point=scene.project(2.5,2.5,1);expect(scene.pick(point.x,point.y)).toBe('crate');send('pointerdown',event(1,100,100));send('pointermove',event(1,170,100));send('pointerup',event(1,170,100));}
+  });
+});
+
+describe('board labels', () => {
+  it('grow on small views, up to a limit, and keep their size when already readable', () => {
+    expect(labelScale(100, Math.PI / 2)).toBe(1);
+    expect(labelScale(40, Math.PI / 2)).toBeCloseTo(26 / 22);
+    expect(labelScale(5, Math.PI / 4)).toBe(1.6);
   });
 });

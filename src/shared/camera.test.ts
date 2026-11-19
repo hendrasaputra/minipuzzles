@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { clampZoom, dragPan, fitCamera } from './camera';
+import { clampZoom, defaultYaw, dragPan, fitCamera } from './camera';
 
 const box = new THREE.Box3(new THREE.Vector3(-17, -.2, -10), new THREE.Vector3(17, 5.5, 10));
 const center = box.getCenter(new THREE.Vector3());
@@ -47,5 +47,10 @@ describe('large-board camera', () => {
 
   it('does not produce infinite offsets while a viewport is hidden', () => {
     expect(dragPan(new THREE.OrthographicCamera(), 10, 10, 0, 0).length()).toBe(0);
+  });
+  it('faces large boards edge-on only on narrow portrait screens', () => {
+    expect(defaultYaw(.5, 9)).toBe(0);
+    expect(defaultYaw(.5, 6)).toBe(Math.PI / 4);
+    expect(defaultYaw(1.4, 9)).toBe(Math.PI / 4);
   });
 });

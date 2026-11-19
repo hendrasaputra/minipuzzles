@@ -9,6 +9,11 @@ export function screenArrow(dx:number,dy:number):string{return ['→','↘','↓
 export function cameraPoint(camera:THREE.Camera,point:THREE.Vector3,rect:{left:number;top:number;width:number;height:number}):Point{
   const p=point.clone().project(camera);return{x:rect.left+(p.x+1)*rect.width/2,y:rect.top+(1-p.y)*rect.height/2};
 }
+/** Board labels grow (up to 1.6x) when the view makes them shorter than about 26 px, so digits stay readable on phones. */
+export function labelScale(pixelsPerUnit:number,tilt:number):number{
+  const height=.55*Math.sin(tilt)*pixelsPerUnit;
+  return height>0?Math.min(1.6,Math.max(1,26/height)):1;
+}
 export function cameraGround(camera:THREE.Camera,x:number,y:number,rect:{left:number;top:number;width:number;height:number},height=0):Point|null{
   if(rect.width<=0||rect.height<=0)return null;
   const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((x-rect.left)/rect.width*2-1,1-(y-rect.top)/rect.height*2),camera);
@@ -102,7 +107,7 @@ export class MiniScene {
     Object.assign(this.sun.shadow.camera,{left:-extent,right:extent,top:extent,bottom:-extent,far:50});this.sun.shadow.camera.updateProjectionMatrix();this.resize();
   }
   private resize(){const w=this.host.clientWidth,h=this.host.clientHeight;if(!w||!h||this.bounds.isEmpty())return;
-    this.renderer.setSize(w,h);fitCamera(this.camera,this.bounds,this.center,this.yaw,this.zoom,new THREE.Vector3(),w/h,this.tilt);this.renderer.render(this.scene,this.camera);this.host.dispatchEvent?.(new Event('camerachange'));
+    this.renderer.setSize(w,h);fitCamera(this.camera,this.bounds,this.center,this.yaw,this.zoom,new THREE.Vector3(),w/h,this.tilt);const scale=labelScale(h/(this.camera.top-this.camera.bottom),this.tilt);for(const label of this.labels)label.scale.set(scale,scale,1);this.renderer.render(this.scene,this.camera);this.host.dispatchEvent?.(new Event('camerachange'));
   }
   repaint(){
     const autoUpdate=this.renderer.shadowMap.autoUpdate;this.renderer.shadowMap.autoUpdate=false;

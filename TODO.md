@@ -207,3 +207,5 @@ The collection now has 21 playable games.
 - [x] Shadow Blocks: hold a square (or right-click, or press Delete) to remove a block. Tiny Tangrams: a touch piece tray, tap a placed piece to choose it, tap again to turn it, hold to lift it. Both now hide their list rows on touch.
 - [x] Add generated zen background music (`src/shared/ambient.ts`): Garden, Water or Night mood in each game's own key, a Music row in every menu (`puzzles-music`, follows Sound until chosen), suspended when off or hidden.
 - [ ] Listen to the music on a physical phone: volume against action sounds, battery feel, and iOS silent-switch behavior.
+- [x] iPhone pass: safe-area padding (notch, Dynamic Island, home indicator), ambient audio session, Sound and Music switches at the top of menus, home-screen icon and manifest, edge-on Petals view for large boards on portrait phones (tiles about 38 px instead of 27 px), larger board labels on small views, goal line under the board on phones, no sticky hover on the hub.
+- [ ] On a physical iPhone: check landscape insets, Add to Home Screen, the standalone app's status bar, and the edge-on Petals view.

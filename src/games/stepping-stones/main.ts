@@ -33,7 +33,7 @@ document.querySelector('#app')!.innerHTML = `
 <main class="game-shell">
   <div class="puzzle-heading"><h1 id="title"></h1><span id="level-number"></span></div>
   <p id="storage-warning" class="storage-warning" hidden>Progress isn’t being saved. Keep this tab open.</p>
-  <p class="stone-goal">Visit every stone once. End on the blue F stone.</p>
+  <p class="stone-goal board-goal">Visit every stone once. End on the blue F stone.</p>
   <div class="stats stone-stats">
     <div><strong id="moves"></strong><span>Stones visited</span></div>
     <button id="show-help" aria-haspopup="dialog">See example</button>

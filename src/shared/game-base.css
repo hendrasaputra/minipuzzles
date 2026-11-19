@@ -95,3 +95,5 @@ h1{font-size:21px}
 /* iPhone: keep controls clear of the notch, Dynamic Island and home indicator (pages use viewport-fit=cover). */
 #app{padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left)}
 .sheet-body{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+/* Portrait phones: the fixed goal sentence moves from above the board to just under it, giving the board that row. */
+@media(max-width:600px){.board-goal{order:1;text-align:center;font-size:13px;line-height:1.4}.play-area~*{order:2}}

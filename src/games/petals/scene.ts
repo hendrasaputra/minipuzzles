@@ -2,13 +2,15 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { clueNeighbors, type Game } from './engine';
 import { BoardGesture, type GestureAction, type TileHit } from '../../shared/gestures';
-import { clampZoom, dragPan, fitCamera } from '../../shared/camera';
+import { clampZoom, defaultYaw, dragPan, fitCamera } from '../../shared/camera';
 import { MaterialMotion } from '../../shared/material-motion';
 import { PixelBurst } from '../../shared/pixel-burst';
 import { appendTouchCameraHint } from '../../shared/touch-camera-hint';
 
 const colors = ['#596fa2', '#558976', '#bc657a', '#8573ae', '#b07845', '#4e919c', '#7c7182', '#514454'];
 const defaultTilt = Math.atan2(18, 20);
+// Edge-on boards on a portrait phone have spare height, so look a little more from above for squarer tiles.
+const edgeOnTilt = 1;
 export type TileFeedback = TileHit & { kind: 'reveal' | 'flood' | 'flag' | 'unflag' | 'chord' };
 const feedback = {
   reveal: { color: '#ba7896', reach: 1, count: 6 },
@@ -123,7 +125,7 @@ export class BoardScene {
     if (game !== this.game || active !== this.active || exploded !== this.exploded) this.clearEffect();
     this.lost = game.status === 'lost';
     this.exploded = exploded;
-    if(game!==this.game){this.pan.set(0,0,0);this.zoom=1;}
+    if(game!==this.game){this.pan.set(0,0,0);this.zoom=1;if(game.config.width!==this.game?.config.width){this.yaw=this.startYaw(game);this.tilt=this.yaw===0?edgeOnTilt:defaultTilt;}}
     if(game!==this.game||active!==this.active)this.cancel();
     this.game=game;this.active=active;
     const source=inspected&&game.cells[inspected.floor]?.[inspected.index]?.revealed&&!game.cells[inspected.floor][inspected.index].mine?inspected:undefined;
@@ -266,5 +268,6 @@ export class BoardScene {
   private up=(e:PointerEvent)=>{clearTimeout(this.hold);this.apply(this.gesture.up(e.pointerId));};
   private cancel=()=>{clearTimeout(this.hold);this.gesture.cancel();};
   cancelInput(){this.cancel();}
-  reset(){this.cancel();this.yaw=Math.PI/4;this.tilt=defaultTilt;this.zoom=1;this.pan.set(0,0,0);this.resize();}
+  private startYaw(game:Game){return defaultYaw(this.host.clientWidth/Math.max(1,this.host.clientHeight),game.config.width);}
+  reset(){this.cancel();this.yaw=this.game?this.startYaw(this.game):Math.PI/4;this.tilt=this.yaw===0?edgeOnTilt:defaultTilt;this.zoom=1;this.pan.set(0,0,0);this.resize();}
 }

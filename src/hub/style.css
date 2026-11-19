@@ -12,7 +12,7 @@ h1 { font-size: clamp(40px, 5vw, 64px); line-height: 1.08; font-weight: 650; let
 .game-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 34px 20px; }
 .game-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 14px 2px; border-radius: 20px; min-width: 0; text-decoration: none; }
 .game-card:focus-visible, a:focus-visible { outline: 3px solid #a06f50; outline-offset: 5px; }
-.game-card.playable:hover .icon-wrap { transform: translateY(-5px); box-shadow: inset 0 2px 2px #ffffffdc, inset 0 -3px 4px #ad967426, 0 13px 20px #715e4533, 0 0 0 1px #ffffff; }
+@media (hover: hover) { .game-card.playable:hover .icon-wrap { transform: translateY(-5px); box-shadow: inset 0 2px 2px #ffffffdc, inset 0 -3px 4px #ad967426, 0 13px 20px #715e4533, 0 0 0 1px #ffffff; } }
 .game-card.playable:active .icon-wrap { transform: translateY(0) scale(.97); }
 .icon-wrap { position: relative; display: grid; place-items: center; flex: 0 0 auto; width: 128px; height: 128px; margin-bottom: 19px; border-radius: 29px; background: linear-gradient(155deg, #fffdf6, color-mix(in srgb, var(--accent) 30%, #eee7da)); box-shadow: inset 0 2px 2px #ffffffdc, inset 0 -3px 4px #ad967426, 0 7px 12px #715e4526, 0 0 0 1px #fff9ed; transition: transform .18s ease, box-shadow .18s ease; }
 .icon-wrap::before { content: ''; position: absolute; inset: 5px; border-radius: 24px; border: 1px solid #ffffff80; pointer-events: none; }
