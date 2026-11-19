@@ -48,3 +48,7 @@ The current masters are opaque square app icons. Their 26% rounded mask and 1.02
 | Water Balance | `water-balance` | [Prompt](prompts/water-balance.md) | Generated |
 | Perspective Paths | `perspective-paths` | [Prompt](prompts/perspective-paths.md) | Generated |
 | Pocket Escape | `pocket-escape` | [Prompt](prompts/pocket-escape.md) | Generated |
+
+## Installable app icon
+
+The home-screen icon for iOS and Android is a Three.js render that follows the same style contract. Its request, source and review are in [iterations/app-icon](iterations/app-icon/v01.review.md). The manifest uses separate "any" and "maskable" images, and iOS uses `apple-touch-icon.png`.

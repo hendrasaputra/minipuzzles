@@ -1,0 +1,93 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>App icon render</title>
+<style>body{margin:0;background:#555;display:flex;gap:16px;padding:16px;flex-wrap:wrap}canvas{width:384px;height:384px}</style></head>
+<body>
+<script type="module">
+import * as THREE from './three.module.js';
+import { RoundedBoxGeometry } from './RoundedBoxGeometry.js';
+import { RoomEnvironment } from './RoomEnvironment.js';
+
+const SIZE = 1024, SS = 2; // render at 2x and downscale for smooth edges
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(SIZE * SS, SIZE * SS);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = .92;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), .04).texture;
+scene.environmentIntensity = .7;
+
+// House style: warm ivory ceramic, blush pink, muted sage, dusty blue, brass.
+const ceramic = (color, roughness = .48) => new THREE.MeshStandardMaterial({ color, roughness, metalness: 0 });
+const ivory = ceramic('#f6efe2'), tray = ceramic('#eadcc6', .6), rim = ceramic('#dcc9ad', .62);
+const pink = ceramic('#d98fa8'), sage = ceramic('#9fb08a'), blue = ceramic('#7f9fbd'), blush = ceramic('#e8b6c6');
+const brass = new THREE.MeshStandardMaterial({ color: '#e0b562', roughness: .32, metalness: .65 });
+
+function box(w, h, d, r, mat, x, y, z) {
+  const mesh = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 5, r), mat);
+  mesh.position.set(x, y, z); mesh.castShadow = mesh.receiveShadow = true; scene.add(mesh); return mesh;
+}
+
+// Tray: a soft rimmed ceramic board.
+box(3.75, .34, 3.75, .2, rim, 0, -.17, 0);
+box(3.5, .1, 3.5, .05, tray, 0, .02, 0);
+const step = 1.1, tile = .98;
+// [column, row] -> material and height. Big readable shapes: a tall blue stack, a pink block, a brass marble.
+const cells = {
+  '0,0': [pink, .7], '1,0': [ivory, .18], '2,0': [blue, 1.15],
+  '0,1': [ivory, .18], '1,1': [sage, .18], '2,1': [ivory, .18],
+  '0,2': [blush, .18], '1,2': [ivory, .18], '2,2': [sage, .18],
+};
+for (const [key, [mat, h]] of Object.entries(cells)) {
+  const [c, r] = key.split(',').map(Number);
+  const x = (c - 1) * step, z = (r - 1) * step;
+  box(tile, h, tile, h > .3 ? .12 : .09, mat, x, .07 + h / 2, z);
+}
+// Brass marble resting on the centre tile.
+const marble = new THREE.Mesh(new THREE.SphereGeometry(.36, 64, 48), brass);
+marble.position.set(0, .25 + .36, step); marble.castShadow = true; scene.add(marble);
+
+// Contact shadow on the backing.
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: .2, color: '#6b5440' }));
+ground.rotation.x = -Math.PI / 2; ground.position.y = -.34; ground.receiveShadow = true; scene.add(ground);
+
+scene.add(new THREE.HemisphereLight('#fff9ef', '#cdb89c', .75));
+const sun = new THREE.DirectionalLight('#fff0d8', 2.6);
+// Upper-left key light in screen space for a 45° yaw camera.
+sun.position.set(-7, 11, 1.5); sun.castShadow = true;
+Object.assign(sun.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: .5, far: 40 });
+sun.shadow.mapSize.set(4096, 4096); sun.shadow.radius = 6; sun.shadow.bias = -.0004; sun.shadow.normalBias = .02;
+scene.add(sun);
+
+// Orthographic camera: 30° elevation, 45° yaw (house contract).
+const view = 5.9;
+const camera = new THREE.OrthographicCamera(-view / 2, view / 2, view / 2, -view / 2, .1, 100);
+const elev = THREE.MathUtils.degToRad(30), yaw = Math.PI / 4, dist = 20;
+camera.position.set(Math.sin(yaw) * Math.cos(elev) * dist, Math.sin(elev) * dist, Math.cos(yaw) * Math.cos(elev) * dist);
+camera.lookAt(.1, .15, .1);
+camera.position.y -= .05;
+renderer.render(scene, camera);
+
+function compose(scale) {
+  const out = document.createElement('canvas'); out.width = out.height = SIZE;
+  const g = out.getContext('2d');
+  // Warm ivory backing with a soft top-left glow (opaque: iOS and Android apply their own masks).
+  const bg = g.createLinearGradient(0, 0, SIZE, SIZE); bg.addColorStop(0, '#fffaf1'); bg.addColorStop(1, '#ead9c2');
+  g.fillStyle = bg; g.fillRect(0, 0, SIZE, SIZE);
+  const glow = g.createRadialGradient(SIZE * .3, SIZE * .22, 0, SIZE * .3, SIZE * .22, SIZE * .75);
+  glow.addColorStop(0, '#ffffffaa'); glow.addColorStop(1, '#ffffff00');
+  g.fillStyle = glow; g.fillRect(0, 0, SIZE, SIZE);
+  const s = SIZE * scale, o = (SIZE - s) / 2;
+  g.imageSmoothingQuality = 'high';
+  g.drawImage(renderer.domElement, o, o + SIZE * .02 * scale, s, s);
+  return out;
+}
+// Full icon for iOS and "any"; maskable keeps the miniature inside Android's 80% safe circle.
+const full = compose(1), maskable = compose(.84);
+document.body.append(full, maskable);
+for (const [name, canvas] of [['icon-1024.png', full], ['icon-maskable-1024.png', maskable]]) {
+  canvas.toBlob(blob => fetch('/' + name, { method: 'POST', body: blob }).then(() => document.title = 'saved ' + name), 'image/png');
+}
+</script>
+</body></html>
