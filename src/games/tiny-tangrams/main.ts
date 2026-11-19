@@ -3,7 +3,7 @@ import './style.css';
 import { GameAudio } from '../../shared/audio';
 import { gameGuide } from '../../shared/game-guide';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
-import { applyMove, canPlace, colors, complete, createGame, footprint, hint, nextTurn, shapeNames, undo, vertices,
+import { applyMove, canPlace, colors, complete, createGame, footprint, hint, nextTurn, pieceAt, shapeNames, undo, vertices,
   type Level, type Move, type Placement, type Turn } from './engine';
 import { levels, randomLevel, type RandomTangram } from './levels';
 import { TangramScene } from './scene';
@@ -41,20 +41,21 @@ document.querySelector('#app')!.innerHTML = `
     <button id="show-help" aria-haspopup="dialog">See example</button>
   </div>
   <section class="play-area" aria-label="Shape puzzle">
-    <div id="scene" class="scene" tabindex="0" role="group" aria-label="3D fitting board. Tap a square to place the selected piece."></div>
+    <div id="scene" class="scene" tabindex="0" role="group" aria-label="3D fitting board. Tap a square to place the selected piece. Tap a placed piece to choose it, tap again to turn it, hold to lift it."></div>
   </section>
   <p id="status" class="status" role="status" aria-live="polite"></p>
   <div class="tangram-controls">
-    <div class="piece-choice">
+    <div id="piece-tray" class="piece-tray" role="group" aria-label="Pieces"></div>
+    <div class="piece-choice touch-optional">
       <span id="piece-icon" aria-hidden="true"></span>
       <select id="piece-select" aria-label="Choose a piece"></select>
     </div>
     <button id="turn">Turn ↻</button>
-    <div class="coordinates" aria-label="Placement square">
+    <div class="coordinates touch-optional" aria-label="Placement square">
       <select id="column-select" aria-label="Column"></select>
       <select id="row-select" aria-label="Row"></select>
     </div>
-    <button id="place" class="primary">Place</button>
+    <button id="place" class="primary touch-optional">Place</button>
   </div>
   <div class="actions">
     <button id="undo">Undo</button><button id="remove">Lift piece</button>
@@ -78,9 +79,10 @@ document.querySelector('#app')!.innerHTML = `
   <div class="sheet-body">
     <p>Fill the tan outline with every piece. Leave no gaps or overlaps.</p>
     ${gameGuide([
-      { before: '◤ + ◣', after: '◤', text: 'Choose a piece. Its preview shows where it will go.' },
-      { before: '◣', after: '◢', text: 'Press Turn to rotate the piece a quarter turn.' },
+      { before: '◤ + ◣', after: '◤', text: 'Choose a piece from the tray. Its preview shows where it will go.' },
+      { before: '◣', after: '◢', text: 'Press Turn to rotate the piece a quarter turn. Tap a placed piece twice to turn it where it sits.' },
       { before: '◤ + ◢', after: '■', text: 'Tap the board to place it, or choose a column and row and press Place. Two triangles can fill a square.' },
+      { before: '◤', after: '·', text: 'Hold a placed piece to lift it off the board. With a mouse, right-click it.' },
       { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag, then choose Play to resume.' },
     ], true)}
   </div>
@@ -95,9 +97,16 @@ const rowSelect = $<HTMLSelectElement>('row-select');
 difficulty.value = data.random?.difficulty ?? 'easy';
 let scene: TangramScene | undefined;
 try {
-  scene = new TangramScene($('scene'), (x, y) => {
-    draft = { ...draft, x, y };
-    place();
+  scene = new TangramScene($('scene'), (cell, [px, py]) => {
+    const hit = pieceAt(data.game, px, py);
+    if (hit === selected) turnPlaced();
+    else if (hit !== -1) { choose(hit); notice = ''; draw(); }
+    else if (cell) { draft = { ...draft, x: cell[0], y: cell[1] }; place(); }
+  }, ([px, py]) => {
+    const hit = pieceAt(data.game, px, py);
+    if (hit === -1 || complete(data.game)) return;
+    choose(hit);
+    change({ piece: hit, placement: null });
   });
 } catch {
   $('scene').textContent = '3D is unavailable. Choose a piece and square below, then press Place.';
@@ -131,7 +140,9 @@ function draw(placedPiece?: number) {
   $('moves').textContent = `${placements.filter(Boolean).length} / ${placements.length}`;
   let instruction = fits ? `Place piece ${selected + 1} at ${spot(draft)}, or tap another square.`
     : 'The piece does not fit here. Turn it or try another square.';
-  if (index === 0 && !placements[0] && selected === 0 && fits) instruction = 'Place the first triangle at A1.';
+  const here = placements[selected];
+  if (here && here.x === draft.x && here.y === draft.y && here.turn === draft.turn) instruction = `Tap piece ${selected + 1} again to turn it, or hold it to lift it off.`;
+  else if (index === 0 && !placements[0] && selected === 0 && fits) instruction = 'Place the first triangle at A1.';
   else if (index === 0 && placements[0] && !placements[1] && !fits) instruction = 'Turn the second triangle until it fits at A1.';
   $('status').textContent = won ? 'All pieces fit!' : notice || instruction;
 
@@ -141,6 +152,13 @@ function draw(placedPiece?: number) {
   pieceSelect.innerHTML = level.pieces.map(({ shape }, i) =>
     `<option value="${i}">${i + 1}. ${shapeNames[shape]}${placements[i] ? ' ✓' : ''}</option>`).join('');
   pieceSelect.value = String(selected);
+  $('piece-tray').innerHTML = level.pieces.map((piece, i) => {
+    const tiles = footprint(piece, { x: 0, y: 0, turn: i === selected ? draft.turn : placements[i]?.turn ?? (i % 4) as Turn });
+    return `<button type="button" data-piece="${i}" aria-pressed="${i === selected}" aria-label="Piece ${i + 1}, ${shapeNames[piece.shape]}${placements[i] ? ', placed' : ''}"${won ? ' disabled' : ''}>`
+      + `<svg viewBox="-.1 -.1 2.2 2.2" width="28" height="28" aria-hidden="true">${tiles.map(tile =>
+        `<polygon points="${vertices(tile).map(point => point.join(',')).join(' ')}" fill="${colors[i]}"/>`).join('')}</svg>`
+      + `${placements[i] ? '<span aria-hidden="true">✓</span>' : ''}</button>`;
+  }).join('');
   columnSelect.innerHTML = Array.from({ length: level.width }, (_, x) =>
     `<option value="${x}">Col ${letter(x)}</option>`).join('');
   rowSelect.innerHTML = Array.from({ length: level.height }, (_, y) =>
@@ -177,7 +195,7 @@ function newRandom(tier: Difficulty) {
   load(randomLevel(random), random);
 }
 
-function change(move: Move) {
+function change(move: Move, keepSelection = false) {
   if (menu.open || example.open || complete(data.game)) return;
   if (!applyMove(data.game, move)) {
     notice = canPlace(data.game, selected, draft) ? 'The piece is already here.'
@@ -188,7 +206,7 @@ function change(move: Move) {
   const won = complete(data.game);
   if (won && !data.random && !data.completed.includes(data.game.level.id)) data.completed.push(data.game.level.id);
   const missing = data.game.placements.indexOf(null);
-  if (move.placement && missing !== -1) choose(missing);
+  if (move.placement && missing !== -1 && !keepSelection) choose(missing);
   notice = '';
   audio.play(won ? 'win' : 'flag');
   draw(move.placement ? move.piece : undefined);
@@ -197,6 +215,25 @@ function change(move: Move) {
 }
 
 function place() { change({ piece: selected, placement: draft }); }
+
+/** Turn the selected placed piece where it sits, skipping turns that do not fit. */
+function turnPlaced() {
+  const placed = data.game.placements[selected];
+  if (!placed || complete(data.game)) return;
+  let turn = placed.turn;
+  for (let i = 0; i < 3; i++) {
+    turn = nextTurn(turn);
+    const candidate = { ...placed, turn };
+    if (canPlace(data.game, selected, candidate)) { draft = candidate; change({ piece: selected, placement: candidate }, true); return; }
+  }
+  notice = 'This piece has no room to turn here. Hold it to lift it off.';
+  draw();
+}
+$('piece-tray').addEventListener('click', event => {
+  const button = (event.target as Element).closest<HTMLButtonElement>('[data-piece]');
+  if (!button) return;
+  choose(Number(button.dataset.piece)); notice = ''; draw();
+});
 pieceSelect.onchange = () => { choose(Number(pieceSelect.value)); notice = ''; draw(); };
 columnSelect.onchange = () => { draft.x = Number(columnSelect.value); notice = ''; draw(); };
 rowSelect.onchange = () => { draft.y = Number(rowSelect.value); notice = ''; draw(); };

@@ -28,29 +28,45 @@ export class TangramScene {
   private drop?: { mesh: THREE.Mesh; x: number; y: number; piece: number };
   private elapsed = 0;
   private previous?: number;
-  private press?: { id: number; x: number; y: number; cell: string };
+  private press?: { id: number; x: number; y: number; cell?: string; timer: number };
 
-  constructor(host: HTMLElement, private readonly onPlace: (x: number, y: number) => void) {
+  /** onTap gets the tapped square (if any) and the board point under the finger, at piece height. */
+  constructor(host: HTMLElement,
+    private readonly onTap: (cell: Point | undefined, point: Point) => void,
+    private readonly onHold: (point: Point) => void) {
     this.mini = new MiniScene(host, this.cancelInput);
     this.mini.effects.add(this.burst.object);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const canvas = this.mini.canvas;
-    canvas.setAttribute('aria-label', '3D fitting board. Tap a square to place the selected piece. Drag with two fingers to rotate the board.');
+    canvas.setAttribute('aria-label', '3D fitting board. Tap a square to place the selected piece. Tap a placed piece to choose it, tap again to turn it, hold to lift it. Drag with two fingers to rotate the board.');
     canvas.addEventListener('pointerdown', this.down);
     canvas.addEventListener('pointermove', this.move);
     canvas.addEventListener('pointerup', this.up);
     canvas.addEventListener('pointercancel', this.cancelInput);
+    canvas.addEventListener('contextmenu', event => event.preventDefault());
   }
 
-  cancelInput = () => { this.press = undefined; };
+  cancelInput = () => { clearTimeout(this.press?.timer); this.press = undefined; };
+
+  private point(x: number, y: number): Point | undefined {
+    const hit = this.mini.ground(x, y, .15);
+    return hit ? [hit.x, hit.y] : undefined;
+  }
 
   private down = (event: PointerEvent) => {
-    if (this.mini.rotating || event.button !== 0) return;
-    const cell = this.mini.pick(event.clientX, event.clientY);
-    if (!cell) return;
+    if (this.mini.rotating || (event.button !== 0 && event.button !== 2)) return;
+    const cell = this.mini.pick(event.clientX, event.clientY), point = this.point(event.clientX, event.clientY);
+    if (!point) return;
     event.preventDefault();
+    if (event.button === 2) { this.onHold(point); return; }
+    this.cancelInput();
     this.mini.canvas.setPointerCapture(event.pointerId);
-    this.press = { id: event.pointerId, x: event.clientX, y: event.clientY, cell };
+    const timer = window.setTimeout(() => {
+      if (this.press?.timer !== timer || this.mini.rotating) return;
+      this.press = undefined;
+      this.onHold(point);
+    }, 450);
+    this.press = { id: event.pointerId, x: event.clientX, y: event.clientY, cell, timer };
   };
 
   private move = (event: PointerEvent) => {
@@ -62,11 +78,14 @@ export class TangramScene {
     const press = this.press;
     if (press?.id !== event.pointerId) return;
     this.cancelInput();
-    if (!this.mini.rotating && Math.hypot(event.clientX - press.x, event.clientY - press.y) <= 8
-      && this.mini.pick(event.clientX, event.clientY) === press.cell) {
-      const [x, y] = press.cell.split(',').map(Number);
-      this.onPlace(x, y);
-    }
+    const point = this.point(event.clientX, event.clientY);
+    if (this.mini.rotating || !point || Math.hypot(event.clientX - press.x, event.clientY - press.y) > 8) return;
+    // The marker and ghost piece sit above the squares and have no square of their own, so fall back to the board point.
+    const floor = this.mini.ground(event.clientX, event.clientY);
+    const cell: Point | undefined = press.cell && this.mini.pick(event.clientX, event.clientY) === press.cell
+      ? press.cell.split(',').map(Number) as [number, number]
+      : floor && floor.x >= 0 && floor.y >= 0 ? [Math.floor(floor.x), Math.floor(floor.y)] : undefined;
+    this.onTap(cell, point);
   };
 
   private shape(tiles: Triangle[], low: number, high: number, color: string, opacity = 1) {

@@ -204,4 +204,5 @@ The collection now has 21 playable games.
 - [x] On touch-first screens, hide list controls that the board already covers (9 games). Shadow Blocks and Tiny Tangrams keep theirs because removing blocks and choosing or turning pieces need them.
 - [x] Retire the two-finger tip after the player has learned it, show Traffic Garden's fewest moves only after a win, add a win banner, tighten the board fit and compact the hub on phones.
 - [ ] On a physical phone, check the hidden list controls, the win banner and that the tighter board fit keeps edge props in view.
-- [ ] Give Shadow Blocks a board gesture for removing a block and Tiny Tangrams a way to pick and turn pieces on the board, then hide their list rows on touch too.
+- [x] Shadow Blocks: hold a square (or right-click, or press Delete) to remove a block. Tiny Tangrams: a touch piece tray, tap a placed piece to choose it, tap again to turn it, hold to lift it. Both now hide their list rows on touch.
+- [ ] Choose a zen background mood from the sound preview, then add it as an optional, low-cost ambient track.

@@ -21,6 +21,12 @@
 }
 .tangram-controls [hidden] { display: none; }
 .piece-choice, .coordinates { display: grid; gap: 6px; }
+.piece-tray { display: flex; gap: 6px; overflow-x: auto; min-width: 0; scrollbar-width: none; }
+.tangram-controls .piece-tray button { position: relative; flex: 0 0 48px; min-height: 48px; display: grid; place-items: center; padding: 0; background: #fbf6ec; }
+.tangram-controls .piece-tray button[aria-pressed="true"] { border: 2px solid #52786c; background: #e3ede8; }
+.piece-tray span { position: absolute; right: 3px; bottom: 1px; font-size: 11px; color: #52786c; }
+/* Mouse and keyboard keep the compact list; the tray is for touch screens. */
+@media (pointer: fine) { .piece-tray { display: none; } }
 .piece-choice { grid-template-columns: 32px minmax(0, 1fr); align-items: center; }
 .coordinates { grid-template-columns: 1fr 1fr; }
 .play-area { min-height: 116px; }

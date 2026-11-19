@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyMove, complete, createGame, footprint, hint, key, undo, type Level } from './engine';
+import { applyMove, complete, createGame, footprint, hint, key, pieceAt, undo, type Level } from './engine';
 import { levels, randomLevel } from './levels';
 import { readSave, writeSave } from './storage';
 
@@ -13,6 +13,16 @@ function verify(level: Level) {
 }
 
 describe('Tiny Tangrams', () => {
+  it('finds the placed piece under a tapped point', () => {
+    const level = levels[0], game = createGame(level);
+    expect(pieceAt(game, .3, .3)).toBe(-1);
+    applyMove(game, { piece: 0, placement: level.solution[0] });
+    expect(pieceAt(game, .3, .3)).toBe(0);
+    expect(pieceAt(game, 1.7, 1.7)).toBe(-1);
+    applyMove(game, { piece: 1, placement: level.solution[1] });
+    expect(pieceAt(game, 1.7, 1.7)).toBe(1);
+    expect(pieceAt(game, 3.5, .5)).toBe(-1);
+  });
   it('fills each authored outline exactly', () => {
     expect(levels).toHaveLength(8);
     levels.forEach(verify);

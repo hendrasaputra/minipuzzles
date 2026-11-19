@@ -38,7 +38,7 @@ document.querySelector('#app')!.innerHTML = `
   <p id="storage-warning" class="storage-warning" hidden>Progress isn’t being saved. Keep this tab open.</p>
   <div class="stats"><div><strong id="moves">0</strong><span>Blocks left</span></div></div>
   <section class="play-area" aria-label="Shadow puzzle">
-    <div id="scene" class="scene" tabindex="0" role="group" aria-label="3D board. Tap a square to add a block."></div>
+    <div id="scene" class="scene" tabindex="0" role="group" aria-label="3D board. Tap a square to add a block. Hold a square or press Delete to remove one."></div>
   </section>
   <section class="shadow-targets" aria-label="Shadow targets">
     <div class="shadow-heading">
@@ -50,7 +50,7 @@ document.querySelector('#app')!.innerHTML = `
     </div>
   </section>
   <p id="status" class="status" role="status" aria-live="polite"></p>
-  <div class="stack-controls">
+  <div class="stack-controls touch-optional">
     <label class="car-choice"><span class="sr-only">Choose a stack</span><select id="stack-select" aria-label="Choose a stack"></select></label>
     <button id="remove" aria-label="Remove a block">−</button><button id="add" aria-label="Add a block">+</button>
   </div>
@@ -73,7 +73,7 @@ document.querySelector('#app')!.innerHTML = `
         <path d="M10 10 22 17 22 30 10 23Z" fill="#bd8744"/>
         <path d="M22 17 34 10 34 23 22 30Z" fill="#dba65e"/>
       </svg>`, after: '🟪 🟪', text: 'One block on A1 makes one purple square in Your shadow for column A and one for row 1.' },
-      { before: '▣', after: '□', text: 'Choose a stack and press − to remove a block.' },
+      { before: '▣', after: '□', text: 'Hold a square to remove a block. With a mouse, right-click. You can also choose a stack and press −.' },
       { before: '▂ ▄', after: '▄', text: 'A row with stacks of 1 and 2 has a shadow 2 blocks high. Columns work the same way.' },
       { before: '▥ ▥', after: '✓ ✓', text: 'Make Your shadow look like Goal in both panels. Use every block.' },
       { before: '↺', after: '▧', text: 'Drag with two fingers to rotate. With a mouse, choose Rotate and drag.' },
@@ -89,7 +89,7 @@ const stackSelect = $<HTMLSelectElement>('stack-select');
 difficulty.value = random?.difficulty ?? 'easy';
 let scene: ShadowScene | undefined;
 try {
-  scene = new ShadowScene($('scene'), cell => change(cell, 1));
+  scene = new ShadowScene($('scene'), cell => change(cell, 1), cell => change(cell, -1));
 } catch {
   $('scene').textContent = '3D is unavailable. Choose a stack and use + or − below.';
 }
@@ -143,7 +143,7 @@ function draw(added?: number, before?: ReturnType<typeof shadows>) {
     const square = columns[tutorial.cell % size] + (Math.floor(tutorial.cell / size) + 1);
     instruction = tutorial.change === 1
       ? `Tap the highlighted square ${square} to add one block.`
-      : `Choose stack ${square} and press − to remove one block.`;
+      : `Hold square ${square} to remove one block.`;
   }
   $('status').textContent = game.won ? 'Both shadows match!' : notice || instruction;
   $('front-shadow').innerHTML = profile('Columns', game.front, current.front, columns.slice(0, size).split(''), selected % size, before?.front);
@@ -233,6 +233,9 @@ $('scene').addEventListener('keydown', event => {
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault();
     change(selected, 1);
+  } else if (event.key === 'Delete' || event.key === 'Backspace') {
+    event.preventDefault();
+    change(selected, -1);
   }
 });
 for (const event of ['pointerdown', 'pointerup', 'keydown']) {

@@ -10,31 +10,40 @@ export const columns = 'ABCD';
 export class ShadowScene {
   private readonly mini: MiniScene;
   private readonly motion: MaterialMotion;
-  private press?: { id: number; x: number; y: number; cell: string };
+  private press?: { id: number; x: number; y: number; cell: string; timer: number };
   private drop?: { mesh: THREE.Mesh; height: number; elapsed: number; previous?: number; contact: boolean };
   private readonly burst = new PixelBurst('landing');
 
-  constructor(host: HTMLElement, private readonly onTap: (cell: number) => void) {
+  constructor(host: HTMLElement, private readonly onTap: (cell: number) => void, private readonly onHold: (cell: number) => void) {
     this.mini = new MiniScene(host, this.cancelInput);
     this.mini.effects.add(this.burst.object);
     this.motion = new MaterialMotion(this.animate, () => this.mini.repaint());
     const canvas = this.mini.canvas;
-    canvas.setAttribute('aria-label', '3D stacks. Tap a square to add a block. Drag with two fingers to rotate the board.');
+    canvas.setAttribute('aria-label', '3D stacks. Tap a square to add a block. Hold a square to remove one. Drag with two fingers to rotate the board.');
     canvas.addEventListener('pointerdown', this.down);
     canvas.addEventListener('pointermove', this.move);
     canvas.addEventListener('pointerup', this.up);
     canvas.addEventListener('pointercancel', this.cancelInput);
+    canvas.addEventListener('contextmenu', event => event.preventDefault());
   }
 
-  cancelInput = () => { this.press = undefined; };
+  cancelInput = () => { clearTimeout(this.press?.timer); this.press = undefined; };
 
   private down = (event: PointerEvent) => {
-    if (this.mini.rotating || event.button !== 0) return;
+    if (this.mini.rotating || (event.button !== 0 && event.button !== 2)) return;
     const cell = this.mini.pick(event.clientX, event.clientY);
     if (cell === undefined) return;
     event.preventDefault();
+    if (event.button === 2) { this.onHold(Number(cell)); return; }
+    this.cancelInput();
     this.mini.canvas.setPointerCapture(event.pointerId);
-    this.press = { id: event.pointerId, x: event.clientX, y: event.clientY, cell };
+    // Holding the press removes a block, like flagging in Petals.
+    const timer = window.setTimeout(() => {
+      if (this.press?.timer !== timer || this.mini.rotating) return;
+      this.press = undefined;
+      this.onHold(Number(cell));
+    }, 450);
+    this.press = { id: event.pointerId, x: event.clientX, y: event.clientY, cell, timer };
   };
 
   private move = (event: PointerEvent) => {

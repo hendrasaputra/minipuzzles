@@ -126,3 +126,13 @@ export function hint(game: Game): Move | undefined {
   const missing = game.placements.indexOf(null);
   if (missing !== -1) return { piece: missing, placement: game.level.solution[missing] };
 }
+
+/** Which placed piece covers a board point, or -1. Used to pick pieces by tapping them. */
+export function pieceAt(game: Game, px: number, py: number): number {
+  const side = ([ax, ay]: Point, [bx, by]: Point) => (bx - ax) * (py - ay) - (by - ay) * (px - ax);
+  return game.placements.findIndex((placement, i) => placement !== null
+    && footprint(game.level.pieces[i], placement).some(tile => {
+      const [a, b, c] = vertices(tile), s = [side(a, b), side(b, c), side(c, a)];
+      return s.every(v => v >= 0) || s.every(v => v <= 0);
+    }));
+}
