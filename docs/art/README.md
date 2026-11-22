@@ -48,6 +48,7 @@ The current masters are opaque square app icons. Their 26% rounded mask and 1.02
 | Water Balance | `water-balance` | [Prompt](prompts/water-balance.md) | Generated |
 | Perspective Paths | `perspective-paths` | [Prompt](prompts/perspective-paths.md) | Generated |
 | Pocket Escape | `pocket-escape` | [Prompt](prompts/pocket-escape.md) | Generated |
+| Garden Keys | `garden-keys` | [Prompt](prompts/garden-keys.md) | Rendered with Three.js (no GPT Image tool in that session) |
 
 ## Installable app icon
 

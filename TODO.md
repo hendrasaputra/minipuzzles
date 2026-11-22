@@ -285,7 +285,8 @@ A tile maze in the style of the 1990 Windows game Chip's Challenge. It uses the 
   - [x] Its own action sound and a Garden music mood in F.
   - [x] Touch-first How to play, opening on the first visit.
   - [x] A level 1 finger that follows one solved route.
-- [ ] Icon: save the GPT prompt in `docs/art/`. Generate the image only when the owner asks.
+- [x] Icon v01 (`public/icons/garden-keys.png`): a Three.js render, because there was no GPT Image tool. It shows hedges, a blush door, a brass key, a burrow and a seed on the shelf's peach tile. Prompt, source, review sheet and assets entry are in `docs/art/`.
+- [ ] Owner review of the icon. If it should match the painted shelf more closely, make a GPT Image v02 from `docs/art/prompts/garden-keys.md`.
 - [x] Browser checks on the local production build:
   - [x] Levels 1 and 4 won by keyboard in calm.
   - [x] Classic timer counts down.

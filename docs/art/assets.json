@@ -464,6 +464,28 @@
       "runtime_sha256": "ee9e086afc0d0bfcc5980f827f47a07a87e17fd6dfb48e2fdde521c1abbb8b5c",
       "reference": "docs/art/iterations/petals/v03.png",
       "review": "Agent-reviewed at master size,128px on light and64px on dark with production masking; owner revisions remain possible."
+    },
+    {
+      "id": "garden-keys",
+      "version": "v01",
+      "generator": "Three.js render (docs/art/iterations/garden-keys/v01.render.html)",
+      "master": "docs/art/iterations/garden-keys/v01.png",
+      "master_size": [
+        1024,
+        1024
+      ],
+      "master_mode": "RGB",
+      "master_sha256": "357190f49701a9cda4fe937c00470a39473434a9c2ed1de746b37b3f5e9ff730",
+      "prompt": "docs/art/iterations/garden-keys/v01.prompt.md",
+      "runtime": "public/icons/garden-keys.png",
+      "runtime_size": [
+        384,
+        384
+      ],
+      "runtime_bytes": 126839,
+      "runtime_sha256": "cf40ad3035154f06c29ee3070cbcd4f8ca5cca1dd2aea7736933be116bc66313",
+      "reference": null,
+      "review": "Agent-reviewed at master size, 128px on light and 64px on dark with production masking beside four shelf icons; owner review pending."
     }
   ],
   "reference_sha256": "07d54cd014451c500393fc22d2da20eacdf018261797b400ec6340e48ed68700"

@@ -1,0 +1,118 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Garden Keys icon render</title>
+<style>body{margin:0;background:#555;display:flex;gap:16px;padding:16px;flex-wrap:wrap}canvas{width:384px;height:384px}</style></head>
+<body>
+<script type="module">
+import * as THREE from './three.module.js';
+import { RoundedBoxGeometry } from './RoundedBoxGeometry.js';
+import { RoomEnvironment } from './RoomEnvironment.js';
+
+const SIZE = 1024, SS = 2;
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(SIZE * SS, SIZE * SS);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = .95;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), .04).texture;
+scene.environmentIntensity = .7;
+
+// House style: ivory ceramic, sage moss, painted wood, blush door, brass key.
+const mat = (color, roughness = .55, metalness = 0) => new THREE.MeshStandardMaterial({ color, roughness, metalness });
+const wood = mat('#c48a52', .68), woodDark = mat('#a5703f', .7), moss = mat('#7d9a5e', .8), mossLight = mat('#8ca86b', .8);
+const hedge = mat('#5f8150', .85), hedgeTop = mat('#7a9c5f', .85), door = mat('#d9787a', .5), doorFrame = mat('#efe4d2', .5);
+const brass = mat('#e0b562', .3, .7), soil = mat('#a98764', .85), hole = mat('#4b3a2c', .95), leaf = mat('#86b37c', .6), seed = mat('#b07f4f', .55);
+
+function add(geometry, material, x, y, z) {
+  const mesh = new THREE.Mesh(geometry, material); mesh.position.set(x, y, z);
+  mesh.castShadow = mesh.receiveShadow = true; scene.add(mesh); return mesh;
+}
+const box = (w, h, d, r, m, x, y, z) => add(new RoundedBoxGeometry(w, h, d, 5, r), m, x, y, z);
+
+// Plot: a painted wooden tray with three by three moss tiles.
+box(3.7, .72, 3.7, .2, wood, 0, -.36, 0);
+box(3.78, .1, 3.78, .05, woodDark, 0, -.7, 0);
+const step = 1.13;
+for (let c = -1; c <= 1; c++) for (let r = -1; r <= 1; r++) box(1.04, .16, 1.04, .07, (c + r) % 2 ? moss : mossLight, c * step, .08, r * step);
+
+// Hedge maze walls along the back and left edges.
+for (const [c, r] of [[-1, -1], [0, -1], [-1, 0]]) {
+  box(1.06, .7, 1.06, .22, hedge, c * step, .5, r * step);
+  for (const [a, b, rad] of [[-.25, -.25, .26], [.25, -.22, .24], [-.22, .25, .24], [.24, .24, .27], [0, 0, .3]])
+    add(new THREE.SphereGeometry(rad, 24, 16), hedgeTop, c * step + a, .84, r * step + b);
+}
+// A blush arched door in an ivory frame, standing in the back-right square and facing the viewer.
+const arched = (w, h) => { const p = new THREE.Shape(); p.moveTo(-w / 2, 0); p.lineTo(w / 2, 0); p.lineTo(w / 2, h); p.absarc(0, h, w / 2, 0, Math.PI, false); p.lineTo(-w / 2, 0); return p; };
+const extrude = (shape, depth) => new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelSize: .05, bevelThickness: .05, bevelSegments: 6, curveSegments: 40 });
+const doorway = new THREE.Group(); doorway.position.set(step + .05, .16, -step + .05); doorway.rotation.y = Math.PI / 4; doorway.scale.setScalar(1.2);
+const frame = new THREE.Mesh(extrude(arched(1.0, .78), .28), doorFrame); frame.position.z = -.14;
+const leafDoor = new THREE.Mesh(extrude(arched(.7, .66), .1), door); leafDoor.position.set(0, .04, .14);
+const knob = new THREE.Mesh(new THREE.SphereGeometry(.075, 24, 16), brass); knob.position.set(.2, .5, .32);
+const plank = mat('#c9686a', .55);
+const lines = [-.12, .12].map(x => { const m = new THREE.Mesh(new RoundedBoxGeometry(.03, .85, .02, 2, .01), plank); m.position.set(x, .47, .3); return m; });
+for (const part of [frame, leafDoor, knob, ...lines]) { part.castShadow = part.receiveShadow = true; doorway.add(part); }
+scene.add(doorway);
+
+// The hero: an oversized brass key lying across the centre tile.
+const key = new THREE.Group();
+const bow = new THREE.Mesh(new THREE.TorusGeometry(.3, .11, 20, 48), brass); bow.rotation.x = Math.PI / 2; bow.position.x = -.62;
+const shaft = new THREE.Mesh(new RoundedBoxGeometry(1.05, .16, .17, 4, .06), brass); shaft.position.x = .14;
+const tooth1 = new THREE.Mesh(new RoundedBoxGeometry(.13, .15, .3, 3, .04), brass); tooth1.position.set(.5, 0, .18);
+const tooth2 = new THREE.Mesh(new RoundedBoxGeometry(.13, .15, .22, 3, .04), brass); tooth2.position.set(.28, 0, .14);
+for (const part of [bow, shaft, tooth1, tooth2]) { part.castShadow = part.receiveShadow = true; key.add(part); }
+key.position.set(.15, .3, .25); key.rotation.y = .35; key.scale.setScalar(1.3); scene.add(key);
+
+// Burrow mound with a dark entrance, front-right.
+const mound = add(new THREE.SphereGeometry(.5, 40, 24, 0, Math.PI * 2, 0, Math.PI / 2), soil, step, .16, step);
+mound.scale.set(1, .85, 1);
+const entrance = add(new THREE.ExtrudeGeometry(arched(.34, .08), { depth: .06, bevelEnabled: false, curveSegments: 32 }), hole, step + .3, .16, step + .3);
+entrance.rotation.y = Math.PI / 4;
+
+// A seed with a sprout, front-left.
+const s = new THREE.SphereGeometry(.17, 32, 20); s.scale(.85, 1.1, .85);
+add(s, seed, -step, .34, step);
+for (const side of [-1, 1]) {
+  const l = new THREE.SphereGeometry(.15, 24, 12); l.scale(1.5, .3, .75);
+  const m = add(l, leaf, -step + side * .17, .62, step); m.rotation.z = side * .45;
+}
+add(new THREE.CylinderGeometry(.025, .03, .2, 8), leaf, -step, .5, step);
+
+// No ground plane: its shadow ran past the render square and left a hard edge on the tile.
+scene.add(new THREE.HemisphereLight('#fff9ef', '#cdb89c', .75));
+const sun = new THREE.DirectionalLight('#fff0d8', 2.6);
+sun.position.set(-7, 11, 1.5); sun.castShadow = true;
+Object.assign(sun.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: .5, far: 40 });
+sun.shadow.mapSize.set(4096, 4096); sun.shadow.radius = 6; sun.shadow.bias = -.0004; sun.shadow.normalBias = .02;
+scene.add(sun);
+
+// Orthographic camera: 30° elevation, 45° yaw (house contract).
+const view = 5.55;
+const camera = new THREE.OrthographicCamera(-view / 2, view / 2, view / 2, -view / 2, .1, 100);
+const elev = THREE.MathUtils.degToRad(30), yaw = Math.PI / 4, dist = 20;
+camera.position.set(Math.sin(yaw) * Math.cos(elev) * dist, Math.sin(elev) * dist, Math.cos(yaw) * Math.cos(elev) * dist);
+camera.lookAt(.05, .25, .05);
+renderer.render(scene, camera);
+
+const out = document.createElement('canvas'); out.width = out.height = SIZE;
+const g = out.getContext('2d');
+// Peach ceramic tile with a raised rim, sampled from the shelf icons (field #fadcbc, rim #fde7d0).
+const rounded = (inset, radius) => { g.beginPath(); g.roundRect(inset, inset, SIZE - inset * 2, SIZE - inset * 2, radius); };
+g.fillStyle = '#e9c39c'; g.fillRect(0, 0, SIZE, SIZE);
+const rim = g.createLinearGradient(0, 0, SIZE, SIZE); rim.addColorStop(0, '#fff1e2'); rim.addColorStop(.55, '#fbe0c4'); rim.addColorStop(1, '#eec7a0');
+rounded(SIZE * .012, SIZE * .25); g.fillStyle = rim; g.fill();
+const field = g.createLinearGradient(0, SIZE * .05, 0, SIZE); field.addColorStop(0, '#f9d9b7'); field.addColorStop(1, '#fbe1c4');
+rounded(SIZE * .045, SIZE * .22); g.fillStyle = field; g.fill();
+g.save(); rounded(SIZE * .045, SIZE * .22); g.clip();
+g.shadowColor = 'rgba(140, 90, 50, .28)'; g.shadowBlur = SIZE * .03; g.shadowOffsetY = SIZE * .008;
+g.lineWidth = SIZE * .02; g.strokeStyle = 'rgba(0,0,0,0)'; rounded(SIZE * .035, SIZE * .23); g.stroke(); g.restore();
+const glow = g.createRadialGradient(SIZE * .32, SIZE * .25, 0, SIZE * .32, SIZE * .25, SIZE * .7);
+glow.addColorStop(0, '#ffffff55'); glow.addColorStop(1, '#ffffff00');
+rounded(SIZE * .045, SIZE * .22); g.fillStyle = glow; g.fill();
+// The miniature fills about three quarters of the tile, like the rest of the shelf.
+const scale = .93, o = (SIZE - SIZE * scale) / 2;
+g.imageSmoothingQuality = 'high';
+g.drawImage(renderer.domElement, o, o + SIZE * .01, SIZE * scale, SIZE * scale);
+document.body.append(out);
+out.toBlob(blob => fetch('/garden-keys-v01.png', { method: 'POST', body: blob }).then(() => document.title = 'saved'), 'image/png');
+</script>
+</body></html>

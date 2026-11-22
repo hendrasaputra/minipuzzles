@@ -32,5 +32,5 @@ export const games: readonly GameEntry[] = [
   {"id": "water-balance", "title": "Water Balance", "description": "Pour water to match the target amounts.", "status": "playable", "href": "./games/water-balance/", "accent": "#a9c8cc", "monogram": "WB", "icon": "./icons/water-balance.png"},
   {"id": "perspective-paths", "title": "Perspective Paths", "description": "Turn the board to line up the paths.", "status": "playable", "href": "./games/perspective-paths/", "accent": "#bfb9d8", "monogram": "PP", "icon": "./icons/perspective-paths.png"},
   {"id": "pocket-escape", "title": "Pocket Escape", "description": "Find clues and unlock the room.", "status": "playable", "href": "./games/pocket-escape/", "accent": "#d3bca2", "monogram": "PE", "icon": "./icons/pocket-escape.png"},
-  {"id": "garden-keys", "title": "Garden Keys", "description": "Collect every seed, find the keys and reach the burrow.", "status": "playable", "href": "./games/garden-keys/", "accent": "#c9d6ad", "monogram": "GK"},
+  {"id": "garden-keys", "title": "Garden Keys", "description": "Collect every seed, find the keys and reach the burrow.", "status": "playable", "href": "./games/garden-keys/", "accent": "#c9d6ad", "monogram": "GK", "icon": "./icons/garden-keys.png"},
 ];
