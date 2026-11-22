@@ -211,3 +211,85 @@ The collection now has 21 playable games.
 - [ ] On a physical iPhone: check landscape insets, Add to Home Screen, the standalone app's status bar, and the edge-on Petals view.
 - [x] Help rework: animated finger drawings for each touch action (`gestureDrawing` in `src/shared/game-guide.ts`), touch-first help text with an "Other controls" line for keyboard, mouse and list controls, one shared camera step, How to play opening on a player's first visit, and a finger mark on the first level's next target (`MiniScene.showFinger`). Traffic Garden has no fixed levels, so its finger guides Easy puzzles until the first win (`puzzles-traffic-garden-first-win`). Tiny Tangrams now places the chosen piece wherever it fits under a tap, which touch players needed for level 1's second triangle.
 - [ ] On a physical iPhone: watch a first visit to a few games (help opens once, the finger lands on the right object at every camera angle).
+
+## Game 22: Garden Keys (working title)
+
+A tile maze in the style of the 1990 Windows game Chip's Challenge. It uses the same kinds of mechanics, set in our garden style. The name, characters, art, sounds and levels are our own; none are copied from the original. Folder `src/games/garden-keys/`, page `games/garden-keys/`.
+
+**What carries over**
+
+- Collect every seed to open the gate, then reach the burrow. In the original you collect chips to open the socket, then reach the exit.
+- Keys and doors in four colours. Blue, red and yellow keys are used up; the green key is kept.
+- Four kinds of boots: swim ring for water, clay clogs for fire, ice spikes for ice, grip soles for conveyors. A thief tile takes them all.
+- Hazards: water and fire kill you without the right boots. Ice keeps you sliding, and ice corners turn you. Conveyors push you along. A bomb destroys whatever moves onto it.
+- Pushable crates. A crate pushed into water fills it and leaves mud, and stepping on mud turns it to floor. Monsters can't cross gravel.
+- Wall tiles:
+  - hidden walls;
+  - fake walls that vanish when touched;
+  - walls that rise after you step off them;
+  - walls switched by the green button.
+- Buttons:
+  - blue turns the tanks around;
+  - brown opens a trap;
+  - red starts a clone machine.
+- Teleports, hint tiles and an optional timer.
+- Monsters that follow fixed rules:
+  - beetle: keeps the wall on its left;
+  - firefly: turns right at walls;
+  - bouncing ball: reverses at walls;
+  - tank: drives straight until a blue button turns it;
+  - dragonfly: turns left at walls;
+  - snapper: chases you;
+  - newt: keeps the wall on its right.
+- Left out for now:
+  - The original's random monsters and random conveyors. Add them later as seeded versions only, so every level can still be tested.
+  - Level passwords, because saves already remember progress.
+
+**Plan**
+
+- [x] Rules in `src/games/garden-keys/engine.ts` (no DOM, rendering or storage):
+  - [x] A deterministic tick engine. One tick is one step for you or a monster, so the same moves always give the same result.
+  - [x] An ASCII level format; the legend is at the top of `engine.ts`.
+  - [x] Every tile and monster listed above, plus death and win states.
+  - [x] Tests for each tile and monster rule (23 tests in `engine.test.ts`).
+  - [x] Undo goes back to before your last input, including a whole slide.
+  - [x] Replay rebuilds a game from its list of inputs.
+- [x] Two speeds:
+  - [x] Engine side: `step` runs one tick (classic), `act` runs one calm action and finishes any slide, and the timer counts only when `timed` is on.
+  - [x] UI: **Classic** runs ticks on a timer, as in the original, and you can hold a direction to keep moving.
+  - [x] UI: **Calm** moves the world only when you do, with a Wait button and no timer. This is the default on touch screens.
+- [x] Levels in `src/games/garden-keys/levels.ts`:
+  - [x] Twelve original stable levels: First Seeds, Colored Doors, Wet and Hot, Ice Rink, Moving Paths, Crate Bridges, Beetle Walk, Switch Walls, Traps and Clones, Teleports, Thief in the Walls, Grand Garden.
+  - [x] Ice Rink and Moving Paths came from a seeded search that picked the layout with the longest slide-heavy solution. The other ten are hand-drawn.
+  - [x] A recorded solution for each level, 12 to 64 moves. Tests replay each one in calm mode and again as classic ticks with the timer on.
+  - [x] Classic time limits of 40 to 70 seconds: double the recorded solution's time plus 30 seconds, rounded up to 10.
+  - [x] A test shows Wet and Hot can't be finished without the swim ring.
+  - [x] A breadth-first solver (`solver.ts`) finds the fewest calm moves, including waits for monsters. It found eleven of the recorded solutions. Traps and Clones has too many crate positions to search in time, so its recorded solution is hand-written and verified by replay.
+  - [ ] Decide whether hints use the solver live. It answers the small levels in under a second, but it is too slow for crate-heavy ones.
+  - [ ] Play each level by hand. The solver proves they can be won, not that they are fun or fair.
+  - [ ] Grip soles work and are tested but appear in no level yet. Use them in a later level.
+- [x] Scene in `scene.ts`, built on MiniScene:
+  - [x] Rotatable 3D board with distinct shapes for every square, item, crate and monster type.
+  - [x] Steps are tweened one square at a time, and calm slides play out square by square.
+  - [x] Flickering fire, bobbing water, moving conveyor arrows and spinning teleports through MaterialMotion, plus sparkles on pickups and on losing.
+  - [ ] Camera that follows you on big boards. Not needed yet: the largest level is 15×9 and fits on a phone.
+- [x] Controls and display in `main.ts`:
+  - [x] Swipe or tap the next square, five large buttons (four directions plus Wait in calm), and arrow keys, WASD and Space.
+  - [x] Direction glyphs follow the camera.
+  - [x] Inventory strip for keys and boots, seeds left, and a countdown in classic.
+  - [x] Calm has Undo, Hint and Wait; classic hides them. Classic's clock starts on your first move and pauses while the menu is open.
+  - [x] Holding a direction keeps walking in classic.
+- [x] Saves under `puzzles-garden-keys-v1`: level, speed, every tick's input, completed levels and best times. Loading replays the inputs, and saves with inputs after a game ended are rejected (`storage.test.ts`).
+- [x] Shelf and help:
+  - [x] Catalog entry (game 22, monogram GK, no icon yet) and the Vite page `games/garden-keys/`.
+  - [x] Its own action sound and a Garden music mood in F.
+  - [x] Touch-first How to play, opening on the first visit.
+  - [x] A level 1 finger that follows one solved route.
+- [ ] Icon: save the GPT prompt in `docs/art/`. Generate the image only when the owner asks.
+- [x] Browser checks on the local production build:
+  - [x] Levels 1 and 4 won by keyboard in calm.
+  - [x] Classic timer counts down.
+  - [x] Grand Garden renders.
+  - [x] At 375 px with touch: How to play opens on the first visit, calm is the default, the finger shows, and there is no sideways scroll.
+- [ ] Play every level by hand on a phone, in both speeds, and check the monster timing feels fair.
+- [ ] Publish only after the owner approves.

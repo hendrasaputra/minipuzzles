@@ -28,6 +28,7 @@ export default defineConfig({
         waterBalance: fileURLToPath(new URL('./games/water-balance/index.html', import.meta.url)),
         perspectivePaths: fileURLToPath(new URL('./games/perspective-paths/index.html', import.meta.url)),
         pocketEscape: fileURLToPath(new URL('./games/pocket-escape/index.html', import.meta.url)),
+        gardenKeys: fileURLToPath(new URL('./games/garden-keys/index.html', import.meta.url)),
       },
     },
   },

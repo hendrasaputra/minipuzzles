@@ -34,6 +34,7 @@ export const gameMoods: Record<SoundGame, Mood> = {
   'picture-islands': garden(233.08),
   'robot-garden': garden(207.65),
   'color-stacks': garden(329.63),
+  'garden-keys': garden(349.23),
   'water-garden': water(146.83),
   'water-balance': water(164.81),
   'frosty-paths': water(174.61),

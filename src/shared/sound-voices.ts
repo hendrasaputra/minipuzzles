@@ -8,6 +8,7 @@ export const soundVoices = {
   'crystal-light': ['sine', 840, 1680, .19],
   'flip-garden': ['sine', 470, 760, .11],
   'frosty-paths': ['sine', 1250, 560, .21],
+  'garden-keys': ['triangle', 520, 340, .09],
   'garden-sudoku': ['triangle', 370, 550, .12],
   'marble-workshop': ['sine', 690, 320, .18],
   'perspective-paths': ['sine', 410, 820, .17],
