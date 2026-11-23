@@ -1,26 +1,21 @@
 # Bridge Islands icon prompt
 
-Status: generated `v01`; technical review complete.
+Status: generated `v02`; master and masked128/64px review complete.
 
 - Catalog ID: `bridge-islands`
 - Runtime: `public/icons/bridge-islands.png`
-- Master: [unmodified v01](../iterations/bridge-islands/v01.png)
-- Exact request: [v01.prompt.md](../iterations/bridge-islands/v01.prompt.md)
+- Master: [unmodified v02](../iterations/bridge-islands/v02.png)
+- Exact request: [v02.prompt.md](../iterations/bridge-islands/v02.prompt.md)
+- Review: [v02.review.md](../iterations/bridge-islands/v02.review.md)
 - Family reference: [Petals v03](../iterations/petals/v03.png)
 - Style: [ICON_STYLE.md](../ICON_STYLE.md)
 
 ## Editable prompt for future revisions
 
-Use case: stylized-concept
-Asset type: original skeuomorphic puzzle-game app icon for bridge-islands.
-Reference image role: visual style and composition reference only, not an edit target. Create a new icon for the subject below. Match the reference's handcrafted Iconfactory-inspired physical detail, warm upper-left lighting, restrained ceramic/wood/brass materials, miniature scale and coherent isometric subject. Completely replace Petals' Minesweeper board, pink covered tiles, brass flag and pip clues with this game's own subject. Do not carry over Petals-specific objects.
+Use case: stylized-concept. Asset type: one original production puzzle-game app icon, square 1024×1024 PNG. Reference image is ONLY the Petals v03 visual-family reference, not an edit target. Keep its camera, backing, material quality and visual weight; completely replace its pink board, flag and pips with the subject below. Match Iconfactory-inspired handcrafted skeuomorphic quality: warm ivory satin ceramic, lightly textured painted wood, small brass details, subtle physical texture, precise soft bevels. Orthographic miniature camera at 30-degree elevation and 45-degree yaw. Warm upper-left key light, soft lower-right contact shadows, restrained ambient occlusion. Palette warm ivory, blush pink, muted sage, dusty blue and brass with the specified accent. Large readable forms, minimal decorative detail, clear silhouette at 64px. Fully opaque warm-ivory ceramic backing fills entire square canvas edge to edge; website supplies 26% rounded mask with 1.025× backing bleed. No black corner matte, transparency, outer background, extra frame, text, letters, numerals, logo, watermark, UI, devices, people or copyrighted characters. Keep every object safely inside the mask. No contact sheet.
+Subject: Three large warm-cream ceramic islands over a simple dusty-blue inset pool, connected by two short chunky wooden footbridges in a clear bent chain. One island has two large recessed round blush pips, one has one pip, and the third has one pip, no written numerals. A small sage tuft at one edge only. Accent #b6c9d1. Improvement: remove tree and rock clutter, make the bridge connections and pip clues larger and unobstructed, clear water gaps between islands. Island network should read as linked distinct landforms at64px. Illustrative icon, not a solvable board.
 
-Game subject: Three small cream islands floating over a pale blue inset pool, connected by two short wooden footbridges. Give one island two embossed pips, another one pip; keep the network simple and readable without written numerals.
-
-Accent family: #b6c9d1, with warm ivory, muted sage, coral and dusty blue as supporting colors. Use a few large distinct objects so the subject reads at 64px. Keep a clean, friendly silhouette and carefully beveled tangible materials. The subject is a small isometric miniature, approximately 30-degree elevation and 45-degree yaw.
-
-Export as one standalone opaque square app icon, ideally 1024x1024 PNG. A warm ivory ceramic backing fills the whole canvas edge to edge like a classic skeuomorphic desktop app icon. The website supplies its rounded-corner mask. No transparent pixels, black matte, outside backdrop, checkerboard, scattered flecks, text, letters, numerals, logos, watermarks, badges, interface, mockup device or contact sheet. Preserve a generous margin around the miniature so a rounded mask cannot cut it off. Use the same physical backing, visual weight and light direction as the reference. Do not turn this into flat vector art.
 
 ## Review notes
 
-Generated with the built-in tool using Petals v03. Keep the current request and master immutable; save the next modification as v02 with its exact prompt and reference input. Runtime PNG is a 384px technical export, not a retouched master.
+Removed tree/rock clutter, enlarged round pip clues, and exposed short bridges between three distinct islands. Pips are decorative and do not form a consistent solved bridge-count puzzle; this is an illustrative app icon, never a puzzle question or screenshot. Preserve v01 and v02 masters and exact requests; next revision is v03.

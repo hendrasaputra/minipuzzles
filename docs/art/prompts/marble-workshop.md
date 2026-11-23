@@ -1,24 +1,13 @@
-# Marble Workshop icon prompt
+# marble-workshop icon prompt
 
-Status: generated `v01`; technical review complete.
+Status: generated `v02`; selected runtime `public/icons/marble-workshop.png`.
+Previous immutable masters remain in `docs/art/iterations/marble-workshop/`.
 
-- Catalog ID: `marble-workshop`
-- Runtime: `public/icons/marble-workshop.png`
-- Master: [unmodified v01](../iterations/marble-workshop/v01.png)
-- Exact request: [v01.prompt.md](../iterations/marble-workshop/v01.prompt.md)
-- Family reference: [Petals v03](../iterations/petals/v03.png)
-- Style: [ICON_STYLE.md](../ICON_STYLE.md)
+# marble-workshop v02 — exact built-in GPT Image request
 
-## Editable prompt for future revisions
+Reference input: `docs/art/iterations/petals/v03.png` (style/composition only).
 
-Use case: stylized-concept. Generate one original production puzzle-game app icon. Input image is ONLY the Petals visual-family reference, not an edit target. Completely replace its Minesweeper board, tiles, flag and pips with this new subject.
+Use case: stylized-concept. One original production puzzle-game app icon, square PNG ideally1024x1024. Input image is ONLY a style/composition reference: docs/art/iterations/petals/v03.png, not an edit target. Match its tactile Iconfactory-inspired handcrafted miniature: orthographic camera 30-degree elevation and45-degree yaw, satin ivory ceramic, lightly textured painted wood, restrained brass details, warm upper-left key light, soft lower-right contact shadow, controlled ambient occlusion. Warm ivory, blush pink, muted sage and dusty blue. Maintain consistent miniature scale and an opaque ivory ceramic backing filling ALL canvas edges, with safe padding inside a26% rounded display mask. No black matte, external backdrop, transparency, border frame, text, letters, numerals, logo, badge, watermark, UI, screenshot, device or people. Crisp chunky forms, clean separation, clear mechanism recognizable at64px. Fewer objects and no gratuitous floral clutter. Preserve broad ceramic bevels, quiet premium physical craft, no excessive gloss or neon. Subject: Marble Workshop: completely replace reference tiles/pips/flag with a short miniature wooden marble run on an ivory platform. ONE broad blush-painted curved grooved track, ONE small raised wooden bridge at back, and ONE coral marble resting in the groove near the bridge. The curve slopes gently toward a large ivory catch cup at front right; track ends just above the open cup so the marble's route is visibly continuous. Keep cup opening visible, broad track silhouette and simple brass supports. No multiple marbles, flowers, machines or decorative bits. Accent warm wood #d4bba4. Improve64px readability of marble, groove and destination.
 
-Subject: A short miniature wooden marble run with one broad curved groove, one small elevated bridge, and a single coral marble poised above a cream catch cup. Three large readable components, no sprawling machine.
 
-Match the reference Iconfactory-inspired handcrafted skeuomorphic quality: rich restrained satin ceramic and wood, small brass details, soft precise bevels, subtle physical texture, warm upper-left illumination, soft lower-right shadows, and coherent isometric miniature camera (30-degree elevation,45-degree yaw). Same visual weight and scale as reference. Accent #d4bba4 with warm ivory and harmonious dusty pastels. Few large readable objects recognizable at64px.
-
-Use a fully OPAQUE square warm-ivory ceramic backing extending cleanly to every canvas edge. The site supplies the rounded-corner mask. No transparency, black matte, outside backdrop, checkerboard, stray flecks, outer shadow or extra frame. Keep subject centered with safe padding for the rounded mask. One square PNG ideally1024x1024. No title,text,letters,numerals,logos,badges,UI,watermark,phone mockup orcontact sheet. Original puzzle subject only; do not reproduce an existing commercial icon.
-
-## Review notes
-
-Generated with the built-in tool using Petals v03. Keep the current request and master immutable; save the next modification as v02 with its exact prompt and reference input. Runtime PNG is a 384px technical export, not a retouched master.
+Review: `docs/art/iterations/marble-workshop/v02.review.md`.

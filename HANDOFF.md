@@ -1,5 +1,38 @@
 # Puzzles developer handoff
 
+## Marketing image package — 23 November 2026
+
+`docs/marketing/creatives/v01/README.md` documents the generated campaign package:
+27 preserved GPT Image masters with exact prompts/reviews and 36 posting PNGs.
+The 22 spotlight images use the social kit's exact goals; the eight-slide carousel
+includes all 22 real shelf icons. Six game slides fix the spec's five-slide/20-slot
+mismatch. Launch exports are 1640×624 and 1080×1350; Story images are 1080×1920.
+The manifest includes alt text, sizes and hashes; the contact sheet was visually
+reviewed, with representative spotlights/carousel layouts checked at full size.
+All output PNGs decoded successfully and game coverage/dimensions were validated.
+`npm run build` passed; Vite reported a large-bundle advisory.
+The initial artwork pass changed no game code or saves. A follow-up used local
+Playwright/Chromium to capture all 22 real games: 88 PNGs across phone, desktop,
+board-only and captioned 4:5 formats. See `captures/manifest.json` and its README for
+provenance, exact default unsolved states and contact sheets. All 22 games passed
+local navigation/overflow checks at 375px and 1600px, with zero page errors or failed
+capture requests. The suite passed 564 tests across 69 files. Physical-phone/live
+verification and video clips remain open; no posts or deployment were sent.
+
+All 22 game icons were regenerated with the existing Petals v03 style reference:
+Petals selects v04 and the remaining games select v02. Runtime paths stay unchanged.
+Garden Keys now matches the painted ceramic family. Original masters are preserved;
+each new 1254×1254 master has its exact prompt and review, with 384×384 runtime
+exports and hashes in `docs/art/assets.json`. The installable app icon also selects
+GPT Image v02 with five size exports; the simple P favicon remains intentional.
+See `docs/art/reviews/2026-11-23-icon-refresh/README.md` and its comparison sheet.
+The campaign carousel and hub captures use the refreshed icons.
+Final validation confirmed all 22 icon/master hashes, 92 real-capture PNGs and all
+36 original campaign posting images against their manifests. The refreshed build
+also passed; the existing large-bundle advisory remains. The icon refresh is published; the
+marketing package in `docs/marketing/` stays local and uncommitted by the owner's choice.
+
+
 Updated 8 November 2026. Puzzles is a collection of 21 playable browser games in the [minipuzzles repository](https://github.com/hendrasaputra/minipuzzles). The most recent verified release is `33e06ec` on `main`. [Live collection](https://puzzles.hensap.id/) · [GitHub Pages run](https://github.com/hendrasaputra/minipuzzles/actions/runs/42476252596)
 
 ## Start from a fresh checkout

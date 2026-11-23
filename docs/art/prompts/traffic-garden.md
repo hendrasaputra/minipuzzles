@@ -1,27 +1,13 @@
-# Traffic Garden icon prompt
+# traffic-garden icon prompt
 
-Status: generated `v01`; technical review complete.
+Status: generated `v02`; selected runtime `public/icons/traffic-garden.png`.
+Previous immutable masters remain in `docs/art/iterations/traffic-garden/`.
 
-- Catalog ID: `traffic-garden`
-- Runtime: `public/icons/traffic-garden.png`
-- Master: [unmodified v01](../iterations/traffic-garden/v01.png)
-- Exact request: [v01.prompt.md](../iterations/traffic-garden/v01.prompt.md)
-- Family reference: [Petals v03](../iterations/petals/v03.png)
-- Style: [ICON_STYLE.md](../ICON_STYLE.md)
+# traffic-garden v02 — exact built-in GPT Image request
 
-## Editable prompt for future revisions
+Reference input: `docs/art/iterations/petals/v03.png` (style/composition only).
 
-Use case: stylized-concept
-Asset type: one production app icon for Traffic Garden, part of a coordinated puzzle-game icon family.
+Use case: stylized-concept. One original production puzzle-game app icon, square PNG ideally1024x1024. Input image is ONLY a style/composition reference: docs/art/iterations/petals/v03.png, not an edit target. Match its tactile Iconfactory-inspired handcrafted miniature: orthographic camera 30-degree elevation and45-degree yaw, satin ivory ceramic, lightly textured painted wood, restrained brass details, warm upper-left key light, soft lower-right contact shadow, controlled ambient occlusion. Warm ivory, blush pink, muted sage and dusty blue. Maintain consistent miniature scale and an opaque ivory ceramic backing filling ALL canvas edges, with safe padding inside a26% rounded display mask. No black matte, external backdrop, transparency, border frame, text, letters, numerals, logo, badge, watermark, UI, screenshot, device or people. Crisp chunky forms, clean separation, clear mechanism recognizable at64px. Fewer objects and no gratuitous floral clutter. Preserve broad ceramic bevels, quiet premium physical craft, no excessive gloss or neon. Subject: Traffic Garden: replace all reference tiles/pips/flag with a miniature cream parking tray with THREE large chunky painted wooden toy cars. A clear coral red car points right toward an obvious exit opening in the tray rim; one sage car lies across its path and one dusty-blue car sits behind. Make the red car visibly distinct and the opening unobstructed beyond the blocker; broad simple lanes, no lane arrows. Remove shrubs and tiny decoration to improve small-size clarity. Accent warm sand #d9b998. Focus on sliding cars to free the red car, not a road-driving scene.
 
-The provided Petals image is a STYLE AND COMPOSITION REFERENCE ONLY, not an edit target. Generate a NEW icon with the same handcrafted Iconfactory-inspired skeuomorphic quality: warm ivory ceramic backing, softly beveled chunky miniature objects, believable ceramic/painted wood/brass material texture, restrained upper-left warm lighting, subtle ambient occlusion and a soft lower-right contact shadow. Match its coherent isometric camera and subject scale.
 
-Completely replace the reference's Minesweeper board, pink tiles, pips and coral flag with this game subject: A tiny cream parking tray with three chunky toy cars in coral, sage, and sky blue. The coral car points toward a clear opening in the tray rim. One small rounded shrub gives the parking puzzle a garden character.
-
-Use the accent family #d9b998 within the restrained ivory, blush, sage, dusty-blue and brass palette. Keep a few large, distinctive readable objects, with a clean silhouette recognizable at64px. The puzzle must read through objects rather than written explanation. Do not carry Petals-specific objects into this new subject.
-
-Use a fully OPAQUE square warm-ivory ceramic backing extending cleanly to all four canvas edges. The backing fills the canvas like a classic skeuomorphic app icon; the website will mask the outer corners. Keep the miniature comfortably centered with room for a rounded-corner mask. No transparency, black corner matte, outside backdrop, stray speckles or isolated flecks. No title, letters, numerals, text, logos, badges, UI, watermarks or copied existing icon compositions. Do not turn it into flat vector art. One standalone square PNG, ideally1024×1024; not a contact sheet or device mockup.
-
-## Review notes
-
-Generated with the built-in tool using Petals v03. Keep the current request and master immutable; save the next modification as v02 with its exact prompt and reference input. Runtime PNG is a 384px technical export, not a retouched master.
+Review: `docs/art/iterations/traffic-garden/v02.review.md`.

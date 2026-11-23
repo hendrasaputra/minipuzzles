@@ -1,22 +1,18 @@
 # Pocket Escape icon prompt
 
-Status: generated `v01`; technical review complete.
+Status: generated v02; full-size and production-mask review complete.
 
-- Catalog ID: `pocket-escape`
-- Runtime: `public/icons/pocket-escape.png`
-- Master: [unmodified v01](../iterations/pocket-escape/v01.png)
-- Exact request: [v01.prompt.md](../iterations/pocket-escape/v01.prompt.md)
-- Family reference: [Petals v03](../iterations/petals/v03.png)
-- Style: [ICON_STYLE.md](../ICON_STYLE.md)
+- Runtime: public/icons/pocket-escape.png
+- Master: ../iterations/pocket-escape/v02.png
+- Exact request: ../iterations/pocket-escape/v02.prompt.md
+- Family style reference: ../iterations/petals/v03.png
 
 ## Editable prompt for future revisions
 
-Create one original Pocket Escape puzzle-game app icon. The attached Petals image is a STYLE AND COMPOSITION REFERENCE ONLY, not an edit target. Completely replace its Minesweeper miniature with this new game subject: A tiny open-front cream room corner contains a rounded coral door with a small brass keyhole, a chunky brass key on a low wooden table, and one simple lavender puzzle box. Warm inviting mystery rather than frightening imagery.
-
-Match the reference family's Iconfactory-inspired skeuomorphic craftsmanship: a distinctive physical miniature with clear silhouette, softly beveled satin ceramic and painted wood, selective warm brass, believable fine texture, controlled highlights, warm upper-left light and soft lower-right shadows. Keep the subject isometric with matching camera and comparable visual weight. Palette accent: #d3bca2; retain warm ivory and restrained pastel harmony.
-
-Use the same opaque, square ivory ceramic backing filling the canvas like a crafted app icon. It must reach all four image edges cleanly; the website supplies the rounded-corner mask. Keep all important objects safely inside that mask. No transparent background, outside backdrop, black matte, checkerboard, floating speckles or edge remnants. No Petals flag, pip tiles or Minesweeper board unless explicitly part of the new subject. No letters, numerals, words, badges, logos, UI, watermark, device or contact sheet. A few large readable objects, recognizable at64px. Output exactly one square PNG, ideally1024×1024. Original artwork, not a reproduction of any existing app icon.
+Use case: stylized-concept. Asset type: one original production puzzle-game app icon. Reference image: docs/art/iterations/petals/v03.png is a STYLE AND COMPOSITION REFERENCE ONLY, not an edit target. Create a NEW subject, carrying none of its pink clue board, pips or flag into the new icon. Match its handcrafted Iconfactory-inspired tactile skeuomorphic miniature craft, warm ivory satin ceramic, lightly textured painted wood, small brass details, restrained blush/sage/dusty blue pastel palette. Orthographic camera at 30 degrees elevation and 45 degrees yaw, one warm upper-left key light and soft lower-right contact shadows. Calm premium clean. A few large crisp objects with strong separation and recognizable silhouette at64px. Fully opaque square warm ivory ceramic backing fills canvas edge to edge; generous interior safety margin for the website's 26% rounded-corner mask. Controlled satin highlights, no glossy plastic. No text, letters, numbers, logo, watermark, UI, badge, device, people, black matte, outside backdrop, transparency, confetti or stray speckles. Output one square PNG, ideally1024x1024. Game: Pocket Escape. Subject: A simple open-front ivory room corner with one large arched blush wooden locked door, one low wooden table carrying an oversized brass key, and one chunky lavender locked puzzle box. The door's brass keyhole is crisp and dark. The box has one large brass latch and a single recessed geometric clue shape, no writing. Remove the old small window, vines and extra decor so the key-door-box trio reads cleanly at64px. Warm inviting mystery.
 
 ## Review notes
 
-Generated with the built-in tool using Petals v03. Keep the current request and master immutable; save the next modification as v02 with its exact prompt and reference input. Runtime PNG is a 384px technical export, not a retouched master.
+Removed vines/window clutter and enlarged key, lock and clue box to strengthen small-size recognition.
+
+v01 and v02 masters remain immutable. Save subsequent artwork as v03. Runtime is a384px resize only, never a retouched master.

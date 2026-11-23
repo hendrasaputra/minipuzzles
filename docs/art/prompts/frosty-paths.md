@@ -1,27 +1,13 @@
-# Frosty Paths icon prompt
+# frosty-paths icon prompt
 
-Status: generated `v01`; technical review complete.
+Status: generated `v02`; selected runtime `public/icons/frosty-paths.png`.
+Previous immutable masters remain in `docs/art/iterations/frosty-paths/`.
 
-- Catalog ID: `frosty-paths`
-- Runtime: `public/icons/frosty-paths.png`
-- Master: [unmodified v01](../iterations/frosty-paths/v01.png)
-- Exact request: [v01.prompt.md](../iterations/frosty-paths/v01.prompt.md)
-- Family reference: [Petals v03](../iterations/petals/v03.png)
-- Style: [ICON_STYLE.md](../ICON_STYLE.md)
+# frosty-paths v02 — exact built-in GPT Image request
 
-## Editable prompt for future revisions
+Reference input: `docs/art/iterations/petals/v03.png` (style/composition only).
 
-Use case: stylized-concept
-Asset type: one production app icon for Frosty Paths, part of a coordinated puzzle-game icon family.
+Use case: stylized-concept. One original production puzzle-game app icon, square PNG ideally1024x1024. Input image is ONLY a style/composition reference: docs/art/iterations/petals/v03.png, not an edit target. Match its tactile Iconfactory-inspired handcrafted miniature: orthographic camera 30-degree elevation and45-degree yaw, satin ivory ceramic, lightly textured painted wood, restrained brass details, warm upper-left key light, soft lower-right contact shadow, controlled ambient occlusion. Warm ivory, blush pink, muted sage and dusty blue. Maintain consistent miniature scale and an opaque ivory ceramic backing filling ALL canvas edges, with safe padding inside a26% rounded display mask. No black matte, external backdrop, transparency, border frame, text, letters, numerals, logo, badge, watermark, UI, screenshot, device or people. Crisp chunky forms, clean separation, clear mechanism recognizable at64px. Fewer objects and no gratuitous floral clutter. Preserve broad ceramic bevels, quiet premium physical craft, no excessive gloss or neon. Subject: Frosty Paths: replace reference tiles/pips/flag with a compact stepped path of THREE pale-blue chunky ice tiles, one large friendly low-detail charcoal-and-ivory penguin at the front, ONE small brass/coral fish silhouette on the middle ice tile, and a low white snowy burrow at the back. Clearly separate the dark penguin from blue ice and the fish from the path. Small shallow curved groove suggests sliding; no arrows. Keep snowy burrow low enough that all tiles remain readable, few broad forms rather than tiny decoration. Accent dusty ice blue #b4cddc. No extra characters.
 
-The provided Petals image is a STYLE AND COMPOSITION REFERENCE ONLY, not an edit target. Generate a NEW icon with the same handcrafted Iconfactory-inspired skeuomorphic quality: warm ivory ceramic backing, softly beveled chunky miniature objects, believable ceramic/painted wood/brass material texture, restrained upper-left warm lighting, subtle ambient occlusion and a soft lower-right contact shadow. Match its coherent isometric camera and subject scale.
 
-Completely replace the reference's Minesweeper board, pink tiles, pips and coral flag with this game subject: A tiny friendly low-detail penguin on a pale blue ice tile, with two connected ice tiles and one rounded snow obstacle. A subtle shallow groove in the ice suggests its sliding path; no arrows or text.
-
-Use the accent family #b4cddc within the restrained ivory, blush, sage, dusty-blue and brass palette. Keep a few large, distinctive readable objects, with a clean silhouette recognizable at64px. The puzzle must read through objects rather than written explanation. Do not carry Petals-specific objects into this new subject.
-
-Use a fully OPAQUE square warm-ivory ceramic backing extending cleanly to all four canvas edges. The backing fills the canvas like a classic skeuomorphic app icon; the website will mask the outer corners. Keep the miniature comfortably centered with room for a rounded-corner mask. No transparency, black corner matte, outside backdrop, stray speckles or isolated flecks. No title, letters, numerals, text, logos, badges, UI, watermarks or copied existing icon compositions. Do not turn it into flat vector art. One standalone square PNG, ideally1024×1024; not a contact sheet or device mockup.
-
-## Review notes
-
-Generated with the built-in tool using Petals v03. Keep the current request and master immutable; save the next modification as v02 with its exact prompt and reference input. Runtime PNG is a 384px technical export, not a retouched master.
+Review: `docs/art/iterations/frosty-paths/v02.review.md`.

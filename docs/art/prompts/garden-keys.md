@@ -1,27 +1,18 @@
 # Garden Keys icon prompt
 
-Status: rendered `v01` with Three.js; technical review complete.
+Status: generated v02; full-size and production-mask review complete.
 
-- Catalog ID: `garden-keys`
-- Runtime: `public/icons/garden-keys.png`
-- Master: [v01](../iterations/garden-keys/v01.png)
-- Exact request: [v01.prompt.md](../iterations/garden-keys/v01.prompt.md)
-- Family reference: [Petals v03](../iterations/petals/v03.png)
-- Style: [ICON_STYLE.md](../ICON_STYLE.md)
+- Runtime: public/icons/garden-keys.png
+- Master: ../iterations/garden-keys/v02.png
+- Exact request: ../iterations/garden-keys/v02.prompt.md
+- Family style reference: ../iterations/petals/v03.png
 
-## Editable prompt for a future GPT Image revision
+## Editable prompt for future revisions
 
-Use case: stylized-concept
-Asset type: one production app icon for Garden Keys, part of a coordinated puzzle-game icon family.
-
-The provided Petals image is a STYLE AND COMPOSITION REFERENCE ONLY, not an edit target. Generate a NEW icon with the same handcrafted Iconfactory-inspired skeuomorphic quality: warm ivory ceramic backing, softly beveled chunky miniature objects, believable ceramic/painted wood/brass material texture, restrained upper-left warm lighting, subtle ambient occlusion and a soft lower-right contact shadow. Match its coherent isometric camera and subject scale.
-
-Completely replace the reference's Minesweeper board, pink tiles, pips and coral flag with this game subject: A small moss-green garden maze plot on a painted wooden tray, with rounded leafy hedge walls along two edges, a blush arched door in an ivory frame, an oversized brass key lying in the middle, a small soil burrow mound with a dark entrance, and one seed with a sprout. The key and the closed door make the keys-and-doors maze readable.
-
-Use the accent family #c9d6ad within the restrained ivory, blush, sage, dusty-blue and brass palette. Keep a few large, distinctive readable objects, with a clean silhouette recognizable at 64px. The puzzle must read through objects rather than written explanation. Do not carry Petals-specific objects into this new subject.
-
-Use a fully OPAQUE square warm-ivory ceramic backing extending cleanly to all four canvas edges. The backing fills the canvas like a classic skeuomorphic app icon; the website will mask the outer corners. Keep the miniature comfortably centered with room for a rounded-corner mask. No transparency, black corner matte, outside backdrop, stray speckles or isolated flecks. No title, letters, numerals, text, logos, badges, UI, watermarks or copied existing icon compositions. Do not turn it into flat vector art. One standalone square PNG, ideally 1024×1024; not a contact sheet or device mockup.
+Use case: stylized-concept. Asset type: one original production puzzle-game app icon. Reference image: docs/art/iterations/petals/v03.png is a STYLE AND COMPOSITION REFERENCE ONLY, not an edit target. Create a NEW subject, carrying none of its pink clue board, pips or flag into the new icon. Match its handcrafted Iconfactory-inspired tactile skeuomorphic miniature craft, warm ivory satin ceramic, lightly textured painted wood, small brass details, restrained blush/sage/dusty blue pastel palette. Orthographic camera at 30 degrees elevation and 45 degrees yaw, one warm upper-left key light and soft lower-right contact shadows. Calm premium clean. A few large crisp objects with strong separation and recognizable silhouette at64px. Fully opaque square warm ivory ceramic backing fills canvas edge to edge; generous interior safety margin for the website's 26% rounded-corner mask. Controlled satin highlights, no glossy plastic. No text, letters, numbers, logo, watermark, UI, badge, device, people, black matte, outside backdrop, transparency, confetti or stray speckles. Output one square PNG, ideally1024x1024. Game: Garden Keys. Subject: A compact moss-sage garden maze plot on a painted wood tray, with rounded leafy hedges making a clear corner, a large blush arched locked door in an ivory frame, an oversized brass key lying across the central path, a small earth burrow mound with a dark entrance and one chunky seed sprout. The key and door dominate; burrow and sprout stay secondary but readable. Replace the previous smooth procedural Three.js look with this reference's hand-crafted painted ceramic texture, bevels and restrained physical lighting. No other objects.
 
 ## Review notes
 
-v01 is a Three.js render, because no GPT Image tool was available. See [v01.review.md](../iterations/garden-keys/v01.review.md). Keep v01 immutable; save a GPT revision as v02 with its exact prompt and reference input.
+Replaces mismatched procedural render with the painted ceramic family; prominent key/door, distinct burrow and sprout.
+
+v01 and v02 masters remain immutable. Save subsequent artwork as v03. Runtime is a384px resize only, never a retouched master.

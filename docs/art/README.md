@@ -1,6 +1,6 @@
 # GPT icon prompts
 
-The first generated family is complete: **21 original GPT Image icons**, using **Petals v03** as the visual reference. Only Petals is a playable game; artwork does not change the planned status of the other entries.
+The collection has **22 playable games**. The 23 November 2026 refresh gives every game a new GPT Image icon, retaining **Petals v03** as the material, camera and lighting reference. Petals now selects v04; the other games select v02. All earlier masters and exact requests remain archived.
 
 ## Files and display contract
 
@@ -48,8 +48,10 @@ The current masters are opaque square app icons. Their 26% rounded mask and 1.02
 | Water Balance | `water-balance` | [Prompt](prompts/water-balance.md) | Generated |
 | Perspective Paths | `perspective-paths` | [Prompt](prompts/perspective-paths.md) | Generated |
 | Pocket Escape | `pocket-escape` | [Prompt](prompts/pocket-escape.md) | Generated |
-| Garden Keys | `garden-keys` | [Prompt](prompts/garden-keys.md) | Rendered with Three.js (no GPT Image tool in that session) |
+| Garden Keys | `garden-keys` | [Prompt](prompts/garden-keys.md) | Generated v02; earlier Three.js v01 preserved |
 
 ## Installable app icon
 
-The home-screen icon for iOS and Android is a Three.js render that follows the same style contract. Its request, source and review are in [iterations/app-icon](iterations/app-icon/v01.review.md). The manifest uses separate "any" and "maskable" images, and iOS uses `apple-touch-icon.png`.
+The home-screen icon for iOS and Android now uses a GPT Image miniature matching the family. Its request and review are in [app-icon v02](iterations/app-icon/v02.review.md); the earlier Three.js render is preserved. Five size exports cover "any", "maskable" and iOS. The simple SVG P favicon is retained for clarity at 16px.
+
+The [refresh review](reviews/2026-11-23-icon-refresh/README.md) records improvements, comparison sheets and validation. The live collection is not redeployed by an asset update alone.

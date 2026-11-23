@@ -294,7 +294,7 @@ A tile maze in the style of the 1990 Windows game Chip's Challenge. It uses the 
   - [x] Touch-first How to play, opening on the first visit.
   - [x] A level 1 finger that follows one solved route.
 - [x] Icon v01 (`public/icons/garden-keys.png`): a Three.js render, because there was no GPT Image tool. It shows hedges, a blush door, a brass key, a burrow and a seed on the shelf's peach tile. Prompt, source, review sheet and assets entry are in `docs/art/`.
-- [ ] Owner review of the icon. If it should match the painted shelf more closely, make a GPT Image v02 from `docs/art/prompts/garden-keys.md`.
+- [x] Generate matching GPT Image Garden Keys v02 with the full 22-icon refresh; original procedural v01 preserved. Owner aesthetic review remains possible.
 - [x] Browser checks on the local production build:
   - [x] Levels 1 and 4 won by keyboard in calm.
   - [x] Classic timer counts down.
@@ -302,3 +302,16 @@ A tile maze in the style of the 1990 Windows game Chip's Challenge. It uses the 
   - [x] At 375 px with touch: How to play opens on the first visit, calm is the default, the finger shows, and there is no sideways scroll.
 - [ ] Play every level by hand on a phone, in both speeds, and check the monster timing feels fair.
 - [ ] Publish only after the owner approves.
+# Marketing image campaign — 23 November 2026
+
+- [x] Read `AGENTS.md` and `docs/marketing/social-kit.md` in full; ground artwork in the 22 catalog entries and real icons.
+- [x] Generate and preserve 27 original GPT Image artworks, exact prompts and versioned reviews in `docs/marketing/creatives/v01/`.
+- [x] Export 36 posting PNGs: 22 game spotlights, winter variant, two launch images, eight carousel slides and three Story images.
+- [x] Verify image decoding/dimensions and all-22 coverage in both spotlights and carousel; visually inspect the full contact sheet and representative full-size layouts.
+- [x] Run the production build successfully after creating the image package.
+- [x] Capture real stills for all 22 games with local Playwright: 1080×1920 portrait, 1600×1000 desktop, raw boards and 1080×1350 captioned gameplay posts; see `docs/marketing/creatives/v01/captures/README.md`.
+- [x] Check all 22 hub icons/links, game return navigation and horizontal layout at 375px and 1600px; 564 tests across 69 files passed.
+- [x] Refresh all 22 game icons and the installable app icon; preserve originals, exact prompts and hashes, review at 128/64px, and rebuild the campaign carousel.
+- [ ] Record board-turning and final-solving-move video clips separately from the still images.
+- [ ] Check the live URL on a phone and add platform-native links/poll stickers when posting. Nothing was published by this image task.
+

@@ -1,24 +1,21 @@
 # Shadow Blocks icon prompt
 
-Status: generated `v01`; technical review complete.
+Status: generated `v02`; master and masked128/64px review complete.
 
 - Catalog ID: `shadow-blocks`
 - Runtime: `public/icons/shadow-blocks.png`
-- Master: [unmodified v01](../iterations/shadow-blocks/v01.png)
-- Exact request: [v01.prompt.md](../iterations/shadow-blocks/v01.prompt.md)
+- Master: [unmodified v02](../iterations/shadow-blocks/v02.png)
+- Exact request: [v02.prompt.md](../iterations/shadow-blocks/v02.prompt.md)
+- Review: [v02.review.md](../iterations/shadow-blocks/v02.review.md)
 - Family reference: [Petals v03](../iterations/petals/v03.png)
 - Style: [ICON_STYLE.md](../ICON_STYLE.md)
 
 ## Editable prompt for future revisions
 
-Use case: stylized-concept. Generate one original production puzzle-game app icon. Input image is ONLY the Petals visual-family reference, not an edit target. Completely replace its Minesweeper board, tiles, flag and pips with this new subject.
+Use case: stylized-concept. Asset type: one original production puzzle-game app icon, square 1024×1024 PNG. Reference image is ONLY the Petals v03 visual-family reference, not an edit target. Keep its camera, backing, material quality and visual weight; completely replace its pink board, flag and pips with the subject below. Match Iconfactory-inspired handcrafted skeuomorphic quality: warm ivory satin ceramic, lightly textured painted wood, small brass details, subtle physical texture, precise soft bevels. Orthographic miniature camera at 30-degree elevation and 45-degree yaw. Warm upper-left key light, soft lower-right contact shadows, restrained ambient occlusion. Palette warm ivory, blush pink, muted sage, dusty blue and brass with the specified accent. Large readable forms, minimal decorative detail, clear silhouette at 64px. Fully opaque warm-ivory ceramic backing fills entire square canvas edge to edge; website supplies 26% rounded mask with 1.025× backing bleed. No black corner matte, transparency, outer background, extra frame, text, letters, numerals, logo, watermark, UI, devices, people or copyrighted characters. Keep every object safely inside the mask. No contact sheet.
+Subject: Three chunky softly beveled ivory and lavender building blocks on a small simple wooden plinth, one taller stack and one short block. A single distinct stepped cast shadow extends to the lower right, visibly matching the block silhouette. Accent #bcb6cd. Improvement over old icon: reduce brass studs and separate the blocks from the shadow with clear contrast; make the matching shape relation legible with only three blocks. The cast shadow is the essential mechanic cue, not a generic drop shadow.
 
-Subject: Three softly beveled ivory and lavender building blocks on a tiny square plinth. Their combined directional shadow forms a simple stepped silhouette, making the relation between physical blocks and shadow clear.
-
-Match the reference Iconfactory-inspired handcrafted skeuomorphic quality: rich restrained satin ceramic and wood, small brass details, soft precise bevels, subtle physical texture, warm upper-left illumination, soft lower-right shadows, and coherent isometric miniature camera (30-degree elevation,45-degree yaw). Same visual weight and scale as reference. Accent #bcb6cd with warm ivory and harmonious dusty pastels. Few large readable objects recognizable at64px.
-
-Use a fully OPAQUE square warm-ivory ceramic backing extending cleanly to every canvas edge. The site supplies the rounded-corner mask. No transparency, black matte, outside backdrop, checkerboard, stray flecks, outer shadow or extra frame. Keep subject centered with safe padding for the rounded mask. One square PNG ideally1024x1024. No title,text,letters,numerals,logos,badges,UI,watermark,phone mockup orcontact sheet. Original puzzle subject only; do not reproduce an existing commercial icon.
 
 ## Review notes
 
-Generated with the built-in tool using Petals v03. Keep the current request and master immutable; save the next modification as v02 with its exact prompt and reference input. Runtime PNG is a 384px technical export, not a retouched master.
+Removed brass corner studs and simplified stack into three chunky blocks. The broad stepped cast shadow is much easier to compare with the blocks. Ivory upper blocks remain pale on the warm backing, but contact edges and shadow preserve the silhouette. Preserve v01 and v02 masters and exact requests; next revision is v03.

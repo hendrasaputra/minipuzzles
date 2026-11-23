@@ -1,6 +1,6 @@
 # Puzzle icon art direction
 
-Status: generated family reference — Petals v03. Originals, exact requests and technical export metadata are preserved in `iterations/` and `assets.json`.
+Status: generated family reference — Petals v03 remains the style reference. The 23 November 2026 refresh selects Petals v04 and v02 for the other 21 games. Originals, exact requests and technical export metadata are preserved in `iterations/` and `assets.json`.
 
 Primary style reference: [Iconfactory](https://iconfactory.com/), particularly the dimensional object craft in [Transmit](https://iconfactory.com/images-v8/portfolio/transmit-artwork.png), [Fantastical](https://iconfactory.com/images-v8/portfolio/fantastical-artwork.png), and the tactile [Apollo alternatives](https://iconfactory.com/images-v8/portfolio/apollo-artwork.png). Use original puzzle subjects, rather than reproducing those icons.
 
