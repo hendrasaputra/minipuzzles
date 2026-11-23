@@ -7,9 +7,13 @@ import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { complete, conflicts, createGame, enter, hint, levels, randomLevel, undo, values, type Level, type Value } from './engine';
 import { GardenScene } from './scene';
 import { readSave, saveKey, writeSave, type RandomSetup } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const audio = new GameAudio('garden-sudoku');
+const play = new PlayTracker('garden-sudoku');
+const levelName = () => random ? random.difficulty
+  : `${String(levels.findIndex(level => level.id === game.level.id) + 1).padStart(2, '0')}-${game.level.id}`;
 const icons = ['', '🌱', '🌷', '🌻', '🍀'];
 const names = ['', 'Sprout', 'Tulip', 'Sunflower', 'Clover'];
 let game = createGame(levels[0]);
@@ -170,6 +174,7 @@ function place(cell: number, value: Value) {
   notice = '';
   const won = complete(game);
   if (won && !random && !finished.includes(game.level.id)) finished.push(game.level.id);
+  if (won) play.finish({ moves: game.history.length });
   draw(value ? cell : undefined);
   save();
   audio.play(won ? 'win' : value ? 'reveal' : 'flag');
@@ -190,32 +195,35 @@ function newRandom() {
   if (!isDifficulty(difficulty)) return;
   const seed = randomSeed();
   load(randomLevel(seed, difficulty), { seed, difficulty });
+  play.start(levelName());
 }
 $<HTMLSelectElement>('difficulty').value = random?.difficulty ?? 'easy';
 for (const value of values) $(`plant-${value}`).onclick = () => place(selected, value);
 $('erase').onclick = () => place(selected, 0);
 $('board-view').onclick = () => { flat = !flat; draw(); };
 $('undo').onclick = () => {
-  selected = undo(game) ?? selected;
+  const cell = undo(game);
+  if (cell !== undefined) { selected = cell; play.count('undos'); }
   notice = '';
   draw();
   save();
 };
 $('hint').onclick = () => {
+  play.count('hints');
   const move = hint(game, selected);
   if (move) place(move.cell, move.value);
 };
-$('retry').onclick = () => load(game.level, random);
+$('retry').onclick = () => { play.count('restarts'); load(game.level, random); };
 $('next').onclick = () => {
   if (random) return newRandom();
   const next = levels[levels.findIndex(level => level.id === game.level.id) + 1];
-  if (next) load(next);
+  if (next) { load(next); play.start(levelName()); }
   else menu.showModal();
 };
 $('new-random').onclick = newRandom;
 $<HTMLSelectElement>('level-select').onchange = event => {
   const level = levels.find(candidate => candidate.id === (event.target as HTMLSelectElement).value);
-  if (level) load(level);
+  if (level) { load(level); play.start(levelName()); }
 };
 $('open-menu').onclick = () => menu.showModal();
 $('close-menu').onclick = () => menu.close();
@@ -253,5 +261,6 @@ board.onkeydown = event => {
   draw();
 };
 draw();
+if (!complete(game)) play.start(levelName());
 addMusic('garden-sudoku');
 showGuideOnFirstVisit('garden-sudoku');

@@ -8,9 +8,13 @@ import { canStep, complete, createGame, directions, hint, neighbor, neighbors, s
 import { levels, randomLevel, type RandomPath } from './levels';
 import { StoneScene } from './scene';
 import { readSave, writeSave, type Save } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const key = 'puzzles-stepping-stones-v1';
 const audio = new GameAudio('stepping-stones');
+const play = new PlayTracker('stepping-stones');
+const levelName = () => saved.random ? saved.random.difficulty
+  : `${String(levels.findIndex(level => level.id === saved.game.level.id) + 1).padStart(2, '0')}-${saved.game.level.id}`;
 const arrows = { n: '↑', e: '→', s: '↓', w: '←' };
 const names = { n: 'North', e: 'East', s: 'South', w: 'West' };
 const tiers = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
@@ -150,7 +154,9 @@ function extend(cell: number, dragging = false) {
     return;
   }
   notice = '';
+  if (game.path.length < before) play.count('undos');
   const won = complete(game);
+  if (won) play.finish({ stones: game.level.route.length });
   if (won && !saved.random && !saved.completed.includes(game.level.id)) saved.completed.push(game.level.id);
   audio.play(won ? 'win' : 'flag');
   draw(game.path.length > before, game.path.length < before ? previous : undefined);
@@ -171,6 +177,7 @@ function load(level: Level, random?: RandomPath) {
 function newRandom(tier: Difficulty) {
   const spec = { version: 1, seed: randomSeed(), difficulty: tier } as const;
   load(randomLevel(spec), spec);
+  play.start(levelName());
 }
 
 function walk(direction: Direction) {
@@ -183,11 +190,13 @@ for (const direction of directions) $(`step-${direction}`).onclick = () => walk(
 $('undo').onclick = () => {
   const removed = saved.game.path.at(-1);
   if (!undo(saved.game)) return;
+  play.count('undos');
   notice = '';
   draw(false, removed);
   save();
 };
 $('hint').onclick = () => {
+  play.count('hints');
   const move = hint(saved.game);
   const removed = saved.game.path.at(-1);
   if (move && 'cell' in move) extend(move.cell);
@@ -197,17 +206,17 @@ $('hint').onclick = () => {
     save();
   }
 };
-$('retry').onclick = () => load(saved.game.level, saved.random);
+$('retry').onclick = () => { play.count('restarts'); load(saved.game.level, saved.random); };
 $('next').onclick = () => {
   if (saved.random) return newRandom(saved.random.difficulty);
   const next = levels[levels.findIndex(level => level.id === saved.game.level.id) + 1];
-  if (next) load(next);
+  if (next) { load(next); play.start(levelName()); }
   else menu.showModal();
 };
 $('new-random').onclick = () => { if (isDifficulty(difficulty.value)) newRandom(difficulty.value); };
 $<HTMLSelectElement>('level-select').onchange = event => {
   const level = levels.find(candidate => candidate.id === (event.target as HTMLSelectElement).value);
-  if (level) load(level);
+  if (level) { load(level); play.start(levelName()); }
 };
 $('open-menu').onclick = () => { scene?.cancelInput(); menu.showModal(); };
 $('close-menu').onclick = () => menu.close();
@@ -231,5 +240,6 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) scene
 window.addEventListener('pagehide', save);
 draw();
 save();
+if (!complete(saved.game)) play.start(levelName());
 addMusic('stepping-stones');
 showGuideOnFirstVisit('stepping-stones');

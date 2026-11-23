@@ -8,10 +8,13 @@ import { MarbleScene } from './scene';
 import { readSave, writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
+import { PlayTracker } from '../../shared/play-tracking';
 import { isDifficulty, randomSeed, type Difficulty } from '../../shared/random-puzzle';
 
 const key = 'puzzles-marble-workshop-v1';
 const audio = new GameAudio('marble-workshop');
+const play = new PlayTracker('marble-workshop');
+const levelName = () => random ? random.difficulty : `${String(levels.findIndex(level => level.id === game.level.id) + 1).padStart(2, '0')}-${game.level.id}`;
 const difficultyNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 const directionNames = { n: 'north', e: 'east', s: 'south', w: 'west' };
 let game = createGame(levels[0]);
@@ -146,6 +149,7 @@ function load(level: Level, puzzle?: RandomWorkshop) {
 function newRandom(tier: Difficulty) {
   const puzzle: RandomWorkshop = { version: 1, seed: randomSeed(), difficulty: tier };
   load(generateWorkshop(puzzle), puzzle);
+  play.start(levelName());
 }
 
 function turn(id: string) {
@@ -169,7 +173,9 @@ function rollMarble() {
     if (run(game)) {
       if (!random && !completed.includes(game.level.id)) completed.push(game.level.id);
       audio.play('win');
+      play.finish({ moves: game.moves, tracks: game.tracks.length });
     } else {
+      play.count('fails');
       notice = 'Track has a gap. Turn a piece and roll again.';
     }
     draw(false);
@@ -191,6 +197,7 @@ $('roll').onclick = rollMarble;
 $('undo').onclick = () => {
   scene?.cancelInput();
   if (!undo(game)) return;
+  play.count('undos');
   notice = '';
   draw();
   save();
@@ -198,15 +205,15 @@ $('undo').onclick = () => {
 $('hint').onclick = () => {
   scene?.cancelInput();
   const [id] = solve(game);
-  if (id) turn(id);
+  if (id) { play.count('hints'); turn(id); }
   notice = id ? 'Hint turned a track.' : 'Tracks lined up. Press Roll.';
   draw(false);
 };
-$('retry').onclick = () => load(game.level, random);
+$('retry').onclick = () => { play.count('restarts'); load(game.level, random); };
 $('next').onclick = () => {
   if (random) return newRandom(random.difficulty);
   const next = levels[levels.findIndex(level => level.id === game.level.id) + 1];
-  if (next) load(next);
+  if (next) { load(next); play.start(levelName()); }
   else menu.showModal();
 };
 $('new-random').onclick = () => {
@@ -214,7 +221,7 @@ $('new-random').onclick = () => {
 };
 $<HTMLSelectElement>('level-select').onchange = event => {
   const level = levels.find(candidate => candidate.id === (event.target as HTMLSelectElement).value);
-  if (level) load(level);
+  if (level) { load(level); play.start(levelName()); }
 };
 $('open-menu').onclick = () => { scene?.cancelInput(); menu.showModal(); };
 $('close-menu').onclick = () => menu.close();
@@ -244,5 +251,6 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('pagehide', save);
 draw();
 save();
+if (game.status !== 'won') play.start(levelName());
 addMusic('marble-workshop');
 showGuideOnFirstVisit('marble-workshop');

@@ -9,10 +9,12 @@ import { BoardGesture, type GestureAction, type TileHit } from '../../shared/ges
 import { campaign } from './campaign';
 import { BOARD_SIZES, randomConfig, findBoardSize, type BoardSizeId } from './presets';
 import { nextDeduction } from './solver';
+import { PlayTracker } from '../../shared/play-tracking';
 import { readSession, readTransfer, matchesLevel, MAX_SAVE_BYTES, writeSession, type Session } from './storage';
 
 const KEY = 'petal-save-v2';
 const sounds=new GameAudio('petals');
+const play=new PlayTracker('petals');
 type Chapter = (typeof campaign)[number]['chapter'];
 const ids = campaign.map(level => level.id);
 let game = startGame(randomConfig('beginner',1,randomSeed()));
@@ -154,8 +156,14 @@ function inspect(floor:number,index:number) {
   if (!game.cells[floor][index].revealed || game.cells[floor][index].mine) { notice = 'Open a number first.'; return; }
   inspected = {floor,index}; notice = '';
 }
+function levelName() {
+  const index=campaign.findIndex(l=>l.id===levelId);
+  return index>=0?`${String(index+1).padStart(2,'0')}-${levelId}`:`${chapter()}-${findBoardSize(game.config)}-${game.config.floors}f`;
+}
 function moveSound(changed:boolean,cue:SoundCue) {
   if(changed)sounds.play(game.status==='won'?'win':game.status==='lost'?'loss':cue);
+  if(changed&&game.status==='won')play.finish({mines:game.config.mines*game.config.floors,floors:game.config.floors});
+  else if(changed&&game.status==='lost')play.count('fails');
 }
 function markCompletion() {
   if (game.status === 'won' && levelId && !completed.includes(levelId)) completed.push(levelId);
@@ -304,13 +312,13 @@ function resetUI() {
   else if(!menu.open&&!rules.open)$(action==='flag'?'flag-mode':'reveal-mode').focus();
   save();
 }
-function loadLevel(id:string) {const index=campaign.findIndex(l=>l.id===id);if(index<0||!unlocked(index))return;levelId=id;game=startGame(campaign[index].config);resetUI();}
+function loadLevel(id:string) {const index=campaign.findIndex(l=>l.id===id);if(index<0||!unlocked(index))return;levelId=id;game=startGame(campaign[index].config);resetUI();play.start(levelName());}
 function freePlay(c:Chapter,floors=c==='classic'?1:2,size=findBoardSize(game.config)) {
   const depth=c==='volume'?Math.max(3,floors):c==='classic'?1:Math.min(3,Math.max(2,floors));
-  levelId=null;game=startGame(randomConfig(size,depth,randomSeed(),c==='volume'));resetUI();
+  levelId=null;game=startGame(randomConfig(size,depth,randomSeed(),c==='volume'));resetUI();play.start(levelName());
 }
 function setFloor(floor:number) {if(floor<game.config.floors){cancelFlatInput();active=floor;draw();save();}}
-$('retry').onclick=()=>{menu.close();try {game=retryGame(game);resetUI();}catch{notice='This old puzzle cannot restart. Choose New puzzle.';draw();}};
+$('retry').onclick=()=>{menu.close();try {game=retryGame(game);play.count('restarts');resetUI();}catch{notice='This old puzzle cannot restart. Choose New puzzle.';draw();}};
 function nextPuzzle() {if(levelId){const next=campaign.findIndex(l=>l.id===levelId)+1;if(next<campaign.length)loadLevel(campaign[next].id);else freePlay(chapter());}else freePlay(chapter(),game.config.floors);}
 $('new').onclick=()=>{menu.close();freePlay(chapter(),game.config.floors);};
 $('continue').onclick=$('flat-continue').onclick=nextPuzzle;
@@ -342,7 +350,7 @@ $('hint').onclick=$('flat-hint').onclick=()=>{
   const step=nextDeduction(game);
   if(step==='contradiction'){notice='Check your flags before using Hint.';draw();return;}
   if(!step){notice='No hint found. Check your flags or try a new puzzle.';draw();return;}
-  active=step.floor;
+  play.count('hints');active=step.floor;
   const changed = step.action==='flag'?toggleFlag(game,step.floor,step.index):reveal(game,step.floor,step.index);
   moveSound(changed,step.action==='flag'?'flag':'reveal');
   inspected=step.sources[0];notice=`Hint: ${step.action==='flag'?'flagged':'opened'} floor ${step.floor+1}, row ${Math.floor(step.index/game.config.width)+1}, column ${step.index%game.config.width+1}.`;
@@ -368,6 +376,7 @@ $<HTMLInputElement>('save-file').onchange=async e=>{
     if(!session){$('transfer-notice').textContent='Choose a Petals save file under 1 MB.';return;}
     scene?.cancelInput();cancelFlatInput();applySession(session);inspected=undefined;elapsedRemainder=0;lastTick=performance.now();notice='Save imported.';
     markCompletion();draw();save();$('transfer-notice').textContent='Save imported.';
+    if(game.status!=='won')play.start(levelName());
   }catch{$('transfer-notice').textContent='Could not read the save file.';}
 };
 $('sound-toggle').onclick=()=>{sounds.setEnabled(!sounds.enabled);if(sounds.enabled)sounds.play('flag');draw();};
@@ -408,5 +417,6 @@ function tick(){$('timer').textContent=`${String(Math.floor(elapsed/60)).padStar
 setInterval(()=>{const now=performance.now();if(game.status==='playing'&&!document.hidden&&!rules.open&&!menu.open){elapsedRemainder+=Math.min(2000,now-lastTick);elapsed+=Math.floor(elapsedRemainder/1000);elapsedRemainder%=1000;tick();save();}lastTick=now;},1000);
 document.addEventListener('visibilitychange',()=>{lastTick=performance.now();save();});window.addEventListener('pagehide',save);
 markCompletion();draw();save();
+if(game.status!=='won')play.start(levelName());
 addMusic('petals');
 showGuideOnFirstVisit('petals');

@@ -1,19 +1,22 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
-// Cloudflare Web Analytics: cookie-free page counts. The site token is public (it ships in every page).
-// Empty means no beacon. Only production builds get it, so the dev server is never counted.
+// Cookie-free analytics, added to production builds only so the dev server is never counted.
+// Cloudflare Web Analytics counts page views; Umami records play events (src/shared/play-tracking.ts).
+// Both ids are public (they ship in every page). Empty means that script is left out.
 const CF_BEACON_TOKEN = 'b2a2c2fdddcb4806a4bc69113c87c6b5';
+const UMAMI_WEBSITE_ID = '';
 
 export default defineConfig({
   base: './',
   plugins: [{
-    name: 'cloudflare-web-analytics',
+    name: 'cookie-free-analytics',
     apply: 'build',
-    transformIndexHtml: () => CF_BEACON_TOKEN ? [{
-      tag: 'script', injectTo: 'body',
-      attrs: { defer: true, src: 'https://static.cloudflareinsights.com/beacon.min.js', 'data-cf-beacon': JSON.stringify({ token: CF_BEACON_TOKEN }) },
-    }] : [],
+    transformIndexHtml: () => [
+      ...CF_BEACON_TOKEN ? [{ tag: 'script', injectTo: 'body' as const, attrs: { defer: true, src: 'https://static.cloudflareinsights.com/beacon.min.js', 'data-cf-beacon': JSON.stringify({ token: CF_BEACON_TOKEN }) } }] : [],
+      // data-domains keeps local preview runs out of the numbers.
+      ...UMAMI_WEBSITE_ID ? [{ tag: 'script', injectTo: 'head' as const, attrs: { defer: true, src: 'https://cloud.umami.is/script.js', 'data-website-id': UMAMI_WEBSITE_ID, 'data-domains': 'puzzles.hensap.id' } }] : [],
+    ],
   }],
   build: {
     rollupOptions: {

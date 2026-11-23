@@ -7,9 +7,13 @@ import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { digit, randomRoom, rooms, symbols, unlock, type RandomRoom, type Room } from './engine';
 import { EscapeScene, places } from './scene';
 import { readSave, writeSave, type Save } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const key = 'puzzles-pocket-escape-v1';
 const audio = new GameAudio('pocket-escape');
+const play = new PlayTracker('pocket-escape');
+const levelName = () => saved.random ? saved.random.difficulty
+  : `${String(rooms.findIndex(room => room.id === saved.room.id) + 1).padStart(2, '0')}-${saved.room.id}`;
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const blank = (room: Room, completed: string[], random?: RandomRoom): Save => ({
   room, completed, random, inspected: [], code: room.clues.map(() => ''), won: false,
@@ -171,6 +175,7 @@ function newRandom() {
   if (!isDifficulty(difficulty.value)) return;
   const random: RandomRoom = { version: 1, seed: randomSeed(), difficulty: difficulty.value };
   load(randomRoom(random), random);
+  play.start(levelName());
 }
 
 $('code').addEventListener('input', event => {
@@ -197,12 +202,14 @@ $('unlock').onclick = () => {
   else if (!unlock(saved.room, saved.inspected, saved.code)) {
     notice = 'The code does not match. Check the clues in number order.';
     audio.play('loss');
+    play.count('fails');
     scene?.reject();
   }
   else {
     saved.won = true;
     if (!saved.random && !saved.completed.includes(saved.room.id)) saved.completed.push(saved.room.id);
     audio.play('win');
+    play.finish({ clues: saved.room.clues.length });
     scene?.open();
   }
   draw();
@@ -210,6 +217,7 @@ $('unlock').onclick = () => {
   if (saved.won) $('next').focus();
 };
 $('hint').onclick = () => {
+  play.count('hints');
   const index = saved.code.findIndex((value, i) => value !== String(digit(saved.room, i)));
   if (index < 0) {
     const unread = saved.room.clues.findIndex((_, i) => !saved.inspected.includes(i));
@@ -223,17 +231,17 @@ $('hint').onclick = () => {
   draw();
   save();
 };
-$('retry').onclick = () => load(saved.room, saved.random);
+$('retry').onclick = () => { play.count('restarts'); load(saved.room, saved.random); };
 $('next').onclick = () => {
   if (saved.random) return newRandom();
   const next = rooms[rooms.findIndex(room => room.id === saved.room.id) + 1];
-  if (next) load(next);
+  if (next) { load(next); play.start(levelName()); }
   else menu.showModal();
 };
 $('new-random').onclick = newRandom;
 $<HTMLSelectElement>('level-select').onchange = event => {
   const next = rooms.find(room => room.id === (event.target as HTMLSelectElement).value);
-  if (next) load(next);
+  if (next) { load(next); play.start(levelName()); }
 };
 $('open-menu').onclick = () => menu.showModal();
 $('close-menu').onclick = () => menu.close();
@@ -251,5 +259,6 @@ buildCode();
 draw();
 scene?.draw(saved.room, saved.inspected, saved.won);
 save();
+if (!saved.won) play.start(levelName());
 addMusic('pocket-escape');
 showGuideOnFirstVisit('pocket-escape');

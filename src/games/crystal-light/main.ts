@@ -7,10 +7,13 @@ import { CrystalScene } from './scene';
 import { readSave,writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
+import { PlayTracker } from '../../shared/play-tracking';
 import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { generateRandomLight, type RandomLight } from './random';
 
 const KEY='puzzles-crystal-light-v1',audio=new GameAudio('crystal-light');
+const play=new PlayTracker('crystal-light');
+const levelName=()=>random?random.difficulty:`${String(index+1).padStart(2,'0')}-${game.level.id}`;
 let index=0,game=createGame(levels[0]),selected=game.mirrors[0].id,completed:string[]=[],notice='',saving=true;
 let random: RandomLight | undefined;
 try{const raw=localStorage.getItem(KEY),saved=readSave(raw);if(saved){({index,game,selected,completed,random}=saved);}else if(raw)notice='Could not load your save. A new puzzle is open.';}catch{saving=false;}
@@ -55,7 +58,7 @@ function turn(id: string) {
   audio.play(game.status === 'won' ? 'win' : 'flag');
   draw();
   save();
-  if (game.status === 'won') $('next').focus();
+  if (game.status === 'won') { play.finish({ moves: game.moves, mirrors: game.mirrors.length }); $('next').focus(); }
 }
 
 function draw(updateScene = true) {
@@ -106,6 +109,7 @@ function newRandom() {
   if (!isDifficulty(chosen)) return;
   const spec: RandomLight = { version: 1, seed: randomSeed(), difficulty: chosen };
   load(generateRandomLight(spec), -1, spec);
+  play.start(levelName());
 }
 
 $('mirror-select').onchange = event => {
@@ -119,16 +123,18 @@ $('turn').onclick = () => turn(selected);
 $('undo').onclick = () => {
   scene?.cancelInput();
   if (undo(game)) {
+    play.count('undos');
     notice = '';
     draw();
     save();
   }
 };
-$('retry').onclick = () => load(game.level, index, random);
+$('retry').onclick = () => { play.count('restarts'); load(game.level, index, random); };
 $('hint').onclick = () => {
   scene?.cancelInput();
   const solution = solve(game);
   if (solution?.length) {
+    play.count('hints');
     turn(solution[0]);
     if (game.status !== 'won') {
       notice = 'Hint turned a mirror.';
@@ -141,13 +147,14 @@ $('hint').onclick = () => {
 };
 $('next').onclick = () => {
   if (random) newRandom();
-  else if (index < levels.length - 1) load(levels[index + 1], index + 1);
+  else if (index < levels.length - 1) { load(levels[index + 1], index + 1); play.start(levelName()); }
   else menu.showModal();
 };
 $('new-random').onclick = newRandom;
 $('level-select').onchange = event => {
   const next = Number((event.target as HTMLSelectElement).value);
   load(levels[next], next);
+  play.start(levelName());
 };
 $('open-menu').onclick=()=>{scene?.cancelInput();menu.showModal();};$('close-menu').onclick=()=>menu.close();menu.addEventListener('close',()=>$('open-menu').focus());
 $('sound').onclick=()=>{audio.setEnabled(!audio.enabled);if(audio.enabled)audio.play('flag');draw();};
@@ -156,5 +163,6 @@ for(const event of ['pointerdown','pointerup','keydown'])document.addEventListen
 document.addEventListener('pointerdown',e=>{if(!(e.target instanceof Element)||!e.target.closest('#scene'))scene?.cancelInput();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
+if(game.status!=='won')play.start(levelName());
 addMusic('crystal-light');
 showGuideOnFirstVisit('crystal-light');

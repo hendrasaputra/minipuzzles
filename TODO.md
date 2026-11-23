@@ -315,3 +315,10 @@ A tile maze in the style of the 1990 Windows game Chip's Challenge. It uses the 
 - [ ] Record board-turning and final-solving-move video clips separately from the still images.
 - [ ] Check the live URL on a phone and add platform-native links/poll stickers when posting. Nothing was published by this image task.
 
+
+# Play analytics — 23 November 2026
+
+- [x] Cloudflare Web Analytics on every page (page views).
+- [x] Shared `PlayTracker` and Umami hook; all 22 games send level start, finish and quit with restart, undo, hint and fail counts.
+- [ ] Add the Umami website ID to `vite.config.ts` and deploy, then confirm events arrive in the Umami dashboard.
+- [ ] After a few weeks, review finish and quit rates per level and pick the levels to rework.

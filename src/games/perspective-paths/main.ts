@@ -8,9 +8,13 @@ import { aligned, complete, createGame, hint, join, undo, type Level } from './e
 import { levels, randomLevel, type RandomPath } from './levels';
 import { PathScene } from './scene';
 import { readSave, writeSave, type Save } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const key = 'puzzles-perspective-paths-v1';
 const audio = new GameAudio('perspective-paths');
+const play = new PlayTracker('perspective-paths');
+const levelName = () => saved.random ? saved.random.difficulty
+  : `${String(levels.findIndex(level => level.id === saved.game.level.id) + 1).padStart(2, '0')}-${saved.game.level.id}`;
 const tiers = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 let saved: Save = { game: createGame(levels[0]), completed: [] };
 let notice = '';
@@ -150,6 +154,7 @@ function load(level: Level, random?: RandomPath) {
 function newRandom(tier: Difficulty) {
   const spec: RandomPath = { version: 1, seed: randomSeed(), difficulty: tier };
   load(randomLevel(spec), spec);
+  play.start(levelName());
 }
 
 for (const [id, key] of [['turn-left', 'ArrowLeft'], ['turn-right', 'ArrowRight'], ['tilt-up', 'ArrowUp'], ['tilt-down', 'ArrowDown']]) {
@@ -162,26 +167,29 @@ $('join').onclick = () => {
   notice = '';
   if (won && !saved.random && !saved.completed.includes(saved.game.level.id)) saved.completed.push(saved.game.level.id);
   audio.play(won ? 'win' : 'flag');
+  if (won) play.finish({ gaps: saved.game.level.points.length - 1 });
   draw(true);
   save();
   if (won) $('next').focus();
 };
 $('hint').onclick = () => {
   if (!scene) return;
+  play.count('hints');
   notice = hint(saved.game, scene.view());
   $('status').textContent = notice;
 };
 $('undo').onclick = () => {
   if (!undo(saved.game)) return;
+  play.count('undos');
   notice = '';
   draw();
   save();
 };
-$('retry').onclick = () => load(saved.game.level, saved.random);
+$('retry').onclick = () => { play.count('restarts'); load(saved.game.level, saved.random); };
 $('next').onclick = () => {
   if (saved.random) return newRandom(saved.random.difficulty);
   const next = levels[levels.findIndex(level => level.id === saved.game.level.id) + 1];
-  if (next) load(next);
+  if (next) { load(next); play.start(levelName()); }
   else menu.showModal();
 };
 $('new-random').onclick = () => {
@@ -189,7 +197,7 @@ $('new-random').onclick = () => {
 };
 $<HTMLSelectElement>('level-select').onchange = event => {
   const level = levels.find(candidate => candidate.id === (event.target as HTMLSelectElement).value);
-  if (level) load(level);
+  if (level) { load(level); play.start(levelName()); }
 };
 $('open-menu').onclick = () => menu.showModal();
 $('close-menu').onclick = () => menu.close();
@@ -207,5 +215,6 @@ for (const event of ['pointerdown', 'pointerup', 'keydown']) {
 window.addEventListener('pagehide', save);
 draw();
 save();
+if (!complete(saved.game)) play.start(levelName());
 addMusic('perspective-paths');
 showGuideOnFirstVisit('perspective-paths');

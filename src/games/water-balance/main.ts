@@ -8,9 +8,13 @@ import { complete, createGame, jugs, names, pour, poured, solve, undo, type Leve
 import { levels, randomLevel, type RandomBalance } from './levels';
 import { BalanceScene } from './scene';
 import { readSave, writeSave } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const key = 'puzzles-water-balance-v1';
 const audio = new GameAudio('water-balance');
+const play = new PlayTracker('water-balance');
+const levelName = () => random ? random.difficulty
+  : `${String(levels.findIndex(level => level.id === game.level.id) + 1).padStart(2, '0')}-${game.level.id}`;
 const tiers = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 let game = createGame(levels[0]);
 let completed: string[] = [];
@@ -180,6 +184,7 @@ function startPour() {
     pour(game, move);
     const won = complete(game);
     if (won && !random && !completed.includes(game.level.id)) completed.push(game.level.id);
+    if (won) play.finish({ pours: game.history.length });
     notice = won ? '' : `Jug ${names[source]} has ${game.current[source]} L. Jug ${names[destination]} has ${game.current[destination]} L.`;
     audio.play(won ? 'win' : 'flag');
     draw(false);
@@ -205,6 +210,7 @@ function load(level: Level, spec?: RandomBalance) {
 function newRandom(tier: Difficulty) {
   const spec = { version: 1, difficulty: tier, seed: randomSeed() } as const;
   load(randomLevel(spec), spec);
+  play.start(levelName());
 }
 
 from.onchange = () => {
@@ -216,9 +222,10 @@ from.onchange = () => {
 };
 to.onchange = () => { destination = Number(to.value); awaitingDestination = false; notice = ''; draw(); };
 $('pour').onclick = startPour;
-$('undo').onclick = () => { if (!moving && undo(game)) { notice = ''; awaitingDestination = false; draw(); save(); } };
-$('retry').onclick = () => load(game.level, random);
+$('undo').onclick = () => { if (!moving && undo(game)) { play.count('undos'); notice = ''; awaitingDestination = false; draw(); save(); } };
+$('retry').onclick = () => { play.count('restarts'); load(game.level, random); };
 $('hint').onclick = () => {
+  play.count('hints');
   const move = solve(game)?.[0];
   if (!move) {
     notice = 'Try Undo or Retry to reach the goal.';
@@ -233,13 +240,13 @@ $('hint').onclick = () => {
 $('next').onclick = () => {
   if (random) return newRandom(random.difficulty);
   const next = levels[levels.findIndex(level => level.id === game.level.id) + 1];
-  if (next) load(next);
+  if (next) { load(next); play.start(levelName()); }
   else menu.showModal();
 };
 $('new-random').onclick = () => { if (isDifficulty(difficulty.value)) newRandom(difficulty.value); };
 $<HTMLSelectElement>('level-select').onchange = event => {
   const level = levels.find(candidate => candidate.id === (event.target as HTMLSelectElement).value);
-  if (level) load(level);
+  if (level) { load(level); play.start(levelName()); }
 };
 $('open-menu').onclick = () => menu.showModal();
 $('close-menu').onclick = () => menu.close();
@@ -252,5 +259,6 @@ for (const event of ['pointerdown', 'pointerup', 'keydown']) {
 window.addEventListener('pagehide', save);
 draw();
 save();
+if (!complete(game)) play.start(levelName());
 addMusic('water-balance');
 showGuideOnFirstVisit('water-balance');

@@ -8,12 +8,15 @@ import { complete, createGame, flip, solve, undo, type Level } from './engine';
 import { levels, randomLevel, type RandomGarden } from './levels';
 import { FlipScene, tileName } from './scene';
 import { readSave, writeSave, type Save } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const key = 'puzzles-flip-garden-v1';
 const audio = new GameAudio('flip-garden');
 const tiers = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 let data: Save = { game: createGame(levels[0]), completed: [] };
 let notice = '';
+const tracker = new PlayTracker('flip-garden');
+const levelName = () => data.random ? data.random.difficulty : `${String(levels.findIndex(level => level.id === data.game.level.id) + 1).padStart(2, '0')}-${data.game.level.id}`;
 try {
   const raw = localStorage.getItem(key);
   const saved = readSave(raw);
@@ -154,7 +157,7 @@ function draw(updateBoard = true, pressed?: number) {
   $('sound').setAttribute('aria-pressed', String(audio.enabled));
 }
 
-function load(level: Level, random?: RandomGarden) {
+function load(level: Level, random?: RandomGarden, restart = false) {
   data = { game: createGame(level), completed: data.completed, random };
   selected = level.id === 'flip-1' ? 4 : 0;
   notice = '';
@@ -162,6 +165,7 @@ function load(level: Level, random?: RandomGarden) {
   draw();
   save();
   $('scene').focus();
+  if (restart) tracker.count('restarts'); else tracker.start(levelName());
 }
 
 function newRandom(tier: Difficulty) {
@@ -176,6 +180,7 @@ function play(cell: number) {
   const won = complete(data.game);
   if (won && !data.random && !data.completed.includes(data.game.level.id)) data.completed.push(data.game.level.id);
   audio.play(won ? 'win' : 'flag');
+  if (won) tracker.finish({ moves: data.game.history.length, size: data.game.level.size });
   draw(true, cell);
   save();
   if (won) $('next').focus();
@@ -185,19 +190,21 @@ tileSelect.onchange = () => { selected = Number(tileSelect.value); draw(); };
 $('flip').onclick = () => play(selected);
 $('undo').onclick = () => {
   if (!undo(data.game)) return;
+  tracker.count('undos');
   notice = '';
   if (data.game.level.id === 'flip-1' && !data.game.history.length) selected = 4;
   draw();
   save();
 };
 $('hint').onclick = () => {
+  tracker.count('hints');
   const cell = solve(data.game)?.[0];
   if (cell === undefined) return;
   selected = cell;
   notice = `Try flipping the highlighted ${tileName(data.game.level.size, cell)} tile.`;
   draw();
 };
-$('retry').onclick = () => load(data.game.level, data.random);
+$('retry').onclick = () => load(data.game.level, data.random, true);
 $('next').onclick = () => {
   if (data.random) return newRandom(data.random.difficulty);
   const next = levels[levels.findIndex(level => level.id === data.game.level.id) + 1];
@@ -236,5 +243,6 @@ for (const event of ['pointerdown', 'pointerup', 'keydown']) {
 window.addEventListener('pagehide', save);
 draw();
 save();
+if (!complete(data.game)) tracker.start(levelName());
 addMusic('flip-garden');
 showGuideOnFirstVisit('flip-garden');

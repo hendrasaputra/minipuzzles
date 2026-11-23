@@ -8,9 +8,13 @@ import { atGoal, createGame, directions, move, solve, undo, type Direction, type
 import { levels, randomLevel, type RandomBoard } from './levels';
 import { StoneScene } from './scene';
 import { readSave, writeSave, type Save } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const key = 'puzzles-rolling-stone-v1';
 const audio = new GameAudio('rolling-stone');
+const play = new PlayTracker('rolling-stone');
+const levelName = () => data.random ? data.random.difficulty
+  : `${String(levels.findIndex(level => level.id === data.game.level.id) + 1).padStart(2, '0')}-${data.game.level.id}`;
 const names = { n: 'North', e: 'East', s: 'South', w: 'West' };
 const glyphs = { n: '↗', e: '↘', s: '↙', w: '↖' };
 const difficultyNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
@@ -131,6 +135,7 @@ function step(direction: Direction) {
   if (won && !data.random && !data.completed.includes(data.game.level.id)) data.completed.push(data.game.level.id);
   scene?.roll(previous, direction);
   audio.play(won ? 'win' : 'reveal');
+  if (won) play.finish({ moves: data.game.history.length });
   draw();
   save();
   if (won) $('next').focus();
@@ -150,6 +155,7 @@ function newRandom() {
   if (!isDifficulty(difficulty.value)) return;
   const spec: RandomBoard = { version: 1, difficulty: difficulty.value, seed: randomSeed() };
   load(randomLevel(spec), spec);
+  play.start(levelName());
 }
 
 for (const direction of directions) $(`move-${direction}`).onclick = () => step(direction);
@@ -164,27 +170,29 @@ window.addEventListener('keydown', event => {
 });
 $('undo').onclick = () => {
   if (!undo(data.game)) return;
+  play.count('undos');
   notice = '';
   scene?.draw(data.game);
   draw();
   save();
 };
 $('hint').onclick = () => {
+  play.count('hints');
   const direction = solve(data.game.level, data.game.block)?.[0];
   if (direction) step(direction);
   else { notice = 'No route from here. Try Undo or Retry.'; draw(); }
 };
-$('retry').onclick = () => load(data.game.level, data.random);
+$('retry').onclick = () => { play.count('restarts'); load(data.game.level, data.random); };
 $('next').onclick = () => {
   if (data.random) return newRandom();
   const next = levels[levels.indexOf(data.game.level) + 1];
-  if (next) load(next);
+  if (next) { load(next); play.start(levelName()); }
   else menu.showModal();
 };
 $('new-random').onclick = newRandom;
 $('level-select').onchange = event => {
   const level = levels.find(candidate => candidate.id === (event.target as HTMLSelectElement).value);
-  if (level) load(level);
+  if (level) { load(level); play.start(levelName()); }
 };
 $('open-menu').onclick = () => { scene?.cancelInput(); menu.showModal(); };
 $('close-menu').onclick = () => menu.close();
@@ -198,5 +206,6 @@ window.addEventListener('pagehide', save);
 scene?.draw(data.game);
 draw();
 save();
+if (!atGoal(data.game.level, data.game.block)) play.start(levelName());
 addMusic('rolling-stone');
 showGuideOnFirstVisit('rolling-stone');

@@ -8,6 +8,7 @@ import { applyMove, complete, createGame, hint, trace, undo, type Level } from '
 import { generateRailroad, levels, type RandomRailroad } from './levels';
 import { RailScene, stations } from './scene';
 import { readSave, writeSave } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const key = 'puzzles-pocket-railroads-v1';
 const audio = new GameAudio('pocket-railroads');
@@ -18,6 +19,8 @@ let random: RandomRailroad | undefined;
 let selected = 0;
 let notice = '';
 let moving = false;
+const play = new PlayTracker('pocket-railroads');
+const levelName = () => random ? random.difficulty : `${String(levels.findIndex(level => level.id === game.level.id) + 1).padStart(2, '0')}-${game.level.id}`;
 
 try {
   const raw = localStorage.getItem(key);
@@ -145,7 +148,7 @@ function draw(updateBoard = true) {
   $('sound').setAttribute('aria-pressed', String(audio.enabled));
 }
 
-function load(level: Level, spec?: RandomRailroad) {
+function load(level: Level, spec?: RandomRailroad, restart = false) {
   game = createGame(level);
   random = spec;
   selected = 0;
@@ -154,6 +157,7 @@ function load(level: Level, spec?: RandomRailroad) {
   draw();
   save();
   $('scene').focus();
+  if (restart) play.count('restarts'); else play.start(levelName());
 }
 
 function newRandom(tier: Difficulty) {
@@ -183,7 +187,9 @@ function send() {
       notice = complete(game) ? '' : `Train delivered to Station ${stations[route.station].name}. Set the route for the next train.`;
       if (complete(game) && !random && !completed.includes(game.level.id)) completed.push(game.level.id);
       audio.play('win');
+      if (complete(game)) play.finish({ moves: game.history.length, trains: game.level.trains.length });
     } else {
+      play.count('fails');
       notice = `The train reached Station ${stations[route.station].name} and returned to the yard. Flip a switch and try again.`;
     }
     draw();
@@ -197,9 +203,10 @@ function send() {
 switchSelect.onchange = () => { selected = Number(switchSelect.value); draw(); };
 $('turn').onclick = () => flip(selected);
 $('send').onclick = send;
-$('undo').onclick = () => { if (!moving && undo(game)) { notice = ''; draw(); save(); } };
+$('undo').onclick = () => { if (!moving && undo(game)) { play.count('undos'); notice = ''; draw(); save(); } };
 $('hint').onclick = () => {
   const move = hint(game);
+  play.count('hints');
   if (move === 'send') {
     notice = 'The route matches. Send the train.';
     draw(false);
@@ -209,7 +216,7 @@ $('hint').onclick = () => {
     draw(false);
   }
 };
-$('retry').onclick = () => load(game.level, random);
+$('retry').onclick = () => load(game.level, random, true);
 $('next').onclick = () => {
   if (random) return newRandom(random.difficulty);
   const next = levels[levels.findIndex(level => level.id === game.level.id) + 1];
@@ -248,5 +255,6 @@ for (const event of ['pointerdown', 'pointerup', 'keydown']) {
 window.addEventListener('pagehide', save);
 draw();
 save();
+if (!complete(game)) play.start(levelName());
 addMusic('pocket-railroads');
 showGuideOnFirstVisit('pocket-railroads');

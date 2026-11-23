@@ -8,9 +8,13 @@ import { applyMove, canMove, complete, createGame, solve, sorted, undo, type Lev
 import { levels, randomLevel, type RandomStacks } from './levels';
 import { palette, StackScene, stackName } from './scene';
 import { readSave, writeSave, type Save } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const key = 'puzzles-color-stacks-v1';
 const audio = new GameAudio('color-stacks');
+const play = new PlayTracker('color-stacks');
+const levelName = () => data.random ? data.random.difficulty
+  : `${String(levels.findIndex(item => item.id === data.game.level.id) + 1).padStart(2, '0')}-${data.game.level.id}`;
 const tierNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 let data: Save = { game: createGame(levels[0]), completed: [] };
 let from = 0;
@@ -191,6 +195,7 @@ function load(level: Level, random?: RandomStacks) {
 function newRandom(tier: Difficulty) {
   const random: RandomStacks = { version: 1, seed: randomSeed(), difficulty: tier };
   load(randomLevel(random), random);
+  play.start(levelName());
 }
 
 function change(move: Move) {
@@ -207,6 +212,7 @@ function change(move: Move) {
   const won = complete(game);
   if (won && !random && !completed.includes(game.level.id)) completed.push(game.level.id);
   audio.play(won ? 'win' : 'flag');
+  if (won) play.finish({ moves: game.history.length });
   draw(true, move);
   save();
   if (won) $('next').focus();
@@ -235,6 +241,7 @@ targetSelect.onchange = () => { to = Number(targetSelect.value); notice = ''; dr
 $('move').onclick = () => change({ from, to });
 $('undo').onclick = () => {
   if (!undo(data.game)) return;
+  play.count('undos');
   pending = false;
   notice = '';
   resetSelection();
@@ -242,6 +249,7 @@ $('undo').onclick = () => {
   save();
 };
 $('hint').onclick = () => {
+  play.count('hints');
   const move = solve(data.game)?.[0];
   if (move) change(move);
   else {
@@ -249,17 +257,17 @@ $('hint').onclick = () => {
     draw(false);
   }
 };
-$('retry').onclick = () => load(data.game.level, data.random);
+$('retry').onclick = () => { play.count('restarts'); load(data.game.level, data.random); };
 $('next').onclick = () => {
   if (data.random) return newRandom(data.random.difficulty);
   const next = levels[levels.findIndex(level => level.id === data.game.level.id) + 1];
-  if (next) load(next);
+  if (next) { load(next); play.start(levelName()); }
   else menu.showModal();
 };
 $('new-random').onclick = () => { if (isDifficulty(difficulty.value)) newRandom(difficulty.value); };
 $<HTMLSelectElement>('level-select').onchange = event => {
   const level = levels.find(candidate => candidate.id === (event.target as HTMLSelectElement).value);
-  if (level) load(level);
+  if (level) { load(level); play.start(levelName()); }
 };
 $('open-menu').onclick = () => { scene?.cancelInput(); menu.showModal(); };
 $('show-help').onclick = () => {
@@ -289,5 +297,6 @@ window.addEventListener('pagehide', save);
 resetSelection();
 draw();
 save();
+if (!complete(data.game)) play.start(levelName());
 addMusic('color-stacks');
 showGuideOnFirstVisit('color-stacks');

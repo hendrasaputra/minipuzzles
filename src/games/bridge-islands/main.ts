@@ -8,6 +8,7 @@ import { applyMove, complete, createGame, hint, totals, undo, type Count, type L
 import { levels, randomLevel, type RandomBridge } from './levels';
 import { BridgeScene, islandName } from './scene';
 import { readSave, writeSave, type Save } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const key = 'puzzles-bridge-islands-v1';
 const audio = new GameAudio('bridge-islands');
@@ -17,6 +18,8 @@ let selected = 0;
 let neighbor = 1;
 let pending = false;
 let notice = '';
+const play = new PlayTracker('bridge-islands');
+const levelName = () => saveData.random ? saveData.random.difficulty : `${String(levels.findIndex(level => level.id === saveData.game.level.id) + 1).padStart(2, '0')}-${saveData.game.level.id}`;
 
 try {
   const raw = localStorage.getItem(key);
@@ -177,7 +180,7 @@ function draw(updateBoard = true, extended?: number) {
   $('sound').setAttribute('aria-pressed', String(audio.enabled));
 }
 
-function load(level: Level, random?: RandomBridge) {
+function load(level: Level, random?: RandomBridge, restart = false) {
   saveData = { game: createGame(level), completed: saveData.completed, random };
   selected = 0;
   pending = false;
@@ -186,6 +189,7 @@ function load(level: Level, random?: RandomBridge) {
   draw();
   save();
   $('scene').focus();
+  if (restart) play.count('restarts'); else play.start(levelName());
 }
 
 function newRandom(tier: Difficulty) {
@@ -205,6 +209,7 @@ function change(move: Move) {
   const won = complete(game);
   if (won && !random && !completed.includes(game.level.id)) completed.push(game.level.id);
   audio.play(won ? 'win' : 'flag');
+  if (won) play.finish({ moves: game.history.length, islands: game.level.islands.length });
   draw(true, move.count > previous ? move.edge : undefined);
   save();
   if (won) {
@@ -245,6 +250,7 @@ neighborSelect.onchange = () => { neighbor = Number(neighborSelect.value); notic
 $('connect').onclick = connect;
 $('undo').onclick = () => {
   if (!undo(saveData.game)) return;
+  play.count('undos');
   pending = false;
   notice = 'Last change undone.';
   draw();
@@ -252,6 +258,7 @@ $('undo').onclick = () => {
 };
 $('hint').onclick = () => {
   const move = hint(saveData.game);
+  play.count('hints');
   if (!move) return;
   const { a, b } = saveData.game.level.edges[move.edge];
   selected = a;
@@ -260,7 +267,7 @@ $('hint').onclick = () => {
   notice = `Hint adjusted the bridges between ${islandName(a)} and ${islandName(b)}.`;
   change(move);
 };
-$('retry').onclick = () => load(saveData.game.level, saveData.random);
+$('retry').onclick = () => load(saveData.game.level, saveData.random, true);
 $('next').onclick = () => {
   if (saveData.random) return newRandom(saveData.random.difficulty);
   const next = levels[levels.findIndex(level => level.id === saveData.game.level.id) + 1];
@@ -299,5 +306,6 @@ for (const event of ['pointerdown', 'pointerup', 'keydown']) {
 window.addEventListener('pagehide', save);
 draw();
 save();
+if (!complete(saveData.game)) play.start(levelName());
 addMusic('bridge-islands');
 showGuideOnFirstVisit('bridge-islands');

@@ -7,8 +7,11 @@ import { randomSeed, isDifficulty } from '../../shared/random-puzzle';
 import { clues, complete, createGame, hint, levels, markCell, randomPuzzle, undo, type Mark, type Puzzle } from './engine';
 import { IslandScene } from './scene';
 import { readSave, saveKey, writeSave, type RandomSetup } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const audio = new GameAudio('picture-islands');
+const play = new PlayTracker('picture-islands');
+const levelName = () => random ? random.difficulty : `${String(levels.findIndex(level => level.id === game.puzzle.id) + 1).padStart(2, '0')}-${game.puzzle.id}`;
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 let game = createGame(levels[0]);
 let finished: string[] = [];
@@ -172,9 +175,10 @@ function apply(cell: number, mark: Mark) {
   draw(mark === 1 ? cell : undefined);
   save();
   audio.play(won ? 'win' : mark === 1 ? 'reveal' : 'flag');
+  if (won) play.finish({ moves: game.history.length, size: game.puzzle.size });
 }
 
-function load(puzzle: Puzzle, setup?: RandomSetup) {
+function load(puzzle: Puzzle, setup?: RandomSetup, restart = false) {
   game = createGame(puzzle);
   random = setup;
   focusCell = 0;
@@ -183,6 +187,7 @@ function load(puzzle: Puzzle, setup?: RandomSetup) {
   if (menu.open) menu.close();
   draw();
   save();
+  if (restart) play.count('restarts'); else play.start(levelName());
 }
 function newRandom() {
   const difficulty = $<HTMLSelectElement>('difficulty').value;
@@ -194,9 +199,9 @@ $<HTMLSelectElement>('difficulty').value = random?.difficulty ?? 'easy';
 $('fill').onclick = () => { mode = 1; draw(); };
 $('cross').onclick = () => { mode = -1; draw(); };
 $('board-view').onclick = () => { flat = !flat; draw(); };
-$('undo').onclick = () => { undo(game); notice = ''; draw(); save(); };
-$('hint').onclick = () => { const move = hint(game); if (move) apply(move.cell, move.mark); };
-$('retry').onclick = () => load(game.puzzle, random);
+$('undo').onclick = () => { if (game.history.length) play.count('undos'); undo(game); notice = ''; draw(); save(); };
+$('hint').onclick = () => { play.count('hints'); const move = hint(game); if (move) apply(move.cell, move.mark); };
+$('retry').onclick = () => load(game.puzzle, random, true);
 $('next').onclick = () => {
   if (random) return newRandom();
   const next = levels[levels.findIndex(level => level.id === game.puzzle.id) + 1];
@@ -239,5 +244,6 @@ $('flat-board').onkeydown = event => {
   target.focus();
 };
 draw();
+if (!complete(game)) play.start(levelName());
 addMusic('picture-islands');
 showGuideOnFirstVisit('picture-islands');

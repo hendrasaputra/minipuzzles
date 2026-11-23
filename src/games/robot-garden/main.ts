@@ -8,6 +8,7 @@ import { directions, isDirection, maxCommands, run, seedCount, solve, startPosit
 import { levels, randomLevel } from './levels';
 import { RobotScene } from './scene';
 import { readSave, writeSave, type Save } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const key = 'puzzles-robot-garden-v1';
 const audio = new GameAudio('robot-garden');
@@ -18,6 +19,8 @@ let saved: Save = { level: levels[0], commands: [], won: false, completed: [] };
 let notice = '';
 let moving = false;
 let step = 0;
+const play = new PlayTracker('robot-garden');
+const levelName = () => saved.random ? saved.random.difficulty : `${String(levels.findIndex(level => level.id === saved.level.id) + 1).padStart(2, '0')}-${saved.level.id}`;
 
 try {
   const raw = localStorage.getItem(key);
@@ -171,6 +174,7 @@ function load(level: Save['level'], random?: Save['random']) {
   if (menu.open) menu.close();
   edit([], '', true);
   $('scene').focus();
+  play.start(levelName());
 }
 
 function newRandom(tier: Difficulty) {
@@ -194,7 +198,8 @@ function startRun() {
     if (result.won) {
       if (!saved.random && !saved.completed.includes(saved.level.id)) saved.completed.push(saved.level.id);
       audio.play('win');
-    }
+      play.finish({ steps: saved.commands.length });
+    } else play.count('fails');
     if (result.blocked) {
       notice = `Step ${result.path.length} is blocked. Change your steps and run again.`;
       audio.play('loss');
@@ -216,9 +221,10 @@ function startRun() {
 
 for (const direction of directions) $(`command-${direction}`).onclick = () => add(direction);
 $('run').onclick = startRun;
-$('clear').onclick = () => { if (!moving) edit([]); };
-$('undo').onclick = () => { if (!moving) edit(saved.commands.slice(0, -1)); };
+$('clear').onclick = () => { if (!moving) { if (saved.commands.length) play.count('restarts'); edit([]); } };
+$('undo').onclick = () => { if (!moving && saved.commands.length) play.count('undos'); if (!moving) edit(saved.commands.slice(0, -1)); };
 $('hint').onclick = () => {
+  play.count('hints');
   const result = run(saved.level, saved.commands);
   if (result.blocked) {
     notice = `Step ${result.path.length} is blocked. Undo that step and any after it.`;
@@ -272,5 +278,6 @@ for (const event of ['pointerdown', 'pointerup', 'keydown']) {
 window.addEventListener('pagehide', save);
 draw();
 save();
+if (!saved.won) play.start(levelName());
 addMusic('robot-garden');
 showGuideOnFirstVisit('robot-garden');

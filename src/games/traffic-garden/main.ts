@@ -8,10 +8,12 @@ import { TrafficScene } from './scene';
 import { readSave, writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
+import { PlayTracker } from '../../shared/play-tracking';
 
 type Difficulty=Puzzle['difficulty'];
 const KEY='puzzles-traffic-garden-v1';
 const sounds=new GameAudio('traffic-garden');
+const play=new PlayTracker('traffic-garden');
 let game:Game,selected='coral',notice='',storageAvailable=true;
 let loading=false;
 try {
@@ -59,7 +61,7 @@ function save(){
 function performMove(id:string,delta:number,message=''){
   if(!moveCar(game,id,delta))return;
   selected=id;notice=message;sounds.play(game.status==='won'?'win':'reveal');draw({ id, delta });save();
-  if(game.status==='won')$('next').focus();
+  if(game.status==='won'){play.finish({moves:game.history.length,...(game.puzzle.par===undefined?{}:{par:game.puzzle.par})});$('next').focus();}
 }
 function direction(sign:number,far=false){
   const car=current();const moves=legalMoves(game).filter(move=>move.id===car.id&&Math.sign(move.delta)===sign);
@@ -105,23 +107,23 @@ async function newPuzzle(difficulty:Difficulty){
   if(loading)return;scene?.cancelInput();loading=true;notice='';draw();menu.close();
   // Let the loading message paint before bounded puzzle search.
   await new Promise(resolve=>setTimeout(resolve,0));
-  try{game=createGame(generatePuzzle(randomSeed(),difficulty));selected='coral';notice='';}
+  try{game=createGame(generatePuzzle(randomSeed(),difficulty));selected='coral';notice='';play.start(difficulty);}
   catch{notice='Could not make a puzzle. Try again.';}
   loading=false;draw();save();$('scene').focus();
 }
 $('car-select').onchange=e=>{scene?.cancelInput();selected=(e.target as HTMLSelectElement).value;notice='';draw();save();};
 $('backward').onclick=()=>direction(-1);$('forward').onclick=()=>direction(1);
 $('exit').onclick=()=>performMove('coral',exitDelta());
-$('undo').onclick=()=>{scene?.cancelInput();if(undo(game)){notice='';sounds.play('reveal');draw();save();}};
+$('undo').onclick=()=>{scene?.cancelInput();if(undo(game)){play.count('undos');notice='';sounds.play('reveal');draw();save();}};
 $('hint').onclick=()=>{
   if(loading||game.status==='won')return;
   const solution=solve(game);
-  if(solution?.length){const step=solution[0];performMove(step.id,step.delta,`Hint: moved ${label(game.cars.find(car=>car.id===step.id)!)}.`);}
+  if(solution?.length){play.count('hints');const step=solution[0];performMove(step.id,step.delta,`Hint: moved ${label(game.cars.find(car=>car.id===step.id)!)}.`);}
   else{notice='No hint found. Try Undo or Retry.';draw();}
 };
 $('open-menu').onclick=()=>{scene?.cancelInput();menu.showModal();};$('close-menu').onclick=()=>menu.close();
 menu.addEventListener('close',()=>$('open-menu').focus());
-$('restart').onclick=()=>{scene?.cancelInput();game=createGame(game.puzzle);selected='coral';notice='';menu.close();draw();save();};
+$('restart').onclick=()=>{scene?.cancelInput();play.count('restarts');game=createGame(game.puzzle);selected='coral';notice='';menu.close();draw();save();};
 $('new').onclick=$('next').onclick=()=>newPuzzle(game.puzzle.difficulty);
 $('difficulty').onchange=e=>newPuzzle((e.target as HTMLSelectElement).value as Difficulty);
 $('sound').onclick=()=>{sounds.setEnabled(!sounds.enabled);if(sounds.enabled)sounds.play('flag');draw();};
@@ -134,5 +136,6 @@ window.addEventListener('keydown',e=>{
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
+if(game.status!=='won')play.start(game.puzzle.difficulty);
 addMusic('traffic-garden');
 showGuideOnFirstVisit('traffic-garden');

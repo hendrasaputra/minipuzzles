@@ -8,10 +8,13 @@ import { readSave, writeSave, type Speed } from './storage';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
 import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const KEY = 'puzzles-garden-keys-v1';
 const touchFirst = window.matchMedia('(pointer: coarse)').matches;
 const audio = new GameAudio('garden-keys');
+const play = new PlayTracker('garden-keys');
+const levelName = () => `${String(index + 1).padStart(2, '0')}-${game.level.id}`;
 let index = 0, speed: Speed = touchFirst ? 'calm' : 'classic', completed: string[] = [], best: Record<string, number> = {};
 let game: Game = createGame(levels[0], { timed: speed === 'classic' }), saving = true, notice = '';
 try {
@@ -118,7 +121,8 @@ function after(previous: Game['state']) {
     if (!completed.includes(game.level.id)) completed.push(game.level.id);
     best[game.level.id] = Math.min(best[game.level.id] ?? Infinity, s.ticks);
     audio.play('win');
-  } else if (s.status === 'lost') audio.play('loss');
+    play.finish({ moves: game.history.filter(h => h.input !== null).length, speed });
+  } else if (s.status === 'lost') { audio.play('loss'); play.count('fails'); }
   else if (s.items.some((item, i) => item !== previous.items[i])) audio.play('reveal');
   else if (s.player.x !== previous.player.x || s.player.y !== previous.player.y) audio.play('flag');
   draw(); save();
@@ -173,7 +177,7 @@ function restart(next: Game) {
   draw(); save(); $('scene').focus();
 }
 const fresh = (i: number) => createGame(levels[i], { timed: speed === 'classic' });
-function load(i: number) { index = i; restart(fresh(i)); }
+function load(i: number) { index = i; restart(fresh(i)); play.start(levelName()); }
 
 for (const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[data-dir]'))) {
   const dir = button.dataset.dir as Direction;
@@ -182,9 +186,10 @@ for (const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[d
   button.onclick = () => press(dir);
 }
 $('wait').onclick = () => press('wait');
-$('undo').onclick = () => { if (!sliding && undo(game)) { notice = ''; draw(); save(); } };
-$('retry').onclick = () => restart(fresh(index));
+$('undo').onclick = () => { if (!sliding && undo(game)) { play.count('undos'); notice = ''; draw(); save(); } };
+$('retry').onclick = () => { play.count('restarts'); restart(fresh(index)); };
 $('hint').onclick = () => {
+  play.count('hints');
   const action = nextAction(20000), target = square(action);
   notice = action === 'wait' ? 'Tap ⏸ to wait one turn.' : target ? 'Step onto the marked square.' : 'No hint here. Try Undo or Restart.';
   draw(false);
@@ -195,7 +200,7 @@ $('open-menu').onclick = () => { scene?.cancelInput(); menu.showModal(); };
 $('close-menu').onclick = () => menu.close();
 menu.addEventListener('close', () => $('open-menu').focus());
 $('level-select').onchange = e => load(Number((e.target as HTMLSelectElement).value));
-$('speed').onchange = e => { speed = (e.target as HTMLSelectElement).value as Speed; restart(fresh(index)); };
+$('speed').onchange = e => { speed = (e.target as HTMLSelectElement).value as Speed; play.count('restarts'); restart(fresh(index)); };
 $('sound').onclick = () => { audio.setEnabled(!audio.enabled); if (audio.enabled) audio.play('flag'); draw(false); };
 
 const keys: Record<string, Direction> = { ArrowUp: 'n', ArrowRight: 'e', ArrowDown: 's', ArrowLeft: 'w', w: 'n', d: 'e', s: 's', a: 'w' };
@@ -213,5 +218,6 @@ for (const event of ['pointerdown', 'pointerup', 'keydown']) document.addEventLi
 document.addEventListener('visibilitychange', () => { held = null; if (document.hidden) scene?.cancelInput(); save(); });
 window.addEventListener('pagehide', save);
 draw(); save();
+if (game.state.status !== 'won') play.start(levelName());
 addMusic('garden-keys');
 showGuideOnFirstVisit('garden-keys');

@@ -9,6 +9,7 @@ import { applyMove, canPlace, centre, colors, complete, createGame, footprint, h
 import { levels, randomLevel, type RandomTangram } from './levels';
 import { TangramScene } from './scene';
 import { readSave, writeSave, type Save } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const key = 'puzzles-tiny-tangrams-v1';
 const audio = new GameAudio('tiny-tangrams');
@@ -17,6 +18,8 @@ let data: Save = { game: createGame(levels[0]), completed: [] };
 let selected = 0;
 let draft: Placement = { x: 0, y: 0, turn: 0 };
 let notice = '';
+const play = new PlayTracker('tiny-tangrams');
+const levelName = () => data.random ? data.random.difficulty : `${String(levels.findIndex(level => level.id === data.game.level.id) + 1).padStart(2, '0')}-${data.game.level.id}`;
 
 try {
   const raw = localStorage.getItem(key);
@@ -199,7 +202,7 @@ function draw(placedPiece?: number) {
   $('sound').setAttribute('aria-pressed', String(audio.enabled));
 }
 
-function load(level: Level, random?: RandomTangram) {
+function load(level: Level, random?: RandomTangram, restart = false) {
   data = { game: createGame(level), completed: data.completed, random };
   draft = { x: 0, y: 0, turn: 0 };
   choose(0);
@@ -207,6 +210,7 @@ function load(level: Level, random?: RandomTangram) {
   if (menu.open) menu.close();
   draw();
   save();
+  if (restart) play.count('restarts'); else play.start(levelName());
 }
 
 function newRandom(tier: Difficulty) {
@@ -228,6 +232,7 @@ function change(move: Move, keepSelection = false) {
   if (move.placement && missing !== -1 && !keepSelection) choose(missing);
   notice = '';
   audio.play(won ? 'win' : 'flag');
+  if (won) play.finish({ moves: data.game.history.length, pieces: data.game.level.pieces.length });
   draw(move.placement ? move.piece : undefined);
   save();
   if (won) $('next').focus();
@@ -262,6 +267,7 @@ $('remove').onclick = () => change({ piece: selected, placement: null });
 $('undo').onclick = () => {
   const piece = data.game.history.at(-1)?.piece;
   if (piece === undefined || !undo(data.game)) return;
+  play.count('undos');
   choose(piece);
   notice = '';
   draw();
@@ -269,9 +275,10 @@ $('undo').onclick = () => {
 };
 $('hint').onclick = () => {
   const move = hint(data.game);
+  play.count('hints');
   if (move) change(move);
 };
-$('retry').onclick = () => load(data.game.level, data.random);
+$('retry').onclick = () => load(data.game.level, data.random, true);
 $('next').onclick = () => {
   if (data.random) return newRandom(data.random.difficulty);
   const next = levels[levels.findIndex(level => level.id === data.game.level.id) + 1];
@@ -310,5 +317,6 @@ for (const event of ['pointerdown', 'pointerup', 'keydown']) {
 window.addEventListener('pagehide', save);
 draw();
 save();
+if (!complete(data.game)) play.start(levelName());
 addMusic('tiny-tangrams');
 showGuideOnFirstVisit('tiny-tangrams');

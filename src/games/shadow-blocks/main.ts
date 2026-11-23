@@ -8,6 +8,7 @@ import { canEdit, createGame, edit, hint, shadows, undo, type Level } from './en
 import { generateShadow, levels, type RandomShadow } from './levels';
 import { ShadowScene, columns } from './scene';
 import { readSave, writeSave } from './storage';
+import { PlayTracker } from '../../shared/play-tracking';
 
 const key = 'puzzles-shadow-blocks-v1';
 const audio = new GameAudio('shadow-blocks');
@@ -17,6 +18,8 @@ let selected = 0;
 let completed: string[] = [];
 let random: RandomShadow | undefined;
 let notice = '';
+const play = new PlayTracker('shadow-blocks');
+const levelName = () => random ? random.difficulty : `${String(levels.findIndex(level => level.id === game.level.id) + 1).padStart(2, '0')}-${game.level.id}`;
 
 try {
   const raw = localStorage.getItem(key);
@@ -166,7 +169,7 @@ function draw(added?: number, before?: ReturnType<typeof shadows>) {
   $('sound').setAttribute('aria-pressed', String(audio.enabled));
 }
 
-function load(level: Level, puzzle?: RandomShadow) {
+function load(level: Level, puzzle?: RandomShadow, restart = false) {
   game = createGame(level);
   random = puzzle;
   selected = 0;
@@ -175,6 +178,7 @@ function load(level: Level, puzzle?: RandomShadow) {
   draw();
   save();
   $('scene').focus();
+  if (restart) play.count('restarts'); else play.start(levelName());
 }
 
 function newRandom(tier: Difficulty) {
@@ -193,6 +197,7 @@ function change(cell: number, delta: 1 | -1) {
   if (changed) {
     if (game.won && !random && !completed.includes(game.level.id)) completed.push(game.level.id);
     audio.play(game.won ? 'win' : 'flag');
+    if (game.won) play.finish({ moves: game.history.length, size: game.level.size });
   }
   draw(changed && delta === 1 ? cell : undefined, changed ? before : undefined);
   save();
@@ -202,12 +207,13 @@ function change(cell: number, delta: 1 | -1) {
 stackSelect.onchange = () => { selected = Number(stackSelect.value); notice = ''; draw(); save(); };
 $('add').onclick = () => change(selected, 1);
 $('remove').onclick = () => change(selected, -1);
-$('undo').onclick = () => { if (undo(game)) { notice = ''; draw(); save(); } };
+$('undo').onclick = () => { if (undo(game)) { play.count('undos'); notice = ''; draw(); save(); } };
 $('hint').onclick = () => {
   const move = hint(game);
+  play.count('hints');
   if (move) change(move.cell, move.change);
 };
-$('retry').onclick = () => load(game.level, random);
+$('retry').onclick = () => load(game.level, random, true);
 $('next').onclick = () => {
   if (random) return newRandom(random.difficulty);
   const next = levels[levels.findIndex(level => level.id === game.level.id) + 1];
@@ -246,5 +252,6 @@ for (const event of ['pointerdown', 'pointerup', 'keydown']) {
 window.addEventListener('pagehide', save);
 draw();
 save();
+if (!game.won) play.start(levelName());
 addMusic('shadow-blocks');
 showGuideOnFirstVisit('shadow-blocks');

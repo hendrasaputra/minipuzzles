@@ -6,12 +6,15 @@ import { CrateScene, type StepCue } from './scene';
 import { readSave, writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
+import { PlayTracker } from '../../shared/play-tracking';
 import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { randomSeed, type Difficulty } from '../../shared/random-puzzle';
 import { randomGarden, type RandomGarden } from './random';
 
 const KEY='puzzles-crate-garden-v1';
 const audio=new GameAudio('crate-garden');
+const play=new PlayTracker('crate-garden');
+const levelName=()=>random?random.difficulty:`${String(index+1).padStart(2,'0')}-${game.level.id}`;
 let index=0,completed:string[]=[],game=createGame(levels[0]),notice='',saving=true;
 let random: RandomGarden | undefined;
 try {
@@ -53,7 +56,7 @@ function step(dir: Direction, message = '') {
     audio.play(game.status === 'won' ? 'win' : game.pushes > pushes ? 'reveal' : 'flag');
     draw('move');
     save();
-    if (game.status === 'won') $('next').focus();
+    if (game.status === 'won') { play.finish({ moves: game.moves, pushes: game.pushes }); $('next').focus(); }
   } else {
     notice = game.status === 'won' ? 'Level complete.' : 'Blocked. Try another direction.';
     draw(game.status === 'won' ? undefined : { blocked: dir });
@@ -109,15 +112,16 @@ function load(level: Level, next: number, puzzle?: RandomGarden) {
 function newRandom(difficulty: Difficulty) {
   const puzzle = { seed: randomSeed(), difficulty, generator: 1 } as const;
   load(randomGarden(puzzle), -1, puzzle);
+  play.start(levelName());
 }
 if (random) $<HTMLSelectElement>('random-difficulty').value = random.difficulty;
 for(const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[data-dir]')))button.onclick=()=>step(button.dataset.dir as Direction);
-$('undo').onclick=()=>{scene?.cancelInput();if(undo(game)){notice='';draw();save();}};
-$('retry').onclick=()=>load(game.level, index, random);
-$('hint').onclick=()=>{scene?.cancelInput();const solution=solve(game);if(solution?.length){step(solution[0], 'Hint moved the gardener one step.');}else{notice='No hint available. Try Undo or Restart.';draw();}};
+$('undo').onclick=()=>{scene?.cancelInput();if(undo(game)){play.count('undos');notice='';draw();save();}};
+$('retry').onclick=()=>{play.count('restarts');load(game.level, index, random);};
+$('hint').onclick=()=>{scene?.cancelInput();const solution=solve(game);if(solution?.length){play.count('hints');step(solution[0], 'Hint moved the gardener one step.');}else{notice='No hint available. Try Undo or Restart.';draw();}};
 $('next').onclick=()=>{
   if (random) newRandom(random.difficulty);
-  else if (index < levels.length - 1) load(levels[index + 1], index + 1);
+  else if (index < levels.length - 1) { load(levels[index + 1], index + 1); play.start(levelName()); }
   else menu.showModal();
 };
 $('new-random').onclick=()=>newRandom($<HTMLSelectElement>('random-difficulty').value as Difficulty);
@@ -127,6 +131,7 @@ $('level-select').onchange=e=>{
   if (value === 'random') return;
   const next = Number(value);
   load(levels[next], next);
+  play.start(levelName());
 };
 $('sound').onclick=()=>{audio.setEnabled(!audio.enabled);if(audio.enabled)audio.play('flag');draw();};
 const keys:Record<string,Direction>={ArrowUp:'n',ArrowRight:'e',ArrowDown:'s',ArrowLeft:'w',w:'n',d:'e',s:'s',a:'w'};
@@ -135,5 +140,6 @@ for(const event of ['pointerdown','pointerup','keydown'])document.addEventListen
 document.addEventListener('pointerdown',e=>{if(!(e.target instanceof Element)||!e.target.closest('#scene'))scene?.cancelInput();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
+if(game.status!=='won')play.start(levelName());
 addMusic('crate-garden');
 showGuideOnFirstVisit('crate-garden');

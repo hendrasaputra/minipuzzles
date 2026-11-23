@@ -6,12 +6,15 @@ import { FrostScene } from './scene';
 import { readSave, writeSave } from './storage';
 import { GameAudio } from '../../shared/audio';
 import { addMusic } from '../../shared/ambient';
+import { PlayTracker } from '../../shared/play-tracking';
 import { cameraOther, cameraStep, gameGuide, showGuideOnFirstVisit } from '../../shared/game-guide';
 import { isDifficulty, randomSeed } from '../../shared/random-puzzle';
 import { generatePath, type RandomPath } from './random';
 
 const KEY='puzzles-frosty-paths-v1';
 const audio=new GameAudio('frosty-paths');
+const play=new PlayTracker('frosty-paths');
+const levelName=()=>random?random.difficulty:`${String(index+1).padStart(2,'0')}-${game.level.id}`;
 let index=0,completed:string[]=[],game=createGame(levels[0]),notice='',saving=true;
 let random:RandomPath|undefined;
 try{const saved=readSave(localStorage.getItem(KEY));if(saved){index=saved.index;game=saved.game;completed=saved.completed;random=saved.random;}}catch{saving=false;}
@@ -38,7 +41,7 @@ try{scene=new FrostScene($('scene'),step);}catch{$('scene').textContent='3D is u
 function cameraArrows(){for(const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[data-dir]')))if(scene)button.textContent=scene.screenDirection(button.dataset.dir as Direction);}
 $('scene').addEventListener('camerachange',cameraArrows);
 function save(){try{localStorage.setItem(KEY,writeSave(game,completed,random));}catch{saving=false;}$('storage-warning').hidden=saving;$('save-state').textContent=saving?'Progress saved.':'Save failed.';}
-function step(dir:Direction){if(menu.open)return;if(move(game,dir)){notice='';if(game.status==='won'&&!random&&!completed.includes(game.level.id))completed.push(game.level.id);audio.play(game.status==='won'?'win':'reveal');draw();save();if(game.status==='won')$('next').focus();}else{notice=game.status==='won'?'Level complete.':'Blocked. Try another direction.';draw();}}
+function step(dir:Direction){if(menu.open)return;if(move(game,dir)){notice='';if(game.status==='won'&&!random&&!completed.includes(game.level.id))completed.push(game.level.id);audio.play(game.status==='won'?'win':'reveal');draw();save();if(game.status==='won'){play.finish({moves:game.moves,fish:game.level.fish.length});$('next').focus();}}else{notice=game.status==='won'?'Level complete.':'Blocked. Try another direction.';draw();}}
 function draw(updateScene = true){
   const won=game.status==='won';
   if(updateScene)scene?.update(game);
@@ -75,6 +78,7 @@ function load(next:number){
   const nextGame=createGame(levels[next]);
   index=next;random=undefined;
   restart(nextGame);
+  play.start(levelName());
 }
 function newRandom(){
   const difficulty=difficultySelect.value;
@@ -83,12 +87,13 @@ function newRandom(){
   const nextGame=createGame(generatePath(selection));
   random=selection;index=-1;
   restart(nextGame);
+  play.start(levelName());
 }
 for(const button of Array.from(document.querySelectorAll<HTMLButtonElement>('[data-dir]')))button.onclick=()=>step(button.dataset.dir as Direction);
-$('undo').onclick=()=>{scene?.cancelInput();if(undo(game)){notice='';draw();save();}};
-$('retry').onclick=()=>restart(createGame(game.level));
+$('undo').onclick=()=>{scene?.cancelInput();if(undo(game)){play.count('undos');notice='';draw();save();}};
+$('retry').onclick=()=>{play.count('restarts');restart(createGame(game.level));};
 $('new-random').onclick=newRandom;
-$('hint').onclick=()=>{scene?.cancelInput();const solution=solve(game);if(solution?.length){step(solution[0]);if(game.status!=='won'){notice='Hint slid the penguin once.';draw(false);}}else{notice='No hint available. Try Undo or Restart.';draw();}};
+$('hint').onclick=()=>{scene?.cancelInput();const solution=solve(game);if(solution?.length){play.count('hints');step(solution[0]);if(game.status!=='won'){notice='Hint slid the penguin once.';draw(false);}}else{notice='No hint available. Try Undo or Restart.';draw();}};
 $('next').onclick=()=>{if(random)newRandom();else if(index<levels.length-1)load(index+1);else menu.showModal();};
 $('open-menu').onclick=()=>{scene?.cancelInput();menu.showModal();};$('close-menu').onclick=()=>menu.close();menu.addEventListener('close',()=>$('open-menu').focus());
 $('level-select').onchange=e=>load(Number((e.target as HTMLSelectElement).value));
@@ -99,5 +104,6 @@ for(const event of ['pointerdown','pointerup','keydown'])document.addEventListen
 document.addEventListener('pointerdown',e=>{if(!(e.target instanceof Element)||!e.target.closest('#scene'))scene?.cancelInput();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)scene?.cancelInput();save();});window.addEventListener('pagehide',save);
 draw();save();
+if(game.status!=='won')play.start(levelName());
 addMusic('frosty-paths');
 showGuideOnFirstVisit('frosty-paths');

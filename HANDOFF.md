@@ -2,7 +2,11 @@
 
 ## Analytics — 23 November 2026
 
-Cloudflare Web Analytics (cookie-free page counts) is on every built page. `vite.config.ts` injects the beacon with the public site token in production builds only; set `CF_BEACON_TOKEN` to `''` to turn it off. View the numbers in the Cloudflare dashboard under Web Analytics for puzzles.hensap.id.
+Two cookie-free tools, added to production builds only by a small plugin in `vite.config.ts` (empty id = left out):
+- **Cloudflare Web Analytics** (`CF_BEACON_TOKEN`) counts page views. Each game is its own page.
+- **Umami Cloud** (`UMAMI_WEBSITE_ID`, limited to `puzzles.hensap.id`) records play events from all 22 games through `src/shared/play-tracking.ts`: `level_start`, `level_finish` and `level_quit`, each with `game` and `level`, plus `seconds`, `restarts`, `undos`, `hints`, `fails` and a few game-specific numbers. Level names are `NN-<level id>` for campaigns and the difficulty or mode for random puzzles. A quit is sent once when the page is hidden mid-level; if the player comes back and solves it, the finish carries `returned: 1`.
+
+Events were checked in the local preview with a stand-in tracker: every game sends its start, and a Garden Keys win sent the right counts.
 
 ## Marketing image package — 23 November 2026
 
