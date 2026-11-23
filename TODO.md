@@ -265,14 +265,22 @@ A tile maze in the style of the 1990 Windows game Chip's Challenge. It uses the 
   - [x] Classic time limits of 40 to 70 seconds: double the recorded solution's time plus 30 seconds, rounded up to 10.
   - [x] A test shows Wet and Hot can't be finished without the swim ring.
   - [x] A breadth-first solver (`solver.ts`) finds the fewest calm moves, including waits for monsters. It found eleven of the recorded solutions. Traps and Clones has too many crate positions to search in time, so its recorded solution is hand-written and verified by replay.
-  - [ ] Decide whether hints use the solver live. It answers the small levels in under a second, but it is too slow for crate-heavy ones.
-  - [ ] Play each level by hand. The solver proves they can be won, not that they are fun or fair.
-  - [ ] Grip soles work and are tested but appear in no level yet. Use them in a later level.
+  - [x] Hint follows the level's recorded route, so it answers at once on every board. It only runs the solver (up to 20,000 states) after you leave that route; on big boards it may then say there is no hint.
+  - [x] Levels 13–50 (23 November 2026), in four acts. They were designed with a checker in the session scratchpad that replays or searches each level:
+    - 13–22, one idea deeper each: Key Thrift, Grip Soles, Steady Spikes, Firefly Ring, Three Ponds, Newt Halls, Crate Blasting, One-Way Rooms, Secret Hedges, Snapper Shelter.
+    - 23–32, two ideas at once: Carry the Key, Belt Ring, Snapper Bait, Dragonfly Pond, Newt Switch, Skating Crates, Firefly Field, Crate Maker, Crate Relay, Beetle Box.
+    - 33–41, three or more ideas: Thief's Toll, Bomb Orchard, Popup Presses, Belt and Tank, Slippery Post, Crate Post, Belt Ferry, Trap Keeper, Garden Gauntlet.
+    - 42–50, large gardens up to 15×13: Belt Factory, Bomb Foundry, Flooded Orchard, Teleport Ruins, Switch Garden, Ice Palace, Monster Zoo, Hedge Maze, Grand Tour.
+    - Every level replays its recorded solution (29 to 181 moves) in calm and classic within its time limit (50 to 130 seconds).
+  - [x] Grip soles, ice spikes, bombs, popup walls, newts, fireflies, dragonflies and snappers now all appear in levels.
+  - [x] Engine fix: the player can no longer push a cloner's template crate off from the side (test added). Levels 1–12 were unaffected.
+  - [ ] Play each level by hand. The solver proves they can be won, not that they are fun or fair. Watch for: Crate Maker (141 moves of repeated trips), Hedge Maze (181 moves with many waits), and difficulty order within acts, which follows how many ideas combine rather than move count. The finale, Grand Tour, is 90 moves.
+  - [ ] Some rooms in Belt Factory, Ice Palace and Grand Tour came from a random layout search and look irregular. Redraw them if they read badly.
 - [x] Scene in `scene.ts`, built on MiniScene:
   - [x] Rotatable 3D board with distinct shapes for every square, item, crate and monster type.
   - [x] Steps are tweened one square at a time, and calm slides play out square by square.
   - [x] Flickering fire, bobbing water, moving conveyor arrows and spinning teleports through MaterialMotion, plus sparkles on pickups and on losing.
-  - [ ] Camera that follows you on big boards. Not needed yet: the largest level is 15×9 and fits on a phone.
+  - [ ] Camera that follows you on big boards. The largest level is now 15×13. It fits at 375 px but squares are small; pinch zoom helps. Revisit after a phone playthrough.
 - [x] Controls and display in `main.ts`:
   - [x] Swipe or tap the next square, five large buttons (four directions plus Wait in calm), and arrow keys, WASD and Space.
   - [x] Direction glyphs follow the camera.

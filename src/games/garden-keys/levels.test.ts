@@ -4,10 +4,17 @@ import { campaign, levels } from './levels';
 import { decode, encode, solve } from './solver';
 
 describe('Garden Keys campaign', () => {
-  it('keeps twelve stable, unique level ids in teaching order', () => {
+  it('keeps fifty stable, unique level ids in teaching order', () => {
     expect(levels.map(l => l.id)).toEqual([
       'first-seeds', 'colored-doors', 'wet-and-hot', 'ice-rink', 'conveyors', 'crate-bridges',
       'beetle-walk', 'switch-walls', 'traps-and-clones', 'teleports', 'thief-walls', 'grand-garden',
+      'key-thrift', 'grip-soles', 'steady-spikes', 'firefly-ring', 'three-ponds', 'newt-halls',
+      'crate-blasting', 'one-way-rooms', 'secret-hedges', 'snapper-shelter', 'carry-the-key', 'belt-ring',
+      'snapper-bait', 'dragonfly-pond', 'newt-switch', 'skating-crates', 'firefly-field', 'crate-maker',
+      'crate-relay', 'beetle-box', 'thiefs-toll', 'bomb-orchard', 'popup-presses', 'belt-and-tank',
+      'slippery-post', 'crate-post', 'belt-ferry', 'trap-keeper', 'garden-gauntlet', 'belt-factory',
+      'bomb-foundry', 'flooded-orchard', 'teleport-ruins', 'switch-garden', 'ice-palace', 'monster-zoo',
+      'hedge-maze', 'grand-tour',
     ]);
     for (const l of levels) expect(l.items.filter(i => i === 'seed').length).toBeGreaterThan(0);
   });

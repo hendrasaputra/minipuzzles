@@ -121,6 +121,10 @@ describe('Garden Keys player squares', () => {
     });
     expect(game.state.monsters.map(m => [m.x, m.y])).toEqual([[6, 1], [4, 1]]); // Cloned onto 5, then moved to 4.
   });
+  it('never lets the player push the template crate off a cloner', () => {
+    const game = play(['#######', '#@....#', '#..C..#', '#.....#', '#######'], ['s', 'e', 'e'], { crates: [{ x: 3, y: 2, dir: 's' }] });
+    expect([at(game), game.state.crates.map(c => [c.x, c.y])]).toEqual([[2, 2], [[3, 2]]]);
+  });
 });
 
 describe('Garden Keys monsters', () => {

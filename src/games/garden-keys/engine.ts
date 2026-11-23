@@ -163,10 +163,11 @@ function canEnter(g: Game, e: Entity, x: number, y: number, dir: Direction): boo
   if (cornerWalls[t]?.includes(back(dir))) return false;
   const other = occupant(s, x, y, e);
   if (e.kind === 'player') {
+    if (playerBlocked.has(t)) return false; // Also keeps the template crate on a cloner from being pushed off.
     if (other) return true; // A crate gets pushed; walking into a monster is fatal.
     if (t.startsWith('door-')) return s.keys[t.slice(5) as KeyColor] > 0;
     if (t === 'gate') return s.seedsLeft === 0;
-    return !playerBlocked.has(t);
+    return true;
   }
   if (other && other.kind !== 'player') return false;
   if (other && e.kind === 'crate') return false;

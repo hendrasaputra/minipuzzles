@@ -1,8 +1,8 @@
 import '../../shared/game-base.css';
 import './style.css';
 import { act, createGame, step, undo, TICKS_PER_SECOND, type Direction, type Game, type Input } from './engine';
-import { levels } from './levels';
-import { solve, type Action } from './solver';
+import { campaign, levels } from './levels';
+import { decode, solve, type Action } from './solver';
 import { GardenScene } from './scene';
 import { readSave, writeSave, type Speed } from './storage';
 import { GameAudio } from '../../shared/audio';
@@ -91,23 +91,25 @@ const square = (action: Action | undefined) => {
   const { x, y } = game.state.player, [dx, dy] = action === 'n' ? [0, -1] : action === 'e' ? [1, 0] : action === 's' ? [0, 1] : [-1, 0];
   return { x: x + dx, y: y + dy };
 };
-/** The square the solver would step to next, for the Hint button. */
-const nextSquare = (limit: number) => square(solve(game, limit)?.[0]);
-
-// The first level's finger follows one solved route and only solves again after a detour.
+// Hints and the first-level finger follow the level's recorded route, so they are instant on any board,
+// and only search again (up to `limit` states) after the player leaves that route.
 const routeKey = (state: Game['state']) => JSON.stringify({ ...state, ticks: 0 });
-let route: { actions: Action[]; keys: string[] } | undefined;
-function guideSquare() {
-  let at = route?.keys.indexOf(routeKey(game.state)) ?? -1;
-  if (at < 0) {
-    const actions = solve(game, 50_000);
-    if (!actions) return undefined;
-    const probe: Game = { ...game, state: structuredClone(game.state), history: [] }, keys: string[] = [];
-    for (const action of actions) { keys.push(routeKey(probe.state)); act(probe, action); }
-    route = { actions, keys }; at = 0;
-  }
-  return square(route!.actions[at]);
+let route: { id: string; actions: Action[]; keys: string[] } | undefined;
+function routeFrom(start: Game, actions: Action[]) {
+  const probe: Game = { ...start, state: structuredClone(start.state), history: [] }, keys: string[] = [];
+  for (const action of actions) { keys.push(routeKey(probe.state)); act(probe, action); }
+  route = { id: start.level.id, actions, keys };
 }
+function nextAction(limit: number): Action | undefined {
+  if (route?.id !== game.level.id) routeFrom(createGame(game.level), decode(campaign[index].solution));
+  const at = route!.keys.indexOf(routeKey(game.state));
+  if (at >= 0) return route!.actions[at];
+  const actions = solve(game, limit);
+  if (!actions?.length) return undefined;
+  routeFrom(game, actions);
+  return actions[0];
+}
+const guideSquare = () => square(nextAction(50_000));
 
 /** After each tick: sounds, progress and the redraw. */
 function after(previous: Game['state']) {
@@ -183,10 +185,10 @@ $('wait').onclick = () => press('wait');
 $('undo').onclick = () => { if (!sliding && undo(game)) { notice = ''; draw(); save(); } };
 $('retry').onclick = () => restart(fresh(index));
 $('hint').onclick = () => {
-  const square = nextSquare(20000);
-  notice = square ? 'Step onto the marked square.' : 'No hint here. Try Undo or Restart.';
+  const action = nextAction(20000), target = square(action);
+  notice = action === 'wait' ? 'Tap ⏸ to wait one turn.' : target ? 'Step onto the marked square.' : 'No hint here. Try Undo or Restart.';
   draw(false);
-  if (square) scene?.pointAt(square);
+  if (target) scene?.pointAt(target);
 };
 $('next').onclick = () => { if (index < levels.length - 1) load(index + 1); else menu.showModal(); };
 $('open-menu').onclick = () => { scene?.cancelInput(); menu.showModal(); };
