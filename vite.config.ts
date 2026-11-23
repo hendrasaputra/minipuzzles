@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 // Cloudflare Web Analytics counts page views; Umami records play events (src/shared/play-tracking.ts).
 // Both ids are public (they ship in every page). Empty means that script is left out.
 const CF_BEACON_TOKEN = 'b2a2c2fdddcb4806a4bc69113c87c6b5';
-const UMAMI_WEBSITE_ID = '';
+const UMAMI_WEBSITE_ID = '96aba2cf-2728-4919-85ff-db5eaf33ffc0';
 
 export default defineConfig({
   base: './',

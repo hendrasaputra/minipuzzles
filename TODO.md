@@ -320,5 +320,6 @@ A tile maze in the style of the 1990 Windows game Chip's Challenge. It uses the 
 
 - [x] Cloudflare Web Analytics on every page (page views).
 - [x] Shared `PlayTracker` and Umami hook; all 22 games send level start, finish and quit with restart, undo, hint and fail counts.
-- [ ] Add the Umami website ID to `vite.config.ts` and deploy, then confirm events arrive in the Umami dashboard.
+- [x] Umami website ID added to `vite.config.ts` and deployed.
+- [ ] Confirm play events show in the Umami dashboard (Events tab) after real visits.
 - [ ] After a few weeks, review finish and quit rates per level and pick the levels to rework.
