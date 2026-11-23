@@ -1,5 +1,9 @@
 # Puzzles developer handoff
 
+## Analytics — 23 November 2026
+
+Cloudflare Web Analytics (cookie-free page counts) is on every built page. `vite.config.ts` injects the beacon with the public site token in production builds only; set `CF_BEACON_TOKEN` to `''` to turn it off. View the numbers in the Cloudflare dashboard under Web Analytics for puzzles.hensap.id.
+
 ## Marketing image package — 23 November 2026
 
 `docs/marketing/creatives/v01/README.md` documents the generated campaign package:

@@ -1,8 +1,20 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
+// Cloudflare Web Analytics: cookie-free page counts. The site token is public (it ships in every page).
+// Empty means no beacon. Only production builds get it, so the dev server is never counted.
+const CF_BEACON_TOKEN = 'b2a2c2fdddcb4806a4bc69113c87c6b5';
+
 export default defineConfig({
   base: './',
+  plugins: [{
+    name: 'cloudflare-web-analytics',
+    apply: 'build',
+    transformIndexHtml: () => CF_BEACON_TOKEN ? [{
+      tag: 'script', injectTo: 'body',
+      attrs: { defer: true, src: 'https://static.cloudflareinsights.com/beacon.min.js', 'data-cf-beacon': JSON.stringify({ token: CF_BEACON_TOKEN }) },
+    }] : [],
+  }],
   build: {
     rollupOptions: {
       input: {
